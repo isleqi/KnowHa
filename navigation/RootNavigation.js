@@ -24,10 +24,7 @@ const RootStack = createSwitchNavigator(
   }
 );
 
-/**
- * 黄记新（Tony） 2018.07.20
- * 该类是根类用于导航。
- */
+
 export class RootNavigation extends Component{
     constructor(props) {
           super(props);
