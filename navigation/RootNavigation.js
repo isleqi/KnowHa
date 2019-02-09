@@ -6,10 +6,11 @@ import SignInScreen from '../modules/login/SignInScreen';
 import UserScreen from '../modules/usercenter/UserScreen';
 import RegisterScreen from '../modules/register/RegisterScreen';
 import RegisterDetail from '../modules/register/RegisterDetail';
-import AskQuestion from '../modules/index/AskQuestion'
+import AskQuestion from '../modules/index/AskQuestion';
+import OauthScreen from '../modules/login/OauthScreen';
 
 const AppStack = createStackNavigator({ Home: HomeScreen,UserScreen:UserScreen,AskQuestion:AskQuestion});
-const AuthStack = createStackNavigator({ SignIn: SignInScreen });
+const AuthStack = createStackNavigator({ SignIn: SignInScreen,Oauth:OauthScreen});
 const RegisterStack=createStackNavigator({Register:RegisterScreen,RegisterDetail:RegisterDetail});
 const RootStack = createSwitchNavigator(
   {

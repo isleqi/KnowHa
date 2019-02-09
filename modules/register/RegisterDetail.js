@@ -3,10 +3,10 @@ import {
     ActivityIndicator,
     AsyncStorage,
     StatusBar,
-    StyleSheet, TouchableOpacity, SafeAreaView, TextInput,ImageBackground,
+    StyleSheet, TouchableOpacity, SafeAreaView, TextInput, ImageBackground,ToastAndroid,
     View, Button, Text, DeviceEventEmitter, TouchableNativeFeedback, Image, ScrollView, RefreshControl, FlatList, Dimensions
 } from 'react-native';
-import  ImagePicker from 'react-native-image-picker'; 
+import ImagePicker from 'react-native-image-picker';
 
 
 let timerId;
@@ -19,21 +19,26 @@ export default class RegisterDetail extends Component {
         this.state = {
             sex: 1,    //1 男  0 女
             activity: 1,
-            avatarSource:''
+            avatarSource: '',
+            identityType: this.props.navigation.state.params.type,
+            account: this.props.navigation.state.params.account,
+            userName: '',
+            description: '',
+            password: ''
         };
 
     }
 
-    
 
-    choosePicker=()=>{
-        
+
+    choosePicker = () => {
+
         const photoOptions = {
-            title:'',
+            title: '',
             quality: 0.8,
-            cancelButtonTitle:'取消',
-            takePhotoButtonTitle:'拍照',
-            chooseFromLibraryButtonTitle:'选择相册',
+            cancelButtonTitle: '取消',
+            takePhotoButtonTitle: '拍照',
+            chooseFromLibraryButtonTitle: '选择相册',
             allowsEditing: true,
             noData: false,
             storageOptions: {
@@ -73,12 +78,44 @@ export default class RegisterDetail extends Component {
         });
     }
 
-    navigateHome=()=>{
-        this
-        .props
-        .navigation
-        .navigate('App');
-      }
+    navigateHome = () => {
+
+        let url = 'http://192.168.1.6:8070/app/register/submit';
+        let formData = new FormData();
+        formData.append("account", this.state.account);
+        formData.append("identityType", this.state.identityType);
+        formData.append("userName", this.state.userName);
+        formData.append("password", this.state.password);
+        let params={
+            "account":this.state.account,
+            "identityType": this.state.identityType,
+            "password": this.state.password,
+            "userName": this.state.userName
+        }
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(params)
+
+        }).then((response) => {
+            return response.json();
+        }).then((responseData) => {
+            console.log(responseData);
+            if (responseData.code != "200")
+                ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+            else {
+                AsyncStorage.setItem("userToken", responseData.data);
+                this
+                    .props
+                    .navigation
+                    .navigate('App');
+            }
+        })
+
+    }
 
     render() {
         let bottonColor = this.state.sendFlag ? '#c1c1c1' : 'white';
@@ -88,38 +125,38 @@ export default class RegisterDetail extends Component {
 
                 <View style={styles.content}>
                     <View style={{ alignItems: 'center', paddingBottom: 20 }}>
-                    <TouchableOpacity onPress={() =>this.choosePicker() } >
-                   
-                        <Image source={
-                            this.state.avatarSource==''?
-                            (this.state.sex == 1 ? require('../../resources/register/boy.png') :
-                               require('../../resources/register/girl.png') ):
-                            this.state.avatarSource
-                        }
-                               style={{ width: 80, height: 80,borderRadius:40}}>
-                              </Image>
-                              
-                    </TouchableOpacity>
+                        <TouchableOpacity onPress={() => this.choosePicker()} >
+
+                            <Image source={
+                                this.state.avatarSource == '' ?
+                                    (this.state.sex == 1 ? require('../../resources/register/boy.png') :
+                                        require('../../resources/register/girl.png')) :
+                                    this.state.avatarSource
+                            }
+                                style={{ width: 80, height: 80, borderRadius: 40 }}>
+                            </Image>
+
+                        </TouchableOpacity>
                     </View>
                     <View style={{ flexDirection: 'row', paddingBottom: 10, alignItems: 'center' }}>
-                        <TouchableOpacity onPress={() => this.selectSex(1)}  style={{ flexDirection: 'row', alignItems: 'center'}}>
+                        <TouchableOpacity onPress={() => this.selectSex(1)} style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Image source={this.state.activity == 1 ? require('../../resources/register/activity.png') : require('../../resources/register/noActivity.png')} style={{ width: 20, height: 20, opacity: 0.8 }} />
-                        <Text style={{ color: '#666' }}> 男 </Text>
+                            <Text style={{ color: '#666' }}> 男 </Text>
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={() => this.selectSex(0)} style={{ flexDirection: 'row', alignItems: 'center'}}>
+                        <TouchableOpacity onPress={() => this.selectSex(0)} style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Image source={this.state.activity == 0 ? require('../../resources/register/activity.png') : require('../../resources/register/noActivity.png')} style={{ width: 20, height: 20, opacity: 0.8 }} />
-                        
-                        <Text style={{ color: '#666' }}> 女</Text>
+
+                            <Text style={{ color: '#666' }}> 女</Text>
                         </TouchableOpacity>
 
                     </View>
                     <View style={{ flexDirection: 'row', paddingBottom: 40 }}>
                         <View style={{ flex: 1 }}>
-                            <TextInput placeholder="请输入昵称" clearButtonMode="always"></TextInput>
+                            <TextInput placeholder="请输入昵称" onChangeText={(userName) => this.setState({ userName })}></TextInput>
                             <View style={{ height: 1, backgroundColor: '#c1c1c1' }}></View>
-                            <TextInput placeholder="请输入用户简介"></TextInput>
+                            <TextInput placeholder="请输入用户简介" onChangeText={(description) => this.setState({ description })}></TextInput>
                             <View style={{ height: 1, backgroundColor: '#c1c1c1' }}></View>
-                            <TextInput placeholder="请输入密码" secureTextEntry={true}></TextInput>
+                            <TextInput placeholder="请输入密码" secureTextEntry={true} onChangeText={(password) => this.setState({ password })}></TextInput>
                             <View style={{ height: 1, backgroundColor: '#c1c1c1' }}></View>
                             <TextInput placeholder="请确认密码" secureTextEntry={true}></TextInput>
                             <View style={{ height: 1, backgroundColor: '#c1c1c1' }}></View>
@@ -128,14 +165,14 @@ export default class RegisterDetail extends Component {
                     </View>
 
                     <View style={{ flexDirection: 'row', paddingBottom: 10 }}>
-                    <TouchableOpacity onPress={()=>this.navigateHome()} style={{ flex: 1,flexDirection: 'row',  }}>
+                        <TouchableOpacity onPress={() => this.navigateHome()} style={{ flex: 1, flexDirection: 'row', }}>
 
-                        <View style={{
-                            flex: 1, backgroundColor: '#0084ff', borderRadius: 10, alignItems: 'center',
-                            justifyContent: 'center', paddingTop: 10, paddingBottom: 10
-                        }}>
-                            <Text style={{ fontSize: 15, color: 'white' }}>完成</Text>
-                        </View>
+                            <View style={{
+                                flex: 1, backgroundColor: '#0084ff', borderRadius: 10, alignItems: 'center',
+                                justifyContent: 'center', paddingTop: 10, paddingBottom: 10
+                            }}>
+                                <Text style={{ fontSize: 15, color: 'white' }}>完成</Text>
+                            </View>
                         </TouchableOpacity>
                     </View>
 

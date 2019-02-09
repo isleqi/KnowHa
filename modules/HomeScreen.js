@@ -23,6 +23,12 @@ export default class HomeScreen extends React.Component {
                 .navigation
                 .navigate('AskQuestion');
         });
+        DeviceEventEmitter.addListener('navigateToAuth', (e) => {
+            this
+                .props
+                .navigation
+                .navigate('Auth');
+        });
     }
 
 
