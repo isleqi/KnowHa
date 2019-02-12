@@ -22,24 +22,40 @@ export default class ColumnScreen extends Component {
 
   }
 
+  navigateToCreateArticle=()=>{
+    
+    DeviceEventEmitter.emit('navigateToCreateArticle');
+
+  }
+
+  navigateToSearchArticle=()=>{
+    
+    DeviceEventEmitter.emit('navigateToSearchArticle');
+
+  }
+
 
   render() {
     return (
       <View style={styles.container}>
-        <View style={{ flexDirection: 'row',paddingLeft:15,paddingRight:15, paddingTop:15}}>
-        <View  style={{
-        flexDirection: 'row',
-        backgroundColor:'#eaeaea',borderRadius:5,flex:1
-        ,paddingLeft:10,paddingRight:10
-        }}>
-          <View style={{ flexDirection: 'row',alignItems:'center'}}>
-            <Image source={require("../../resources/index/tw.png")} style={{ height: 25, width: 25,marginRight:5}} />
-            <Text style={{ fontSize: 13, color: '#b1afaf',paddingRight:5 }}> 写文章  |</Text>
-          </View>
-          <View style={{ flexDirection: 'row',flex:1,alignItems:'center'}}>
-            <TextInput placeholder='搜索文章' style={{flex:1,fontSize:12}}  />
-            <Image source={require("../../resources/index/ss.png")} style={{ height: 25, width: 25 }} />
-          </View>
+        <View style={{ flexDirection: 'row', paddingLeft: 15, paddingRight: 15, paddingTop: 15 }}>
+          <View style={{
+            flexDirection: 'row',
+            backgroundColor: '#eaeaea', borderRadius: 5, flex: 1
+            , paddingLeft: 10, paddingRight: 10
+          }}>
+            <TouchableOpacity onPress={() => { this.navigateToCreateArticle() }} style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Image source={require("../../resources/index/tw.png")} style={{ height: 25, width: 25, marginRight: 5 }} />
+                <Text style={{ fontSize: 13, color: '#b1afaf', paddingRight: 5 }}> 写文章  |</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={()=>{this.navigateToSearchArticle()}} style={{ flexDirection: 'row', flex: 1, alignItems: 'center' }}>
+              <View style={{ flexDirection: 'row', flex: 1, alignItems: 'center' }}>
+                <TextInput placeholder='搜索文章' style={{ flex: 1, fontSize: 12 }} editable={false}/>
+                <Image source={require("../../resources/index/ss.png")} style={{ height: 25, width: 25 }} />
+              </View>
+            </TouchableOpacity>
           </View>
         </View>
         <ScrollableTabView
@@ -47,8 +63,8 @@ export default class ColumnScreen extends Component {
           renderTabBar={() => <ScrollableTabBar />}
           tabBarBackgroundColor='#FFFFFF'
           tabBarActiveTextColor='#0084ff'
-          tabBarUnderlineStyle={{backgroundColor:'#0084ff'}}
-          >
+          tabBarUnderlineStyle={{ backgroundColor: '#0084ff' }}
+        >
 
 
 

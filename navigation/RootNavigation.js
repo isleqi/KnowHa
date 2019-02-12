@@ -7,9 +7,20 @@ import UserScreen from '../modules/usercenter/UserScreen';
 import RegisterScreen from '../modules/register/RegisterScreen';
 import RegisterDetail from '../modules/register/RegisterDetail';
 import AskQuestion from '../modules/index/AskQuestion';
+import AddTag from '../modules/index/AddTag';
+import CreateArticle from '../modules/column/CreateArticle';
 import OauthScreen from '../modules/login/OauthScreen';
-
-const AppStack = createStackNavigator({ Home: HomeScreen,UserScreen:UserScreen,AskQuestion:AskQuestion});
+import SearchQuestion from '../modules/index/SearchQuestion';
+import SearchArticle from  '../modules/column/SearchArticle';
+const AppStack = createStackNavigator({
+   Home: HomeScreen,
+   UserScreen:UserScreen,
+   AskQuestion:AskQuestion,
+   AddTag:AddTag,
+   CreateArticle:CreateArticle,
+   SearchQuestion:SearchQuestion,
+   SearchArticle:SearchArticle
+  });
 const AuthStack = createStackNavigator({ SignIn: SignInScreen,Oauth:OauthScreen});
 const RegisterStack=createStackNavigator({Register:RegisterScreen,RegisterDetail:RegisterDetail});
 const RootStack = createSwitchNavigator(

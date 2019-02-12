@@ -26,6 +26,11 @@ export default class IndexScreen extends Component {
     DeviceEventEmitter.emit('navigateAskQuestion');
   }
 
+  navigateToSearchQuestion=()=>{
+    DeviceEventEmitter.emit('navigateToSearchQuestion');
+   
+  }
+
 
   render() {
     return (
@@ -44,10 +49,12 @@ export default class IndexScreen extends Component {
             
             </View>
             </TouchableOpacity>
+            <TouchableOpacity onPress={()=>{this.navigateToSearchQuestion()}} style={{ flexDirection: 'row', flex: 1, alignItems: 'center' }}>
             <View style={{ flexDirection: 'row', flex: 1, alignItems: 'center' }}>
-              <TextInput placeholder='搜索问题' style={{ flex: 1, fontSize: 12 }} />
+              <TextInput placeholder='搜索问题' style={{ flex: 1, fontSize: 12 }} editable={false} />
               <Image source={require("../../resources/index/ss.png")} style={{ height: 25, width: 25 }} />
             </View>
+            </TouchableOpacity>
           </View>
         </View>
         <ScrollableTabView

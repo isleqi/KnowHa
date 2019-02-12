@@ -3,7 +3,7 @@ import {
   ActivityIndicator,
   AsyncStorage,
   StatusBar, Platform,
-  StyleSheet, TouchableOpacity, SafeAreaView, TextInput,
+  StyleSheet, TouchableOpacity, SafeAreaView, TextInput,ToastAndroid,
   View, Button, Text, DeviceEventEmitter, TouchableNativeFeedback, Image, ScrollView, RefreshControl, FlatList, Dimensions
 } from 'react-native';
 import ScrollableTabView, { ScrollableTabBar, DefaultTabBar } from 'react-native-scrollable-tab-view';
@@ -15,7 +15,8 @@ let that;
 let imagPath;
 let next = false;
 export default class AskQuestion extends Component {
-  static navigationOptions = ({ navigation }) => ({
+  //  static navigationOptions;
+  static navigationOptions = () => ({
     title: '提问',
 
     headerTitleStyle: { fontSize: 15, },
@@ -38,6 +39,14 @@ export default class AskQuestion extends Component {
     super(props);
     this.state = {
       next: false,
+      showTagList: false,
+      addTag:false,
+      tagList: [],
+      tagName: '',
+      searchTagList: [],
+      hotTagList:[],
+      quesTitle:'',
+      quesDes:''
     };
 
     that = this;
@@ -45,7 +54,7 @@ export default class AskQuestion extends Component {
 
   componentDidMount() {
 
-
+this.renderHotTag();
   }
 
   choosePicker = () => {
@@ -124,16 +133,238 @@ export default class AskQuestion extends Component {
     this.choosePicker();
   }
 
-  next = () => {
-    this.setState({
-      next: true,
+  addTag = () => {
+    if (this.state.tagName == '') {
+      ToastAndroid.show('请输入标签',ToastAndroid.SHORT);
+      return;
+    }
+    if(this.state.addTag){
+      ToastAndroid.show('请稍候',ToastAndroid.SHORT);
+      return ;
+    }
+    this.state.addTag=true;
+    let tagName = this.state.tagName;
+    let url = 'http://192.168.1.6:8070/app/question/tag/add?tagName=' + tagName;
+
+    fetch(url, {
+      method: 'GET',
+
+    }).then((response) => {
+      return response.json();
+    }).then((responseData) => {
+      console.log(responseData);
+      if (responseData.code != "200") {
+        ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+        return;
+      }
+
+      let data = responseData.data;
+      let tagList = this.state.tagList;
+      tagList.push(data);
+      this.state.addTag=false;
+      this.setState({
+        tagList: tagList,
+        showTagList: false,
+        tagName: ''
+      });
+  
+    })
+
+  }
+
+  next = async () => {
+    if(!this.state.next){
+      let content= await this.richtext.getContentHtml();
+      this.setState({
+        next: true,
+        quesDes:content
+      });
+    
+    }
+    else{
+      this.finish();
+    }
+   
+
+  }
+
+  finish=async()=>{
+
+    console.log("SDSDSD")
+    let url = 'http://192.168.1.6:8070/app/question/add';
+    let tagIds=[];
+    let tagList=this.state.tagList;
+
+    tagList.forEach(tag => {
+      tagIds.push(tag.id);
     });
 
+  
+    let params={
+      "quesTitle":this.state.quesTitle,
+      "quesDes":this.state.quesDes,
+      "tagIds":tagIds,
+    }
+
+    console.log(params);
+
+    let token= await AsyncStorage.getItem("userToken");
+    console.log(token);
+
+    fetch(url, {
+      method: 'POST',
+      headers:{
+        'token':token,
+        'Content-Type': 'application/json',
+      },
+      body:JSON.stringify(params)
+
+    }).then((response) => {
+      return response.json();
+    }).then((responseData) => {
+      console.log(responseData);
+      if (responseData.code != "200") {
+        ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+        return;
+      }
+
+      let data = responseData.data;
+     
+  
+    })
   }
 
 
 
 
+  renderTag = () => {
+    let tags = this.state.tagList;
+    let view = [];
+
+
+
+
+    tags.forEach(tag => {
+
+      view.push(
+        <View style={{ backgroundColor: "gray", borderRadius: 5, padding: 10, margin: 5 }}>
+          <Text style={{ textAlign: 'center', fontSize: 12, color: 'white' }}>
+            {tag.tagName}
+          </Text>
+        </View>
+      )
+
+    });
+
+    return view;
+  }
+
+  renderHotTag = () => {
+
+    let url = 'http://192.168.1.6:8070/app/question/tag/getHot';
+
+    fetch(url, {
+      method: 'GET',
+
+    }).then((response) => {
+      return response.json();
+    }).then((responseData) => {
+      console.log(responseData);
+      if (responseData.code != "200") {
+        ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+        return;
+      }
+
+      let data = responseData.data;
+      let tags =data;
+      let view = [];
+      tags.forEach(tag => {
+  
+        view.push(
+          <TouchableOpacity onPress={()=>this.setTag(tag)}>
+          <View style={{ backgroundColor: "#ef8282", borderRadius: 5, padding: 10, margin: 5 }}>
+            <Text style={{ textAlign: 'center', fontSize: 12, color: 'white' }}>
+              {tag.tagName}
+            </Text>
+          </View>
+          </TouchableOpacity>
+        )
+  
+      });
+
+      this.setState({
+        hotTagList:view
+      })
+  
+    })
+  
+   
+  }
+
+  setTag=(tag)=>{
+    let data=this.state.tagList;
+    data.push(tag);
+    this.setState({
+      tagList:data,
+      tagName:'',
+      showTagList:false
+    })
+  }
+
+  renderSearchTagList = () => {
+    let tagList = this.state.searchTagList;
+    let view = [];
+    tagList.forEach(tag => {
+
+      view.push(
+        <TouchableOpacity onPress={()=>this.setTag(tag)}>
+        <View style={{ width: 300,backgroundColor:'#e6e5e5'}}>
+          <Text style={{ fontSize: 12, padding: 10}}>
+            {tag.tagName}
+          </Text>
+          <View style={{ height: 1, backgroundColor: '#c1c1c1' }}></View>
+        </View>
+        </TouchableOpacity>
+      )
+
+    });
+
+    return view;
+  }
+
+  getSearchTagList = () => {
+    if (this.state.tagName == '') {
+      this.setState({
+        showTagList: false
+      });
+      return;
+
+    }
+    let url = 'http://192.168.1.6:8070/app/question/tag/get?str=' + this.state.tagName;
+
+    fetch(url, {
+      method: 'GET',
+
+    }).then((response) => {
+      return response.json();
+    }).then((responseData) => {
+      console.log(responseData);
+      if (responseData.code != "200") {
+        ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+        return;
+      }
+
+      let data = responseData.data;
+
+      this.setState({
+        searchTagList: data,
+        showTagList: data.length != 0 ? true : false
+      })
+
+
+
+    })
+  }
 
 
 
@@ -149,7 +380,7 @@ export default class AskQuestion extends Component {
           {!this.state.next ? <View style={{ flex: 1 }}>
 
             <TextInput placeholder="请输入问题"
-              onChangeText={(title) => this.setState({ title })}
+              onChangeText={(quesTitle) => this.setState({ quesTitle })}
 
               style={{ paddingBottom: 10, paddingLeft: 20, fontSize: 17 }}
             >
@@ -174,29 +405,61 @@ export default class AskQuestion extends Component {
 
             />
           </View> :
-            <View style={{ flex: 1,paddingLeft:15,paddingRight:15}}>
-            
-              <View style={{  flexDirection: 'row',alignItems:'center' }}>
+            <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15 }}>
 
-                <TextInput style={{ flex: 1 ,}} placeholder="搜索或添加新标签"
-                 onChangeText={() => this.setState({  })} ></TextInput>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
 
-                <TouchableOpacity onPress={()=>{}}  >
+                <TextInput style={{ flex: 1, }} placeholder="搜索或添加新标签"
+                  onChangeText={(tagName) => {
+                    this.setState({ tagName },
+                      () => this.getSearchTagList()
+                    );
+
+                  }}
+                  value={this.state.tagName}
+                ></TextInput>
+
+
+                <TouchableOpacity onPress={() => { this.addTag() }}
+
+                >
 
                   <View style={{ backgroundColor: "#0084ff", borderRadius: 5, padding: 10 }}>
 
-                  <Text style={{ textAlign: 'center', fontSize: 12, color: 'white' }}>
-                  添加
+                    <Text style={{ textAlign: 'center', fontSize: 12, color: 'white' }}>
+                      添加
                   </Text>
                   </View>
                 </TouchableOpacity>
 
               </View>
+
               <View style={{ height: 1, backgroundColor: '#c1c1c1', marginBottom: 10 }}></View>
 
-              
+              <View style={{}}>
 
-            </View>
+                {this.state.showTagList ? this.renderSearchTagList() : null}
+
+              </View>
+
+              
+                <View style={{ flexDirection: 'row', marginTop: 20 }}>
+                  {this.state.tagList.length!=0? <Text>标签 ： </Text>:null}
+                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', flex: 1 }}>
+
+                    {this.renderTag()}
+
+                  </View>
+                </View>
+                <View style={{marginTop: 20,}}>
+                  <Text>热门标签 ： </Text>
+                  <View style={{ flexDirection: 'row', flexWrap: 'wrap',}}>
+                  {this.state.hotTagList}
+                  </View>
+                </View>
+              </View>
+
+           
           }
         </View>
 

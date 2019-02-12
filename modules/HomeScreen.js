@@ -29,6 +29,24 @@ export default class HomeScreen extends React.Component {
                 .navigation
                 .navigate('Auth');
         });
+        DeviceEventEmitter.addListener('navigateToSearchQuestion', (e) => {
+            this
+                .props
+                .navigation
+                .navigate('SearchQuestion');
+        });
+        DeviceEventEmitter.addListener('navigateToCreateArticle', (e) => {
+            this
+            .props
+            .navigation
+            .navigate('CreateArticle');
+        });
+        DeviceEventEmitter.addListener('navigateToSearchArticle', (e) => {
+            this
+                .props
+                .navigation
+                .navigate('SearchArticle');
+        });
     }
 
 

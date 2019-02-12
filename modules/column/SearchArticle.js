@@ -8,8 +8,7 @@ import {
 } from 'react-native';
 
 
-
-export default class SearchQuestion extends Component {
+export default class SearchArticle extends Component {
   static navigationOptions = {
     header: null
   };
@@ -33,7 +32,7 @@ export default class SearchQuestion extends Component {
         }}>
       
           <View style={{ flexDirection: 'row',flex:1,alignItems:'center'}}>
-            <TextInput placeholder='搜索问题' style={{flex:1,fontSize:12}}  />
+            <TextInput placeholder='搜索文章' style={{flex:1,fontSize:12}}  />
             <Image source={require("../../resources/index/ss.png")} style={{ height: 25, width: 25 }} />
           </View>
           </View>

@@ -61,7 +61,7 @@ export default class UserScreen extends Component {
         ToastAndroid.show("token失效，请重新登录", ToastAndroid.SHORT);
         DeviceEventEmitter.emit('navigateToAuth');
       } else {
-        let user = data.user;
+        let user = data;
         this.setState({
           userName: user.userName,
           avatarSource: user.userIconUrl==null? '':user.userIconUrl,
