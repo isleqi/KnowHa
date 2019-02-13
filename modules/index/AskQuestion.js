@@ -3,7 +3,7 @@ import {
   ActivityIndicator,
   AsyncStorage,
   StatusBar, Platform,
-  StyleSheet, TouchableOpacity, SafeAreaView, TextInput,ToastAndroid,
+  StyleSheet, TouchableOpacity, SafeAreaView, TextInput, ToastAndroid,
   View, Button, Text, DeviceEventEmitter, TouchableNativeFeedback, Image, ScrollView, RefreshControl, FlatList, Dimensions
 } from 'react-native';
 import ScrollableTabView, { ScrollableTabBar, DefaultTabBar } from 'react-native-scrollable-tab-view';
@@ -40,13 +40,13 @@ export default class AskQuestion extends Component {
     this.state = {
       next: false,
       showTagList: false,
-      addTag:false,
+      addTag: false,
       tagList: [],
       tagName: '',
       searchTagList: [],
-      hotTagList:[],
-      quesTitle:'',
-      quesDes:''
+      hotTagList: [],
+      quesTitle: '',
+      quesDes: ''
     };
 
     that = this;
@@ -54,7 +54,7 @@ export default class AskQuestion extends Component {
 
   componentDidMount() {
 
-this.renderHotTag();
+    this.renderHotTag();
   }
 
   choosePicker = () => {
@@ -122,7 +122,7 @@ this.renderHotTag();
 
   insertImage = async (path) => {
     let contentHtml = await this.richtext.getContentHtml();
-    let html = contentHtml + "<img src=" + path + ' />';
+    let html = contentHtml + "<br/><img src=" + path + ' /><br/><br/>';
     this.richtext.setContentHTML(html);
   }
 
@@ -135,14 +135,14 @@ this.renderHotTag();
 
   addTag = () => {
     if (this.state.tagName == '') {
-      ToastAndroid.show('请输入标签',ToastAndroid.SHORT);
+      ToastAndroid.show('请输入标签', ToastAndroid.SHORT);
       return;
     }
-    if(this.state.addTag){
-      ToastAndroid.show('请稍候',ToastAndroid.SHORT);
-      return ;
+    if (this.state.addTag) {
+      ToastAndroid.show('请稍候', ToastAndroid.SHORT);
+      return;
     }
-    this.state.addTag=true;
+    this.state.addTag = true;
     let tagName = this.state.tagName;
     let url = 'http://192.168.1.6:8070/app/question/tag/add?tagName=' + tagName;
 
@@ -160,64 +160,70 @@ this.renderHotTag();
 
       let data = responseData.data;
       let tagList = this.state.tagList;
+      console.log(data+'dsfds')
       tagList.push(data);
-      this.state.addTag=false;
+      this.state.addTag = false;
       this.setState({
         tagList: tagList,
         showTagList: false,
         tagName: ''
       });
-  
+
     })
 
   }
 
   next = async () => {
-    if(!this.state.next){
-      let content= await this.richtext.getContentHtml();
+    if (!this.state.next) {
+      let content = await this.richtext.getContentHtml();
       this.setState({
         next: true,
-        quesDes:content
+        quesDes: content
       });
-    
+
     }
-    else{
+    else {
       this.finish();
     }
-   
+
 
   }
 
-  finish=async()=>{
+  navigateToAnswerList = (item) => {
+    DeviceEventEmitter.emit('navigateToAnswerList', item);
 
-    console.log("SDSDSD")
+}
+
+  finish = async () => {
+
+  
     let url = 'http://192.168.1.6:8070/app/question/add';
-    let tagIds=[];
-    let tagList=this.state.tagList;
+    let tagIds = [];
+    let tagList = this.state.tagList;
 
     tagList.forEach(tag => {
       tagIds.push(tag.id);
     });
 
-  
-    let params={
-      "quesTitle":this.state.quesTitle,
-      "quesDes":this.state.quesDes,
-      "tagIds":tagIds,
+
+    let params = {
+      "quesTitle": this.state.quesTitle,
+      "quesDes": this.state.quesDes,
+      "tagIds": tagIds,
     }
 
     console.log(params);
 
-    let token= await AsyncStorage.getItem("userToken");
+    let token = await AsyncStorage.getItem("userToken");
     console.log(token);
 
     fetch(url, {
       method: 'POST',
-      headers:{
-        'token':token,
+      headers: {
+        'token': token,
         'Content-Type': 'application/json',
       },
-      body:JSON.stringify(params)
+      body: JSON.stringify(params)
 
     }).then((response) => {
       return response.json();
@@ -229,11 +235,21 @@ this.renderHotTag();
       }
 
       let data = responseData.data;
-     
-  
+
+      this.navigateToAnswerList(data);
+
+
     })
   }
 
+
+  delTag = (index) => {
+       let tagList=this.state.tagList;
+       tagList.splice(index,1);
+       this.setState({
+         tagList:tagList
+       })
+  }
 
 
 
@@ -241,20 +257,42 @@ this.renderHotTag();
     let tags = this.state.tagList;
     let view = [];
 
-
-
-
-    tags.forEach(tag => {
-
+    for(let i=0;i<tags.length;i++){
+      let tag=tags[i];
       view.push(
-        <View style={{ backgroundColor: "gray", borderRadius: 5, padding: 10, margin: 5 }}>
-          <Text style={{ textAlign: 'center', fontSize: 12, color: 'white' }}>
+        <View style={{ backgroundColor: "gray", borderRadius: 5, paddingBottom: 10, paddingLeft: 10, margin: 5 }}>
+          <View style={{ alignItems: 'flex-end' }}>
+            <TouchableOpacity onPress={()=>this.delTag(i)}>
+              <Image source={require('../../resources/index/x.png')} style={{ width: 10, height: 10, margin: 3 }} />
+            </TouchableOpacity>
+          </View>
+          <Text style={{ textAlign: 'center', fontSize: 12, color: 'white', paddingRight: 10 }}>
             {tag.tagName}
           </Text>
         </View>
       )
+    }
 
-    });
+
+// let index=0;
+//     tags.forEach(tag => {
+//       console.log(tag);
+//       view.push(
+//         <View style={{ backgroundColor: "gray", borderRadius: 5, paddingBottom: 10, paddingLeft: 10, margin: 5 }}>
+//           <View style={{ alignItems: 'flex-end' }}>
+//             <TouchableOpacity onPress={()=>this.delTag(index)}>
+//               <Image source={require('../../resources/index/x.png')} style={{ width: 10, height: 10, margin: 3 }} />
+//             </TouchableOpacity>
+//           </View>
+//           <Text style={{ textAlign: 'center', fontSize: 12, color: 'white', paddingRight: 10 }}>
+//             {tag.tagName}
+//           </Text>
+//         </View>
+//       )
+
+//       index++;
+
+//     });
 
     return view;
   }
@@ -276,38 +314,38 @@ this.renderHotTag();
       }
 
       let data = responseData.data;
-      let tags =data;
+      let tags = data;
       let view = [];
       tags.forEach(tag => {
-  
+
         view.push(
-          <TouchableOpacity onPress={()=>this.setTag(tag)}>
-          <View style={{ backgroundColor: "#ef8282", borderRadius: 5, padding: 10, margin: 5 }}>
-            <Text style={{ textAlign: 'center', fontSize: 12, color: 'white' }}>
-              {tag.tagName}
-            </Text>
-          </View>
+          <TouchableOpacity onPress={() => this.setTag(tag)}>
+            <View style={{ backgroundColor: "#ef8282", borderRadius: 5, padding: 10, margin: 5 }}>
+              <Text style={{ textAlign: 'center', fontSize: 12, color: 'white' }}>
+                {tag.tagName}
+              </Text>
+            </View>
           </TouchableOpacity>
         )
-  
+
       });
 
       this.setState({
-        hotTagList:view
+        hotTagList: view
       })
-  
+
     })
-  
-   
+
+
   }
 
-  setTag=(tag)=>{
-    let data=this.state.tagList;
+  setTag = (tag) => {
+    let data = this.state.tagList;
     data.push(tag);
     this.setState({
-      tagList:data,
-      tagName:'',
-      showTagList:false
+      tagList: data,
+      tagName: '',
+      showTagList: false
     })
   }
 
@@ -317,13 +355,13 @@ this.renderHotTag();
     tagList.forEach(tag => {
 
       view.push(
-        <TouchableOpacity onPress={()=>this.setTag(tag)}>
-        <View style={{ width: 300,backgroundColor:'#e6e5e5'}}>
-          <Text style={{ fontSize: 12, padding: 10}}>
-            {tag.tagName}
-          </Text>
-          <View style={{ height: 1, backgroundColor: '#c1c1c1' }}></View>
-        </View>
+        <TouchableOpacity onPress={() => this.setTag(tag)}>
+          <View style={{ width: 300, backgroundColor: '#e6e5e5' }}>
+            <Text style={{ fontSize: 12, padding: 10 }}>
+              {tag.tagName}
+            </Text>
+            <View style={{ height: 1, backgroundColor: '#c1c1c1' }}></View>
+          </View>
         </TouchableOpacity>
       )
 
@@ -442,24 +480,24 @@ this.renderHotTag();
 
               </View>
 
-              
-                <View style={{ flexDirection: 'row', marginTop: 20 }}>
-                  {this.state.tagList.length!=0? <Text>标签 ： </Text>:null}
-                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', flex: 1 }}>
 
-                    {this.renderTag()}
+              <View style={{ flexDirection: 'row', marginTop: 20 }}>
+                {this.state.tagList.length != 0 ? <Text>标签 ： </Text> : null}
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', flex: 1 }}>
 
-                  </View>
-                </View>
-                <View style={{marginTop: 20,}}>
-                  <Text>热门标签 ： </Text>
-                  <View style={{ flexDirection: 'row', flexWrap: 'wrap',}}>
-                  {this.state.hotTagList}
-                  </View>
+                  {this.renderTag()}
+
                 </View>
               </View>
+              <View style={{ marginTop: 20, }}>
+                <Text>热门标签 ： </Text>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap',paddingLeft:20 }}>
+                  {this.state.hotTagList}
+                </View>
+              </View>
+            </View>
 
-           
+
           }
         </View>
 

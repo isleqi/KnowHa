@@ -3,28 +3,30 @@ import {
     ActivityIndicator,
     AsyncStorage,
     StatusBar,
-    StyleSheet, TouchableOpacity, SafeAreaView, ToastAndroid,
+    StyleSheet, TouchableOpacity, SafeAreaView,
     View, Button, Text, DeviceEventEmitter, TouchableNativeFeedback, Image, ScrollView, RefreshControl, FlatList, Dimensions
 } from 'react-native';
+import AnswerListHeader from './AnswerListHeader';
 
 
-export default class AllQuestion extends Component {
+export default class AnswerList extends Component {
     static navigationOptions = {
         header: null
     };
     constructor(props) {
         super(props);
         this.state = {
-            data: [],
+            AnswerList: new Array(10),
+            quesData: {},
         };
 
     }
 
     componentDidMount() {
-        this.getQuestionList();
+
     }
 
-    getQuestionList = () => {
+    getAnswerListById= () => {
         let url = 'http://192.168.1.6:8070/app/question/getAllQuestion?pageNum=1&pageSize=10';
 
         fetch(url, {
@@ -47,14 +49,9 @@ export default class AllQuestion extends Component {
         })
     }
 
-    navigateToAnswerList = (item) => {
-        DeviceEventEmitter.emit('navigateToAnswerList', item);
 
-    }
-
-    navigateToQuestionList = (item) => {
-        DeviceEventEmitter.emit('navigateToQuestionList', item);
-
+    goBack = () => {
+        this.props.navigation.goBack();
     }
 
     renderTag = (tagList) => {
@@ -65,11 +62,9 @@ export default class AllQuestion extends Component {
 
             let tag = tags[i];
             view.push(
-                <TouchableOpacity onPress={() => this.navigateToQuestionList(tag)}>
-                    <View style={{ backgroundColor: 'gray', padding: 4, borderRadius: 5, marginRight: 5 }}>
-                        <Text style={{ fontSize: 9, color: 'white' }}>{tag.tagName}</Text>
-                    </View>
-                </TouchableOpacity>
+                <View style={{ backgroundColor: 'gray', padding: 4, borderRadius: 5, marginRight: 5 }}>
+                    <Text style={{ fontSize: 9, color: 'white' }}>{tag.tagName}</Text>
+                </View>
             )
         }
 
@@ -77,44 +72,46 @@ export default class AllQuestion extends Component {
     }
 
 
-    renderItem = (data) => {
-        let item = data.item;
-        let answer = item.answer;
-        let tags = item.tagList;
 
+
+    renderItem = (data) => {
         return (
             <View>
-                <View style={{ paddingLeft: 15, paddingTop: 20, flexDirection: 'row', }}>
-                    {this.renderTag(tags)}
+                <View style={{ paddingLeft: 15, paddingTop: 20, flexDirection: 'row', alignItems: 'center' }}>
+
+                    <View style={{ alignItems: 'center', paddingRight: 10 }}>
+                        <TouchableOpacity onPress={() => { }} >
+                            <Image source={require('../../resources/register/girl.png')}
+                                style={{ width: 20, height: 20, borderRadius: 10 }}>
+                            </Image>
+
+                        </TouchableOpacity>
+                    </View>
+                    <Text style={{ fontSize: 11, }}>海贼王</Text>
+
                 </View>
 
                 <View style={{ flexDirection: 'row' }}>
                     <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, }}>
 
-                        <TouchableOpacity onPress={() => this.navigateToAnswerList(item)}>
-                            <View style={{ paddingTop: 5, paddingBottom: 5 }}>
-                                <Text style={{ fontWeight: 'bold', fontSize: 15 }}>{item.quesTitle}</Text>
+
+
+                        <View style={{ paddingTop: 5, paddingBottom: 5 }}>
+                            <Text style={[{ lineHeight: 17, fontSize: 12 }]}
+                                numberOfLines={3}
+                            >东方大道过过过过发的森特图打广告广东省第三方的地方大动干戈东方大道风格的是第三范式特特
+                                                个非官方个适当方式的方式的大杀四方水电费额额发的所发生的电话
+                    </Text>
+                        </View>
+
+                        <View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 20 }}>
+                            <View style={{ flex: 1, flexDirection: 'row', }}>
+                                <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>2.7k 赞同 · </Text>
+                                <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>300 评论</Text>
                             </View>
-                        </TouchableOpacity>
-                        {answer == null ?
-                            <Text style={{ fontSize: 11, color: '#bdbcbce8', paddingTop: 5, paddingBottom: 5 }}>暂无回答</Text>
-                            :
-                            <View>
-                                <View style={{ paddingTop: 5, paddingBottom: 5 }}>
-                                    <Text style={[{ lineHeight: 17, fontSize: 12 }]}
-                                        numberOfLines={3}>
-                                        {answer.ansContent}
-                                    </Text>
-                                </View>
 
-                                <View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 20 }}>
-                                    <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{answer.likeNum} 赞同 · </Text>
-                                    <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{answer.commentNum} 评论</Text>
 
-                                </View>
-                            </View>
-                        }
-
+                        </View>
                     </View>
 
                 </View>
@@ -124,14 +121,12 @@ export default class AllQuestion extends Component {
         );
     }
 
-    listHeader = () => {
-        return (
-            <View style={{ height: 8, backgroundColor: "#eae9e961" }}></View>
-        );
-    }
+
 
 
     render() {
+
+
         return (
             <View style={styles.container}>
 
@@ -144,14 +139,14 @@ export default class AllQuestion extends Component {
                     //         title={this.state.isRefreshing ? '刷新中....' : '下拉刷新'}
                     //     />
                     //}
-                    data={this.state.data}
+                    data={this.state.AnswerList}
                     renderItem={this.renderItem}
                     extraData={this.state}
                     showsVerticalScrollIndicator={false}
                     onEndReached={this.onEndReached}
                     onEndReachedThreshold={0.1}
-                    ListFooterComponent={this.renderFooter}
-                    ListHeaderComponent={this.listHeader}
+                    // ListFooterComponent={this.renderFooter}
+                    ListHeaderComponent={<AnswerListHeader back={this.goBack} data={this.props.navigation.state.params.item} />}
                 //ListEmptyComponent={this._listEmptyComponent}
                 />
 
@@ -163,7 +158,6 @@ export default class AllQuestion extends Component {
         );
 
     }
-
 }
 
 const styles = StyleSheet.create({

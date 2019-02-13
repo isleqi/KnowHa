@@ -31,6 +31,11 @@ export default class IndexScreen extends Component {
    
   }
 
+  navigateToAnswerList=()=>{
+    DeviceEventEmitter.emit('navigateToAnswerList');
+   
+  }
+
 
   render() {
     return (

@@ -3,29 +3,32 @@ import {
     ActivityIndicator,
     AsyncStorage,
     StatusBar,
-    StyleSheet, TouchableOpacity, SafeAreaView, ToastAndroid,
+    StyleSheet, TouchableOpacity, SafeAreaView,
     View, Button, Text, DeviceEventEmitter, TouchableNativeFeedback, Image, ScrollView, RefreshControl, FlatList, Dimensions
 } from 'react-native';
+import AnswerListHeader from './AnswerListHeader';
 
 
-export default class AllQuestion extends Component {
+export default class QuestionByTag extends Component {
     static navigationOptions = {
         header: null
     };
     constructor(props) {
         super(props);
         this.state = {
-            data: [],
+            AnswerList: [],
+            tagData: {},
         };
 
     }
 
     componentDidMount() {
-        this.getQuestionList();
+        this.getQuestionListByTagId();
     }
 
-    getQuestionList = () => {
-        let url = 'http://192.168.1.6:8070/app/question/getAllQuestion?pageNum=1&pageSize=10';
+    getQuestionListByTagId = () => {
+        let tagId = this.props.navigation.state.params.tag.id;
+        let url = 'http://192.168.1.6:8070/app/question/getByTag?pageNum=1&pageSize=10&tagId=' + tagId;
 
         fetch(url, {
             method: 'GET',
@@ -38,55 +41,31 @@ export default class AllQuestion extends Component {
                 ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
                 return;
             }
-            let data = responseData.data.list;
 
+            let data = responseData.data.list;
             this.setState({
-                data: data
+                AnswerList: data
             })
 
         })
     }
 
-    navigateToAnswerList = (item) => {
-        DeviceEventEmitter.emit('navigateToAnswerList', item);
 
+    goBack = () => {
+        this.props.navigation.goBack();
     }
 
-    navigateToQuestionList = (item) => {
-        DeviceEventEmitter.emit('navigateToQuestionList', item);
 
-    }
 
-    renderTag = (tagList) => {
-        let tags = tagList;
-        let view = [];
 
-        for (let i = 0; i < tags.length; i++) {
-
-            let tag = tags[i];
-            view.push(
-                <TouchableOpacity onPress={() => this.navigateToQuestionList(tag)}>
-                    <View style={{ backgroundColor: 'gray', padding: 4, borderRadius: 5, marginRight: 5 }}>
-                        <Text style={{ fontSize: 9, color: 'white' }}>{tag.tagName}</Text>
-                    </View>
-                </TouchableOpacity>
-            )
-        }
-
-        return view;
-    }
 
 
     renderItem = (data) => {
         let item = data.item;
         let answer = item.answer;
-        let tags = item.tagList;
-
         return (
             <View>
-                <View style={{ paddingLeft: 15, paddingTop: 20, flexDirection: 'row', }}>
-                    {this.renderTag(tags)}
-                </View>
+
 
                 <View style={{ flexDirection: 'row' }}>
                     <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, }}>
@@ -96,25 +75,26 @@ export default class AllQuestion extends Component {
                                 <Text style={{ fontWeight: 'bold', fontSize: 15 }}>{item.quesTitle}</Text>
                             </View>
                         </TouchableOpacity>
-                        {answer == null ?
-                            <Text style={{ fontSize: 11, color: '#bdbcbce8', paddingTop: 5, paddingBottom: 5 }}>暂无回答</Text>
-                            :
-                            <View>
-                                <View style={{ paddingTop: 5, paddingBottom: 5 }}>
-                                    <Text style={[{ lineHeight: 17, fontSize: 12 }]}
-                                        numberOfLines={3}>
-                                        {answer.ansContent}
-                                    </Text>
-                                </View>
+                        {answer==null? 
+                            <Text style={{fontSize:11,color:'#bdbcbce8', paddingTop: 5, paddingBottom: 5 }}>暂无回答</Text>
+                        :
+                        <View>
+                     <View style={{ paddingTop: 5, paddingBottom: 5 }}>
+                     <Text style={[{ lineHeight: 17, fontSize: 12 }]}
+                         numberOfLines={3}>
+                         {answer.ansContent}
+                     </Text>
+                 </View>
 
-                                <View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 20 }}>
-                                    <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{answer.likeNum} 赞同 · </Text>
-                                    <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{answer.commentNum} 评论</Text>
+                 <View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 20 }}>
+                     <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{answer.likeNum} 赞同 · </Text>
+                     <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{answer.commentNum} 评论</Text>
 
-                                </View>
-                            </View>
-                        }
+                 </View>    
+                 </View>
+                    }
 
+                       
                     </View>
 
                 </View>
@@ -124,14 +104,24 @@ export default class AllQuestion extends Component {
         );
     }
 
-    listHeader = () => {
-        return (
-            <View style={{ height: 8, backgroundColor: "#eae9e961" }}></View>
+    renderHeader=()=>{
+        let tag= this.props.navigation.state.params.tag;
+        return(
+            <View style={{alignItems:'center',justifyContent:'center',padding:20}}>
+                  <View style={{ backgroundColor: '#38b2cc', padding: 10, borderRadius: 5, marginRight: 5 }}>
+                    <Text style={{ fontSize: 18, color: 'white' }}>{tag.tagName}</Text>
+                </View >
+                <Text style={{ fontSize: 12, color: '#8e8d8d',paddingTop:10}}>353 人关注</Text>
+                </View>
         );
     }
 
 
+
+
     render() {
+
+
         return (
             <View style={styles.container}>
 
@@ -144,14 +134,14 @@ export default class AllQuestion extends Component {
                     //         title={this.state.isRefreshing ? '刷新中....' : '下拉刷新'}
                     //     />
                     //}
-                    data={this.state.data}
+                    data={this.state.AnswerList}
                     renderItem={this.renderItem}
                     extraData={this.state}
                     showsVerticalScrollIndicator={false}
                     onEndReached={this.onEndReached}
                     onEndReachedThreshold={0.1}
-                    ListFooterComponent={this.renderFooter}
-                    ListHeaderComponent={this.listHeader}
+                // ListFooterComponent={this.renderFooter}
+                  ListHeaderComponent={this.renderHeader}
                 //ListEmptyComponent={this._listEmptyComponent}
                 />
 
@@ -163,7 +153,6 @@ export default class AllQuestion extends Component {
         );
 
     }
-
 }
 
 const styles = StyleSheet.create({
