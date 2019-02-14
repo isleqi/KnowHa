@@ -61,6 +61,13 @@ export default class HomeScreen extends React.Component {
                 .navigation
                 .navigate('QuestionByTag',{tag:e});
         });
+          DeviceEventEmitter.addListener('navigateToAnswerDetail', (e) => {
+            console.log(e);
+            this
+                .props
+                .navigation
+                .navigate('AnswerDetail',{item:e});
+        });
     }
 
 

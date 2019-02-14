@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import ScrollableTabView, { ScrollableTabBar, DefaultTabBar } from 'react-native-scrollable-tab-view';
 import AllQuestion from './AllQuestion';
+import FollowQuestion from './FollowQuestion';
 
 
 export default class IndexScreen extends Component {
@@ -73,7 +74,7 @@ export default class IndexScreen extends Component {
 
 
           <AllQuestion tabLabel='全部问题' ></AllQuestion>
-          <Text tabLabel='关注的问题'>favorite</Text>
+          <FollowQuestion tabLabel='关注的问题'></FollowQuestion>
         </ScrollableTabView>
       </View>
     );

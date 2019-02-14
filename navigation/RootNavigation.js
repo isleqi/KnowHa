@@ -15,6 +15,7 @@ import AnswerList from '../modules/index/AnswerList';
 import AllQuestion from '../modules/index/AllQuestion';
 import AnswerListHeader from  '../modules/index/AnswerListHeader';
 import QuestionByTag from '../modules/index/QuestionByTag';
+import AnswerDetail from '../modules/index/AnswerDetail';
 const AppStack = createStackNavigator({
    Home: HomeScreen,
    UserScreen:UserScreen,
@@ -25,7 +26,8 @@ const AppStack = createStackNavigator({
    AnswerList:AnswerList,
    AllQuestion:AllQuestion,
    AnswerListHeader:AnswerListHeader,
-   QuestionByTag:QuestionByTag
+   QuestionByTag:QuestionByTag,
+   AnswerDetail:AnswerDetail
   });
 const AuthStack = createStackNavigator({ SignIn: SignInScreen,Oauth:OauthScreen});
 const RegisterStack=createStackNavigator({Register:RegisterScreen,RegisterDetail:RegisterDetail});

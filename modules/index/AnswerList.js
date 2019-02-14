@@ -3,7 +3,7 @@ import {
     ActivityIndicator,
     AsyncStorage,
     StatusBar,
-    StyleSheet, TouchableOpacity, SafeAreaView,
+    StyleSheet, TouchableOpacity, SafeAreaView,ToastAndroid,
     View, Button, Text, DeviceEventEmitter, TouchableNativeFeedback, Image, ScrollView, RefreshControl, FlatList, Dimensions
 } from 'react-native';
 import AnswerListHeader from './AnswerListHeader';
@@ -16,18 +16,20 @@ export default class AnswerList extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            AnswerList: new Array(10),
+            answerList: [],
             quesData: {},
         };
 
     }
 
     componentDidMount() {
-
+        console.log(this.props.navigation.state.params.item);
+        this.getAnswerListById();
     }
 
-    getAnswerListById= () => {
-        let url = 'http://192.168.1.6:8070/app/question/getAllQuestion?pageNum=1&pageSize=10';
+    getAnswerListById = () => {
+        let quesId = this.props.navigation.state.params.item.id;
+        let url = 'http://192.168.1.6:8070/app/answer/getAnswerList?quesId=' + quesId;
 
         fetch(url, {
             method: 'GET',
@@ -40,10 +42,10 @@ export default class AnswerList extends Component {
                 ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
                 return;
             }
-            let data = responseData.data.list;
+            let data = responseData.data;
 
             this.setState({
-                data: data
+                answerList: data
             })
 
         })
@@ -75,19 +77,21 @@ export default class AnswerList extends Component {
 
 
     renderItem = (data) => {
+        let item=data.item;
+        let user=item.user;
         return (
             <View>
                 <View style={{ paddingLeft: 15, paddingTop: 20, flexDirection: 'row', alignItems: 'center' }}>
 
                     <View style={{ alignItems: 'center', paddingRight: 10 }}>
                         <TouchableOpacity onPress={() => { }} >
-                            <Image source={require('../../resources/register/girl.png')}
+                            <Image source={{uri:user.userIconUrl}}
                                 style={{ width: 20, height: 20, borderRadius: 10 }}>
                             </Image>
 
                         </TouchableOpacity>
                     </View>
-                    <Text style={{ fontSize: 11, }}>海贼王</Text>
+                    <Text style={{ fontSize: 11, }}>{user.userName}</Text>
 
                 </View>
 
@@ -98,16 +102,15 @@ export default class AnswerList extends Component {
 
                         <View style={{ paddingTop: 5, paddingBottom: 5 }}>
                             <Text style={[{ lineHeight: 17, fontSize: 12 }]}
-                                numberOfLines={3}
-                            >东方大道过过过过发的森特图打广告广东省第三方的地方大动干戈东方大道风格的是第三范式特特
-                                                个非官方个适当方式的方式的大杀四方水电费额额发的所发生的电话
+                                numberOfLines={3}>
+                             {item.ansContent}
                     </Text>
                         </View>
 
                         <View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 20 }}>
                             <View style={{ flex: 1, flexDirection: 'row', }}>
-                                <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>2.7k 赞同 · </Text>
-                                <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>300 评论</Text>
+                                <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{item.likeNum} 赞同 · </Text>
+                                <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{item.commentNum} 评论</Text>
                             </View>
 
 
@@ -139,7 +142,7 @@ export default class AnswerList extends Component {
                     //         title={this.state.isRefreshing ? '刷新中....' : '下拉刷新'}
                     //     />
                     //}
-                    data={this.state.AnswerList}
+                    data={this.state.answerList}
                     renderItem={this.renderItem}
                     extraData={this.state}
                     showsVerticalScrollIndicator={false}

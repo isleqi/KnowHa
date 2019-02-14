@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 
 
-export default class AllQuestion extends Component {
+export default class FollowQuestion extends Component {
     static navigationOptions = {
         header: null
     };
@@ -21,15 +21,22 @@ export default class AllQuestion extends Component {
     }
 
     componentDidMount() {
-        this.getQuestionList();
+        this.getFollowQuestionList();
     }
 
-    getQuestionList = () => {
-        let url = 'http://192.168.1.6:8070/app/question/getAllQuestion?pageNum=1&pageSize=10';
+    getFollowQuestionList =async () => {
+        let url = 'http://192.168.1.6:8070/app/question/getFollowQuesList?pageNum=1&pageSize=10';
+            let token = await AsyncStorage.getItem("userToken");
+            if (token == null) {
+                ToastAndroid.show("请先登录", ToastAndroid.SHORT);
+                DeviceEventEmitter.emit('navigateToAuth');
 
+              }
         fetch(url, {
             method: 'GET',
-
+            headers:{
+                "token":token,
+            }
         }).then((response) => {
             return response.json();
         }).then((responseData) => {
@@ -96,7 +103,7 @@ export default class AllQuestion extends Component {
                     <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, }}>
 
                         <TouchableOpacity onPress={() => this.navigateToAnswerList(item)}>
-                            <View style={{ paddingTop: 10, paddingBottom: 10 }}>
+                            <View style={{ paddingTop: 5, paddingBottom: 5 }}>
                                 <Text style={{ fontWeight: 'bold', fontSize: 15 }}>{item.quesTitle}</Text>
                             </View>
                         </TouchableOpacity>

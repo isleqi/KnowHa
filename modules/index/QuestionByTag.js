@@ -62,9 +62,10 @@ export default class QuestionByTag extends Component {
 
     renderItem = (data) => {
         let item = data.item;
-        let answer = item.answer;
+        let answer = item.answerVo;
         return (
             <View>
+                <View style={{ height: 8, backgroundColor: "#eae9e961" }}></View>
 
 
                 <View style={{ flexDirection: 'row' }}>
@@ -98,7 +99,6 @@ export default class QuestionByTag extends Component {
                     </View>
 
                 </View>
-                <View style={{ height: 8, backgroundColor: "#eae9e961" }}></View>
             </View>
 
         );
@@ -107,11 +107,14 @@ export default class QuestionByTag extends Component {
     renderHeader=()=>{
         let tag= this.props.navigation.state.params.tag;
         return(
+            <View>
             <View style={{alignItems:'center',justifyContent:'center',padding:20}}>
                   <View style={{ backgroundColor: '#38b2cc', padding: 10, borderRadius: 5, marginRight: 5 }}>
                     <Text style={{ fontSize: 18, color: 'white' }}>{tag.tagName}</Text>
                 </View >
-                <Text style={{ fontSize: 12, color: '#8e8d8d',paddingTop:10}}>353 人关注</Text>
+                <Text style={{ fontSize: 12, color: '#8e8d8d',paddingTop:10}}>{tag.num} 人关注</Text>
+                </View>
+               
                 </View>
         );
     }
