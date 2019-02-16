@@ -3,12 +3,12 @@ import {
     ActivityIndicator,
     AsyncStorage,
     StatusBar,
-    StyleSheet, TouchableOpacity, SafeAreaView, TextInput,ToastAndroid,
+    StyleSheet, TouchableOpacity, SafeAreaView, TextInput, ToastAndroid,
     View, Button, Text, DeviceEventEmitter, TouchableNativeFeedback, Image, ScrollView, RefreshControl, FlatList, Dimensions
 } from 'react-native';
 
 
-
+let token;
 export default class AnswerListHeader extends Component {
     static navigationOptions = {
         header: null
@@ -17,19 +17,31 @@ export default class AnswerListHeader extends Component {
         super(props);
         this.state = {
             quesData: this.props.data,
-            isFollow:false
+            isFollow: false,
+            followNum: this.props.data.followNum,
         };
 
     }
 
     componentDidMount() {
-        console.log(this.props);
-        this.hasFollowQues();
-      
+        this.getToken();
     }
 
+    getToken = async () => {
+        token = await AsyncStorage.getItem("userToken");
+        if (token != null) {
+            this.hasFollowQues();
+        }
+    }
+
+    navigateToCreateaAnswer=(quesId)=>{
+        this.props.navigateToCreateaAnswer(quesId);
+    }
+
+
+
     renderTag = () => {
-        let tags=this.state.quesData.tagList;
+        let tags = this.state.quesData.tagList;
         let view = [];
 
         for (let i = 0; i < tags.length; i++) {
@@ -46,74 +58,98 @@ export default class AnswerListHeader extends Component {
     }
 
     goBack = () => {
-        console.log(this.props);
         this.props.back();
-
     }
 
-    hasFollowQues=async()=>{
-       let quesId=this.state.quesData.id;
-       let token=await AsyncStorage.getItem("userToken");
-       let url = 'http://192.168.1.6:8070/app/question/hasfollow?quesId=' + quesId;
+    hasFollowQues = () => {
+        let quesId = this.state.quesData.id;
+        let url = 'http://192.168.1.6:8070/app/question/hasfollow?quesId=' + quesId;
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                "token": token
+            }
 
-       fetch(url, {
-           method: 'GET',
-           headers:{
-               "token":token
-           }
+        }).then((response) => {
+            return response.json();
+        }).then((responseData) => {
+            console.log(responseData);
+            if (responseData.code != "200") {
+                ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+                return;
+            }
+            let data = responseData.data;
 
-       }).then((response) => {
-           return response.json();
-       }).then((responseData) => {
-           console.log(responseData);
-           if (responseData.code != "200") {
-               ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
-               return;
-           }
-           let data = responseData.data;
+            this.setState({
+                isFollow: data.hasFollow,
+                followNum: data.followNum,
+            })
 
-           this.setState({
-               isFollow: data
-           })
-
-       })
-   }
-
-   followQues=async()=>{
-    let quesId=this.state.quesData.id;
-    let token=await AsyncStorage.getItem("userToken");
-    let url = 'http://192.168.1.6:8070/app/question/follow?quesId=' + quesId;
-
-    fetch(url, {
-        method: 'GET',
-        headers:{
-            "token":token
-        }
-
-    }).then((response) => {
-        return response.json();
-    }).then((responseData) => {
-        console.log(responseData);
-        if (responseData.code != "200") {
-            ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
-            return;
-        }
-        let data = responseData.data;
-
-        this.setState({
-            isFollow: true
         })
+    }
 
-    })
-   }
+    followQues = () => {
+        let quesId = this.state.quesData.id;
+        let url = 'http://192.168.1.6:8070/app/question/follow?quesId=' + quesId;
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                "token": token
+            }
+
+        }).then((response) => {
+            return response.json();
+        }).then((responseData) => {
+            console.log(responseData);
+            if (responseData.code != "200") {
+                ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+                return;
+            }
+            let data = responseData.data;
+
+            this.setState({
+                isFollow: true,
+                followNum: this.state.followNum + 1
+
+            })
+
+        })
+    }
+
+    cancelFollowQues = () => {
+        let quesId = this.state.quesData.id;
+        let url = 'http://192.168.1.6:8070/app/question/cancelFollow?quesId=' + quesId;
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                "token": token
+            }
+
+        }).then((response) => {
+            return response.json();
+        }).then((responseData) => {
+            console.log(responseData);
+            if (responseData.code != "200") {
+                ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+                return;
+            }
+            let data = responseData.data;
+
+            this.setState({
+                isFollow: false,
+                followNum: this.state.followNum - 1
+            })
+
+        })
+    }
 
 
-    
+
 
 
 
     render() {
-        let quesData=this.state.quesData;
+        let quesData = this.state.quesData;
         return (
             <View style={styles.container}>
                 <View >
@@ -157,28 +193,30 @@ export default class AnswerListHeader extends Component {
 
                             <View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 20, paddingLeft: 20, paddingRight: 20, alignItems: 'center' }}>
                                 <View style={{ flex: 1, flexDirection: 'row', }}>
-                                    <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{quesData.followNum} 人关注 </Text>
+                                    <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{this.state.followNum} 人关注 </Text>
                                 </View>
-                                {this.state.isFollow? 
-                                     <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
-                                         <View style={{ backgroundColor: "gray", borderRadius: 5, paddingBottom: 5, paddingTop: 5, paddingLeft: 10, paddingRight: 10 }}>
-                                             <Text style={{ textAlign: 'center', fontSize: 11, color: 'white' }}>
-                                                 已关注 </Text>
-                                         </View>
- 
-                                 </View>
+                                {this.state.isFollow ?
+                                    <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
+                                        <TouchableOpacity onPress={() => { this.cancelFollowQues() }} >
+                                            <View style={{ backgroundColor: "gray", borderRadius: 5, paddingBottom: 5, paddingTop: 5, paddingLeft: 10, paddingRight: 10 }}>
+                                                <Text style={{ textAlign: 'center', fontSize: 11, color: 'white' }}>
+                                                    已关注 </Text>
+                                            </View>
+                                        </TouchableOpacity>
+
+                                    </View>
                                     :
                                     <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
-                                    <TouchableOpacity onPress={() => { this.followQues() }} >
-                                        <View style={{ backgroundColor: "#0084ff", borderRadius: 5, paddingBottom: 5, paddingTop: 5, paddingLeft: 10, paddingRight: 10 }}>
-                                            <Text style={{ textAlign: 'center', fontSize: 11, color: 'white' }}>
-                                                关注问题 </Text>
-                                        </View>
-                                    </TouchableOpacity>
+                                        <TouchableOpacity onPress={() => { this.followQues() }} >
+                                            <View style={{ backgroundColor: "#0084ff", borderRadius: 5, paddingBottom: 5, paddingTop: 5, paddingLeft: 10, paddingRight: 10 }}>
+                                                <Text style={{ textAlign: 'center', fontSize: 11, color: 'white' }}>
+                                                    关注问题 </Text>
+                                            </View>
+                                        </TouchableOpacity>
 
-                                </View>
-                                    }
-                              
+                                    </View>
+                                }
+
 
                             </View>
 
@@ -188,32 +226,33 @@ export default class AnswerListHeader extends Component {
                                     <Image source={require("../../resources/index/yq.png")} style={{ height: 15, width: 15, marginRight: 5 }} />
                                     <Text style={{ fontSize: 13, color: '#949491' }}>邀请回答</Text>
                                 </View>
+                                <TouchableOpacity onPress={() => this.navigateToCreateaAnswer(quesData.id)} style={{flex:1}} >
+                                    <View style={{ flex: 1, borderTopWidth: 1, borderColor: '#e8e8e7', justifyContent: 'center', flexDirection: 'row', padding: 10, alignItems: 'center' }}>
+                                        <Image source={require("../../resources/index/tw.png")} style={{ height: 15, width: 15, marginRight: 5, opacity: 0.5 }} />
+                                        <Text style={{ fontSize: 13, color: '#949491' }}>写回答</Text>
+                                    </View>
+                                    </TouchableOpacity>
+                            </View>
 
-                                <View style={{ flex: 1, borderTopWidth: 1, borderColor: '#e8e8e7', justifyContent: 'center', flexDirection: 'row', padding: 10, alignItems: 'center' }}>
-                                    <Image source={require("../../resources/index/tw.png")} style={{ height: 15, width: 15, marginRight: 5, opacity: 0.5 }} />
-                                    <Text style={{ fontSize: 13, color: '#949491' }}>写回答</Text>
+                                <View style={{ flexDirection: 'row', backgroundColor: '#eae9e961' }}>
+                                    <Text style={{ fontSize: 10, color: '#949491', paddingLeft: 20, paddingRight: 20, paddingBottom: 10, paddingTop: 10 }}>222 个回答</Text>
                                 </View>
-                            </View>
 
-                            <View style={{ flexDirection: 'row', backgroundColor: '#eae9e961' }}>
-                                <Text style={{ fontSize: 10, color: '#949491', paddingLeft: 20, paddingRight: 20, paddingBottom: 10, paddingTop: 10 }}>222 个回答</Text>
                             </View>
-
                         </View>
                     </View>
                 </View>
-            </View>
-        );
-
-    }
-}
-
+                );
+        
+            }
+        }
+        
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#ffffff',
-        //    paddingLeft:20,
-        //    paddingRight:20
-    },
-
+                    container: {
+                    flex: 1,
+                backgroundColor: '#ffffff',
+                //    paddingLeft:20,
+                //    paddingRight:20
+            },
+        
 });

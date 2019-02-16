@@ -17,7 +17,7 @@ export default class AnswerList extends Component {
         super(props);
         this.state = {
             answerList: [],
-            quesData: {},
+            quesData: this.props.navigation.state.params.item,
         };
 
     }
@@ -49,6 +49,13 @@ export default class AnswerList extends Component {
             })
 
         })
+    }
+
+    navigateToCreateaAnswer = (item) => {
+        this
+            .props
+            .navigation
+            .navigate('CreateAnswer',{quesId:item});
     }
 
 
@@ -149,7 +156,7 @@ export default class AnswerList extends Component {
                     onEndReached={this.onEndReached}
                     onEndReachedThreshold={0.1}
                     // ListFooterComponent={this.renderFooter}
-                    ListHeaderComponent={<AnswerListHeader back={this.goBack} data={this.props.navigation.state.params.item} />}
+                    ListHeaderComponent={<AnswerListHeader back={this.goBack} data={this.state.quesData} navigateToCreateaAnswer={this.navigateToCreateaAnswer}/>}
                 //ListEmptyComponent={this._listEmptyComponent}
                 />
 

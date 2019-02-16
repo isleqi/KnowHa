@@ -20,7 +20,8 @@ export default class UserScreen extends Component {
       userName: '',
       avatarSource: '',
       description: '',
-      
+      fansNum:0,
+      followsNum:0,
 
     };
 
@@ -61,10 +62,13 @@ export default class UserScreen extends Component {
         ToastAndroid.show("token失效，请重新登录", ToastAndroid.SHORT);
         DeviceEventEmitter.emit('navigateToAuth');
       } else {
-        let user = data;
+        let user = data.user;
         this.setState({
           userName: user.userName,
           avatarSource: user.userIconUrl==null? '':user.userIconUrl,
+          fansNum:data.fansNum,
+          followsNum:data.followsNum,
+          description:user.userDes==null? '':user.userDes,
         })
       }
 
@@ -105,8 +109,8 @@ export default class UserScreen extends Component {
                 </View>
 
                 <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingBottom: 10 }}>
-                  <Text style={{ fontSize: 10 }}>关注 1  |   </Text>
-                  <Text style={{ fontSize: 10 }}>粉丝 1</Text>
+                  <Text style={{ fontSize: 10 }}>关注 {this.state.followsNum}  |   </Text>
+                  <Text style={{ fontSize: 10 }}>粉丝 {this.state.fansNum}</Text>
                 </View>
 
                 <View style={{ alignItems: 'center', paddingBottom: 10 }}>

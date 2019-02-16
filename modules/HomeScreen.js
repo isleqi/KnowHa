@@ -68,6 +68,7 @@ export default class HomeScreen extends React.Component {
                 .navigation
                 .navigate('AnswerDetail',{item:e});
         });
+     
     }
 
 
