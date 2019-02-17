@@ -17,6 +17,12 @@ import AnswerListHeader from  '../modules/index/AnswerListHeader';
 import QuestionByTag from '../modules/index/QuestionByTag';
 import AnswerDetail from '../modules/index/AnswerDetail';
 import CreateAnswer from '../modules/index/CreateAnswer';
+import FollowAnswer from '../modules/usercenter/FollowAnswer';
+import FollowQues from '../modules/usercenter/FollowQues';
+import MyColumn from '../modules/usercenter/MyColumn';
+import MyAnswer from '../modules/usercenter/MyAnswer';
+import MyQuestion from '../modules/usercenter/MyQuestion';
+
 const AppStack = createStackNavigator({
    Home: HomeScreen,
    UserScreen:UserScreen,
@@ -30,7 +36,11 @@ const AppStack = createStackNavigator({
    QuestionByTag:QuestionByTag,
    AnswerDetail:AnswerDetail,
    CreateAnswer:CreateAnswer,
-   
+   FollowAnswer:FollowAnswer,
+   FollowQues:FollowQues,
+   MyColumn:MyColumn,
+   MyAnswer:MyAnswer,
+   MyQuestion:MyQuestion
   });
 const AuthStack = createStackNavigator({ SignIn: SignInScreen,Oauth:OauthScreen});
 const RegisterStack=createStackNavigator({Register:RegisterScreen,RegisterDetail:RegisterDetail});

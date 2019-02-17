@@ -48,25 +48,52 @@ export default class HomeScreen extends React.Component {
                 .navigate('SearchArticle');
         });
         DeviceEventEmitter.addListener('navigateToAnswerList', (e) => {
-            console.log(e);
             this
                 .props
                 .navigation
                 .navigate('AnswerList',{item:e});
         });
         DeviceEventEmitter.addListener('navigateToQuestionList', (e) => {
-            console.log(e);
             this
                 .props
                 .navigation
                 .navigate('QuestionByTag',{tag:e});
         });
           DeviceEventEmitter.addListener('navigateToAnswerDetail', (e) => {
-            console.log(e);
             this
                 .props
                 .navigation
                 .navigate('AnswerDetail',{item:e});
+        });
+        DeviceEventEmitter.addListener('navigateToFollowAnswer', (e) => {
+            this
+                .props
+                .navigation
+                .navigate('FollowAnswer');
+        });
+        DeviceEventEmitter.addListener('navigateToMyQuestion', (e) => {
+            this
+                .props
+                .navigation
+                .navigate('MyQuestion');
+        });
+        DeviceEventEmitter.addListener('navigateToMyAnswer', (e) => {
+            this
+                .props
+                .navigation
+                .navigate('MyAnswer');
+        });
+        DeviceEventEmitter.addListener('navigateToMyColumn', (e) => {
+            this
+                .props
+                .navigation
+                .navigate('MyColumn');
+        });
+        DeviceEventEmitter.addListener('navigateToFollowQues', (e) => {
+            this
+                .props
+                .navigation
+                .navigate('FollowQues');
         });
      
     }

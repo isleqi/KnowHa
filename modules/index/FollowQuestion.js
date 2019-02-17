@@ -6,6 +6,7 @@ import {
     StyleSheet, TouchableOpacity, SafeAreaView, ToastAndroid,
     View, Button, Text, DeviceEventEmitter, TouchableNativeFeedback, Image, ScrollView, RefreshControl, FlatList, Dimensions
 } from 'react-native';
+import ScreenUtil from '../../utils/ScreenUtil';
 
 
 export default class FollowQuestion extends Component {
@@ -16,6 +17,17 @@ export default class FollowQuestion extends Component {
         super(props);
         this.state = {
             data: [],
+              //条数限制
+              limit: 10,
+              //当前页数
+              page: 0,
+              //总页数
+              totalPage: 0,
+              showFoot: 0,
+              //是否显示指示器
+              animating: false,
+              //是否刷新
+              isRefreshing: false
         };
 
     }
@@ -25,12 +37,13 @@ export default class FollowQuestion extends Component {
     }
 
     getFollowQuestionList =async () => {
-        let url = 'http://192.168.1.6:8070/app/question/getFollowQuesList?pageNum=1&pageSize=10';
+        let limit = this.state.limit;
+        let page = this.state.page + 1;
+        let url = 'http://192.168.1.6:8070/app/question/getFollowQuesList?&pageNum='+page +'&pageSize=' +limit;
             let token = await AsyncStorage.getItem("userToken");
             if (token == null) {
                 ToastAndroid.show("请先登录", ToastAndroid.SHORT);
                 DeviceEventEmitter.emit('navigateToAuth');
-
               }
         fetch(url, {
             method: 'GET',
@@ -45,13 +58,41 @@ export default class FollowQuestion extends Component {
                 ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
                 return;
             }
-            let data = responseData.data.list;
+         
+             let list = responseData.data.list;
+             console.log(list);
+         //当前页数
+         let currPage = responseData.data.pageNum;
+         //总页数
+         let totalPage = responseData.data.pages;
 
-            this.setState({
-                data: data
-            })
+         //将请求到的数据拼接到原来数据的后面
+         list = this.state.data.concat(list);
+         let foot = 1;
+         let   animating = true;
+         if (currPage >= totalPage) {
+             foot = 2; //没有更多数据了    
+             animating = false;
+         }
+         if (list == null || list.length == 0) {
+             //没有数据
+             foot = 0;
+             animating = false;
+         }
 
-        })
+         this.setState({
+             data: list,
+             showFoot: foot,
+             totalPage: totalPage,
+             animating: animating,
+             page: currPage
+         })
+
+     })
+
+      
+ 
+
     }
 
     navigateToAnswerList = (item) => {
@@ -85,6 +126,22 @@ export default class FollowQuestion extends Component {
         }
 
         return view;
+    }
+
+     //上拉刷新
+     onRefresh = () => {
+        //重置参数
+        this.setState({
+            isRefreshing: true,
+            page: 0,
+            totalPage: 0,
+            data: [],
+            showFoot: 0,
+            animating: false
+        }, () => {
+            this.getFollowQuestionList();
+            this.setState({ isRefreshing: false });
+        });
     }
 
 
@@ -143,29 +200,85 @@ export default class FollowQuestion extends Component {
         );
     }
 
+     //底部组件
+     listFooterComponent = () => {
+        if (this.state.showFoot == 2) {
+            return (
+                <View
+                    style={{
+                        height: ScreenUtil.scaleSize(50),
+                        alignItems: 'center',
+                        justifyContent: 'flex-start'
+                    }}>
+                    <Text
+                        style={{
+                            color: '#999999',
+                            fontSize: ScreenUtil.scaleSize(12),
+                            marginTop: ScreenUtil.scaleSize(15),
+                            marginBottom: ScreenUtil.scaleSize(10)
+                        }}>
+                        没有更多数据了
+                    </Text>
+                </View>
+            );
+        } else if (this.state.showFoot == 1) {
+            return (
+                <View
+                    style={{
+                        height: ScreenUtil.scaleSize(50),
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }}>
+                    <ActivityIndicator animating={this.state.animating} size="small" color="grey" />
+                    <Text>正在加载更多数据...</Text>
+                </View>
+            );
+        } else if (this.state.showFoot == 0) {
+            return (
+                <View
+                    style={{
+                        height: ScreenUtil.scaleSize(30),
+                        alignItems: 'center',
+                        justifyContent: 'flex-start'
+                    }}>
+                    <Text></Text>
+                </View>
+            );
+        } else {
+            return (
+                <View style={{ height: ScreenUtil.scaleSize(30), alignItems: 'center', justifyContent: 'flex-start', }}>
+                    <Text></Text>
+                </View>
+            );
+        }
+    }
+
+    onEndReached = () => {
+        //最后一页，直接返回
+        if (this.state.page >= this.state.totalPage && this.state.page > 0) {
+            return;
+        }
+
+        this.getFollowQuestionList();
+    }
+
+
 
     render() {
         return (
             <View style={styles.container}>
 
-                <FlatList keyExtractor={(item, index) => index.toString()}
-                    // refreshControl={  //设置下拉刷新组件
-                    //     <RefreshControl
-                    //         refreshing={this.state.isRefreshing}
-                    //         onRefresh={this.onRefreshHistory}
-                    //         tintColor='white'
-                    //         title={this.state.isRefreshing ? '刷新中....' : '下拉刷新'}
-                    //     />
-                    //}
+                  <FlatList keyExtractor={(item, index) => index.toString()}
                     data={this.state.data}
                     renderItem={this.renderItem}
                     extraData={this.state}
-                    showsVerticalScrollIndicator={false}
+                    refreshing={this.state.isRefreshing}
+                    onRefresh={this.onRefresh}
                     onEndReached={this.onEndReached}
-                    onEndReachedThreshold={0.1}
-                    ListFooterComponent={this.renderFooter}
+                    onEndReachedThreshold={1}
+                    ListFooterComponent={this.listFooterComponent}
                     ListHeaderComponent={this.listHeader}
-                //ListEmptyComponent={this._listEmptyComponent}
                 />
 
 

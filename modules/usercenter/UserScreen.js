@@ -20,8 +20,8 @@ export default class UserScreen extends Component {
       userName: '',
       avatarSource: '',
       description: '',
-      fansNum:0,
-      followsNum:0,
+      fansNum: 0,
+      followsNum: 0,
 
     };
 
@@ -39,6 +39,22 @@ export default class UserScreen extends Component {
       DeviceEventEmitter.emit('navigateToAuth');
     }
     this.getUserInfo();
+  }
+
+  navigateToFollowAnswer = () => {
+    DeviceEventEmitter.emit('navigateToFollowAnswer');
+  }
+  navigateToMyQuestion = () => {
+    DeviceEventEmitter.emit('navigateToMyQuestion');
+  }
+  navigateToMyAnswer = () => {
+    DeviceEventEmitter.emit('navigateToMyAnswer');
+  }
+  navigateToMyColumn = () => {
+    DeviceEventEmitter.emit('navigateToMyColumn');
+  }
+  navigateToFollowQues = () => {
+    DeviceEventEmitter.emit('navigateToFollowQues');
   }
 
   getUserInfo = () => {
@@ -65,10 +81,10 @@ export default class UserScreen extends Component {
         let user = data.user;
         this.setState({
           userName: user.userName,
-          avatarSource: user.userIconUrl==null? '':user.userIconUrl,
-          fansNum:data.fansNum,
-          followsNum:data.followsNum,
-          description:user.userDes==null? '':user.userDes,
+          avatarSource: user.userIconUrl == null ? '' : user.userIconUrl,
+          fansNum: data.fansNum,
+          followsNum: data.followsNum,
+          description: user.userDes == null ? '' : user.userDes,
         })
       }
 
@@ -97,7 +113,7 @@ export default class UserScreen extends Component {
                       this.state.avatarSource == '' ?
                         (this.state.sex == 1 ? require('../../resources/register/boy.png') :
                           require('../../resources/register/girl.png')) :
-                        {uri: this.state.avatarSource}  
+                        { uri: this.state.avatarSource }
                     }
                       style={{ width: 80, height: 80, borderRadius: 40 }}>
                     </Image>
@@ -121,48 +137,60 @@ export default class UserScreen extends Component {
               </View>
             </View>
 
-            <View style={{ flexDirection: 'row', alignItems: 'center', paddingLeft: 15 }}>
-              <Image source={require("../../resources/user/wt.png")} style={{ height: 30, width: 30 }} />
-              <View style={{ flex: 1 }}>
-                <Text style={{ paddingTop: 15, paddingBottom: 15, paddingLeft: 10 }}>我的提问</Text>
-                <View style={{ height: 1, backgroundColor: "#e0dfdf" }}></View>
+
+            <TouchableOpacity onPress={() => this.navigateToMyQuestion()} style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', paddingLeft: 15 }}>
+                <Image source={require("../../resources/user/wt.png")} style={{ height: 30, width: 30 }} />
+                <View style={{ flex: 1 }}>
+                  <Text style={{ paddingTop: 15, paddingBottom: 15, paddingLeft: 10 }}>我的提问</Text>
+                  <View style={{ height: 1, backgroundColor: "#e0dfdf" }}></View>
+                </View>
               </View>
-            </View>
+            </TouchableOpacity>
 
-            <View style={{ flexDirection: 'row', alignItems: 'center', paddingLeft: 15 }}>
-              <Image source={require("../../resources/user/hd.png")} style={{ height: 30, width: 30 }} />
-              <View style={{ flex: 1 }}>
-                <Text style={{ paddingTop: 15, paddingBottom: 15, paddingLeft: 10 }}>我的回答</Text>
-                <View style={{ height: 1, backgroundColor: "#e0dfdf" }}></View>
+            <TouchableOpacity onPress={() => this.navigateToMyAnswer()} style={{ flexDirection: 'row', alignItems: 'center' }}>
+
+              <View style={{ flexDirection: 'row', alignItems: 'center', paddingLeft: 15 }}>
+                <Image source={require("../../resources/user/hd.png")} style={{ height: 30, width: 30 }} />
+                <View style={{ flex: 1 }}>
+                  <Text style={{ paddingTop: 15, paddingBottom: 15, paddingLeft: 10 }}>我的回答</Text>
+                  <View style={{ height: 1, backgroundColor: "#e0dfdf" }}></View>
+                </View>
               </View>
-            </View>
+            </TouchableOpacity>
 
-            <View style={{ flexDirection: 'row', alignItems: 'center', paddingLeft: 15 }}>
-              <Image source={require("../../resources/user/sc.png")} style={{ height: 30, width: 30 }} />
+            <TouchableOpacity onPress={() => this.navigateToFollowAnswer()} style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', paddingLeft: 15 }}>
+                <Image source={require("../../resources/user/sc.png")} style={{ height: 30, width: 30 }} />
 
-              <View style={{ flex: 1 }}>
-                <Text style={{ paddingTop: 15, paddingBottom: 15, paddingLeft: 10 }}>我的收藏</Text>
-                <View style={{ height: 1, backgroundColor: "#e0dfdf" }}></View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ paddingTop: 15, paddingBottom: 15, paddingLeft: 10 }}>我的收藏</Text>
+                  <View style={{ height: 1, backgroundColor: "#e0dfdf" }}></View>
+                </View>
               </View>
-            </View>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => this.navigateToMyColumn()} style={{ flexDirection: 'row', alignItems: 'center' }}>
 
-            <View style={{ flexDirection: 'row', alignItems: 'center', paddingLeft: 15 }}>
-              <Image source={require("../../resources/user/wz.png")} style={{ height: 25, width: 25 }} />
+              <View style={{ flexDirection: 'row', alignItems: 'center', paddingLeft: 15 }}>
+                <Image source={require("../../resources/user/wz.png")} style={{ height: 25, width: 25 }} />
 
-              <View style={{ flex: 1 }}>
-                <Text style={{ paddingTop: 15, paddingBottom: 15, paddingLeft: 15 }}>我的专栏</Text>
-                <View style={{ height: 1, backgroundColor: "#e0dfdf" }}></View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ paddingTop: 15, paddingBottom: 15, paddingLeft: 15 }}>我的专栏</Text>
+                  <View style={{ height: 1, backgroundColor: "#e0dfdf" }}></View>
+                </View>
               </View>
-            </View>
+            </TouchableOpacity>
 
-            <View style={{ flexDirection: 'row', alignItems: 'center', paddingLeft: 15 }}>
-              <Image source={require("../../resources/user/gz.png")} style={{ height: 30, width: 30 }} />
+            <TouchableOpacity onPress={() => this.navigateToFollowQues()} style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', paddingLeft: 15 }}>
+                <Image source={require("../../resources/user/gz.png")} style={{ height: 30, width: 30 }} />
 
-              <View style={{ flex: 1 }}>
-                <Text style={{ paddingTop: 15, paddingBottom: 15, paddingLeft: 10 }}>关注的问题</Text>
-                <View style={{ height: 1, backgroundColor: "#e0dfdf" }}></View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ paddingTop: 15, paddingBottom: 15, paddingLeft: 10 }}>关注的问题</Text>
+                  <View style={{ height: 1, backgroundColor: "#e0dfdf" }}></View>
+                </View>
               </View>
-            </View>
+            </TouchableOpacity>
 
             <View style={{ flexDirection: 'row', alignItems: 'center', paddingLeft: 15 }}>
               <Image source={require("../../resources/user/qb.png")} style={{ height: 30, width: 30 }} />

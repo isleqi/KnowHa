@@ -6,20 +6,18 @@ import {
     StyleSheet, TouchableOpacity, SafeAreaView, ToastAndroid,
     View, Button, Text, DeviceEventEmitter, TouchableNativeFeedback, Image, ScrollView, RefreshControl, FlatList, Dimensions
 } from 'react-native';
-import AnswerListHeader from './AnswerListHeader';
 import ScreenUtil from '../../utils/ScreenUtil';
 
 
 
-export default class AnswerList extends Component {
+export default class MyQuestion extends Component {
     static navigationOptions = {
         header: null
     };
     constructor(props) {
         super(props);
         this.state = {
-            answerList: [],
-            quesData: this.props.navigation.state.params.item,
+            data: [],
             //条数限制
             limit: 10,
             //当前页数
@@ -36,18 +34,19 @@ export default class AnswerList extends Component {
     }
 
     componentDidMount() {
-        console.log(this.props.navigation.state.params.item);
-        this.getAnswerListById();
+        this.getFollowAnsList();
     }
 
-    getAnswerListById = () => {
-        let quesId = this.props.navigation.state.params.item.id;
+    getFollowAnsList = async () => {
         let limit = this.state.limit;
         let page = this.state.page + 1;
-        let url = 'http://192.168.1.6:8070/app/answer/getAnswerList?quesId=' + quesId + '&pageNum=' + page + '&pageSize=' + limit;
-
+        let url = 'http://192.168.1.6:8070/app/user/getFollowAnswerList?' + '&pageNum=' + page + '&pageSize=' + limit;
+        let token = await AsyncStorage.getItem("userToken");
         fetch(url, {
             method: 'GET',
+            headers: {
+                "token": token,
+            }
 
         }).then((response) => {
             return response.json();
@@ -65,9 +64,9 @@ export default class AnswerList extends Component {
             let totalPage = responseData.data.pages;
 
             //将请求到的数据拼接到原来数据的后面
-            list = this.state.answerList.concat(list);
+            list = this.state.data.concat(list);
             let foot = 1;
-            animating = true;
+            let animating = true;
             if (currPage >= totalPage) {
                 foot = 2; //没有更多数据了    
                 animating = false;
@@ -79,7 +78,7 @@ export default class AnswerList extends Component {
             }
 
             this.setState({
-                answerList: list,
+                data: list,
                 showFoot: foot,
                 totalPage: totalPage,
                 animating: animating,
@@ -124,6 +123,7 @@ export default class AnswerList extends Component {
     renderItem = (data) => {
         let item = data.item;
         let user = item.user;
+        let ques = item.ques;
         return (
             <View>
                 <View style={{ paddingLeft: 15, paddingTop: 20, flexDirection: 'row', alignItems: 'center' }}>
@@ -137,6 +137,11 @@ export default class AnswerList extends Component {
                         </TouchableOpacity>
                     </View>
                     <Text style={{ fontSize: 11, }}>{user.userName}</Text>
+
+                </View>
+                <View style={{ paddingLeft: 15, paddingBottom: 15, paddingTop: 10, paddingBottom: 10, flexDirection: 'row', alignItems: 'center' }}>
+
+                    <Text style={{ fontWeight: 'bold' }}>{ques.quesTitle}</Text>
 
                 </View>
 
@@ -169,84 +174,96 @@ export default class AnswerList extends Component {
         );
     }
 
-     //上拉刷新
-     onRefresh = () => {
+    //上拉刷新
+    onRefresh = () => {
         //重置参数
         this.setState({
             isRefreshing: true,
             page: 0,
             totalPage: 0,
-            answerList: [],
+            data: [],
             showFoot: 0,
             animating: false
         }, () => {
-            this.getAnswerListById();
+            this.getFollowAnsList();
             this.setState({ isRefreshing: false });
         });
     }
 
-        //底部组件
-        listFooterComponent = () => {
-            if (this.state.showFoot == 2) {
-                return (
-                    <View
+    //底部组件
+    listFooterComponent = () => {
+        if (this.state.showFoot == 2) {
+            return (
+                <View
+                    style={{
+                        height: ScreenUtil.scaleSize(50),
+                        alignItems: 'center',
+                        justifyContent: 'flex-start'
+                    }}>
+                    <Text
                         style={{
-                            height: ScreenUtil.scaleSize(50),
-                            alignItems: 'center',
-                            justifyContent: 'flex-start'
+                            color: '#999999',
+                            fontSize: ScreenUtil.scaleSize(12),
+                            marginTop: ScreenUtil.scaleSize(15),
+                            marginBottom: ScreenUtil.scaleSize(10)
                         }}>
-                        <Text
-                            style={{
-                                color: '#999999',
-                                fontSize: ScreenUtil.scaleSize(12),
-                                marginTop: ScreenUtil.scaleSize(15),
-                                marginBottom: ScreenUtil.scaleSize(10)
-                            }}>
-                            没有更多数据了
+                        没有更多数据了
                         </Text>
-                    </View>
-                );
-            } else if (this.state.showFoot == 1) {
-                return (
-                    <View
-                        style={{
-                            height: ScreenUtil.scaleSize(50),
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            justifyContent: 'center'
-                        }}>
-                        <ActivityIndicator animating={this.state.animating} size="small" color="grey" />
-                        <Text>正在加载更多数据...</Text>
-                    </View>
-                );
-            } else if (this.state.showFoot == 0) {
-                return (
-                    <View
-                        style={{
-                            height: ScreenUtil.scaleSize(30),
-                            alignItems: 'center',
-                            justifyContent: 'flex-start'
-                        }}>
-                        <Text></Text>
-                    </View>
-                );
-            } else {
-                return (
-                    <View style={{ height: ScreenUtil.scaleSize(30), alignItems: 'center', justifyContent: 'flex-start', }}>
-                        <Text></Text>
-                    </View>
-                );
-            }
+                </View>
+            );
+        } else if (this.state.showFoot == 1) {
+            return (
+                <View
+                    style={{
+                        height: ScreenUtil.scaleSize(50),
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }}>
+                    <ActivityIndicator animating={this.state.animating} size="small" color="grey" />
+                    <Text>正在加载更多数据...</Text>
+                </View>
+            );
+        } else if (this.state.showFoot == 0) {
+            return (
+                <View
+                    style={{
+                        height: ScreenUtil.scaleSize(30),
+                        alignItems: 'center',
+                        justifyContent: 'flex-start'
+                    }}>
+                    <Text></Text>
+                </View>
+            );
+        } else {
+            return (
+                <View style={{ height: ScreenUtil.scaleSize(30), alignItems: 'center', justifyContent: 'flex-start', }}>
+                    <Text></Text>
+                </View>
+            );
         }
-    
-        onEndReached = () => {
-            //最后一页，直接返回
-            if (this.state.page >= this.state.totalPage && this.state.page > 0) {
-                return;
-            }
-    
-            this.getAnswerListById();
+    }
+
+    onEndReached = () => {
+        //最后一页，直接返回
+        if (this.state.page >= this.state.totalPage && this.state.page > 0) {
+            return;
         }
+
+        this.getFollowAnsList();
+    }
+
+    listHeader = () => {
+        return (
+            <View style={{ height: 100,backgroundColor:'#0084ff', flexDirection: 'row', alignItems: 'center' }}>
+            <View>
+                <Text style={{color:'white',paddingLeft:20,fontSize:18,fontWeight:'bold'}}>我的提问</Text>
+                <Text style={{color:'white',paddingLeft:20,paddingTop:10, fontSize:10}}>共 {this.state.data.length} 个内容</Text>
+
+                </View>
+            </View>
+        );
+    }
 
 
 
@@ -257,7 +274,7 @@ export default class AnswerList extends Component {
             <View style={styles.container}>
 
                 <FlatList keyExtractor={(item, index) => index.toString()}
-                    data={this.state.answerList}
+                    data={this.state.data}
                     renderItem={this.renderItem}
                     extraData={this.state}
                     refreshing={this.state.isRefreshing}
@@ -265,8 +282,8 @@ export default class AnswerList extends Component {
                     onEndReached={this.onEndReached}
                     onEndReachedThreshold={1}
                     ListFooterComponent={this.listFooterComponent}
-                    ListHeaderComponent={<AnswerListHeader back={this.goBack} data={this.state.quesData} navigateToCreateaAnswer={this.navigateToCreateaAnswer} />}
-                />
+                    ListHeaderComponent={this.listHeader}
+            />
 
 
 
