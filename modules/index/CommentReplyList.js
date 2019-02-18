@@ -3,21 +3,32 @@ import {
     ActivityIndicator,
     AsyncStorage,
     StatusBar,
-    StyleSheet, TouchableOpacity, SafeAreaView, ToastAndroid,
+    StyleSheet, TouchableOpacity, SafeAreaView, ToastAndroid, TextInput,
     View, Button, Text, DeviceEventEmitter, TouchableNativeFeedback, Image, ScrollView, RefreshControl, FlatList, Dimensions
 } from 'react-native';
 import ScreenUtil from '../../utils/ScreenUtil';
 
 
+let commentUrl="http://192.168.1.6:8070/app/answer/comment";
+let replyUrl="http://192.168.1.6:8070/app/answer/comment/reply";
+export default class AnsCommentList extends Component {
+    static navigationOptions = () => ({
+        title: '对话列表',
 
-export default class FollowQues extends Component {
-    static navigationOptions = {
-        header: null
-    };
+        headerTitleStyle: { fontSize: 15, },
+
+
+
+
+
+    });
     constructor(props) {
         super(props);
         this.state = {
             data: [],
+            ansCommentId: this.props.navigation.state.params.ansCommentId,
+            placeholder:'添加回复',
+            reply: '',
             //条数限制
             limit: 10,
             //当前页数
@@ -34,13 +45,14 @@ export default class FollowQues extends Component {
     }
 
     componentDidMount() {
-        this.getFollowQuesList();
+        this.getReplyList();
     }
 
-    getFollowQuesList = async () => {
+    getReplyList = async () => {
         let limit = this.state.limit;
         let page = this.state.page + 1;
-        let url = 'http://192.168.1.6:8070/app/user/getFollowQuesList?' + '&pageNum=' + page + '&pageSize=' + limit;
+        let commentId = this.state.ansCommentId;
+        let url = 'http://192.168.1.6:8070/app/answer/getReplyList?commentId=' + commentId + '&pageNum=' + page + '&pageSize=' + limit;
         let token = await AsyncStorage.getItem("userToken");
         fetch(url, {
             method: 'GET',
@@ -88,83 +100,120 @@ export default class FollowQues extends Component {
         })
     }
 
-    navigateToCreateaAnswer = (item) => {
-        this
-            .props
-            .navigation
-            .navigate('CreateAnswer', { quesId: item });
-    }
-
-
     goBack = () => {
         this.props.navigation.goBack();
     }
 
-    renderTag = (tagList) => {
-        let tags = tagList;
-        let view = [];
-
-        for (let i = 0; i < tags.length; i++) {
-
-            let tag = tags[i];
-            view.push(
-                <View style={{ backgroundColor: 'gray', padding: 4, borderRadius: 5, marginRight: 5 }}>
-                    <Text style={{ fontSize: 9, color: 'white' }}>{tag.tagName}</Text>
-                </View>
-            )
+   
+    toReply=async ()=>{
+        let item=this.state.item;
+        let commentId = item.ansCommentId;
+        let useredId=item.replyUserId;
+        let reply = this.state.reply;
+        if (reply == '') {
+            ToastAndroid.show("回复不能为空", ToastAndroid.SHORT);
+            return;
         }
+        let url = 'http://192.168.1.6:8070/app/answer/comment/reply';
+        let formData = new FormData();
+        formData.append("commentId", commentId);
+        formData.append("replyedUserId", useredId);
+        formData.append("comtent", reply);
 
-        return view;
+
+        let token = await AsyncStorage.getItem("userToken");
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                "token": token,
+            },
+            body: formData
+
+        }).then((response) => {
+            return response.json();
+        }).then((responseData) => {
+            console.log(responseData);
+            if (responseData.code != "200") {
+                ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+                return;
+            }
+            let item = responseData.data;
+            let data = this.state.data;
+            data.splice(0, 0, item);
+            this.setState({
+                reply: '',
+                data:data,
+                placeholder:'添加回复'
+            });
+
+        
+
+        })
     }
 
+
+    reply=async(item)=>{
+        let usered=item.replyUser;
+        let useredName=usered.userName;
+        let text='回复：'+useredName;
+         this.setState({
+             placeholder:text,
+             item:item
+         }
+        );
+         
+        
+        
+    }
 
 
 
     renderItem = (data) => {
         let item = data.item;
-        let answer = item.answerVo;
-        let tags = item.tagList;
-
+        let user = item.replyUser;
+        let usered=item.replyedUser;
+        let date = new Date(item.creatTime);
+        let time = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
         return (
             <View>
-                <View style={{ paddingLeft: 15, paddingTop: 20, flexDirection: 'row', }}>
-                    {this.renderTag(tags)}
-                </View>
+
 
                 <View style={{ flexDirection: 'row' }}>
-                    <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, }}>
 
-                        <TouchableOpacity onPress={() => this.navigateToAnswerList(item)}>
-                            <View style={{ paddingTop: 10, paddingBottom: 10 }}>
-                                <Text style={{ fontWeight: 'bold', fontSize: 15 }}>{item.quesTitle}</Text>
-                            </View>
-                        </TouchableOpacity>
-                        {answer == null ?
-                            <Text style={{ fontSize: 11, color: '#bdbcbce8', paddingTop: 5, paddingBottom: 5 }}>暂无回答</Text>
-                            :
-                            <TouchableOpacity onPress={()=>this.navigateToAnswerDetail(item)}>
-                            <View>
-                                <View style={{ paddingTop: 5, paddingBottom: 5 }}>
-                                    <Text style={[{ lineHeight: 17, fontSize: 12 }]}
-                                        numberOfLines={3}>
-                                        {answer.ansContent}
-                                    </Text>
-                                </View>
+                    <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, paddingTop: 10, paddingBottom: 10, flexDirection: 'row' }}>
 
-                                <View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 20 }}>
-                                    <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{answer.likeNum} 赞同 · </Text>
-                                    <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{answer.commentNum} 评论</Text>
+                        <View style={{ flex: 0.2 }}>
+                            <TouchableOpacity onPress={() => { }} >
+                                <Image source={{ uri: user.userIconUrl }}
+                                    style={{ width: 40, height: 40, borderRadius: 20 }}>
+                                </Image>
 
-                                </View>
-                            </View>
                             </TouchableOpacity>
-                        }
+                        </View>
+                       
+                        <View style={{ flex: 1 }}>
+                        <TouchableOpacity onPress={()=>this.reply(item)}>
+
+                            <Text style={{ fontSize: 13, }}>{user.userName}</Text>
+                            <Text style={{ fontSize: 13, }}>回复{usered.userName} :{item.replyComtent}</Text>
+                            </TouchableOpacity>
+
+                            <View style={{ flexDirection: 'row' }} >
+                                <View style={{ flex: 1 }}>
+                                    <Text style={{ fontSize: 10, color: 'gray' }}>{time}</Text>
+                                </View>
+                               
+                               
+                            </View>
+                        </View>
 
                     </View>
 
                 </View>
-                <View style={{ height: 8, backgroundColor: "#eae9e961" }}></View>
+                <View style={{ height: 1, backgroundColor: "#eae9e961" }}></View>
+
             </View>
+
 
         );
     }
@@ -180,7 +229,7 @@ export default class FollowQues extends Component {
             showFoot: 0,
             animating: false
         }, () => {
-            this.getFollowQuesList();
+            this.getReplyList();
             this.setState({ isRefreshing: false });
         });
     }
@@ -245,20 +294,10 @@ export default class FollowQues extends Component {
             return;
         }
 
-        this.getFollowQuesList();
+        this.getCommentList();
     }
 
-    listHeader = () => {
-        return (
-            <View style={{ height: 100,backgroundColor:'#0084ff', flexDirection: 'row', alignItems: 'center' }}>
-            <View>
-                <Text style={{color:'white',paddingLeft:20,fontSize:18,fontWeight:'bold'}}>我的关注</Text>
-                <Text style={{color:'white',paddingLeft:20,paddingTop:10, fontSize:10}}>共 {this.state.data.length} 个内容</Text>
 
-                </View>
-            </View>
-        );
-    }
 
 
 
@@ -277,8 +316,20 @@ export default class FollowQues extends Component {
                     onEndReached={this.onEndReached}
                     onEndReachedThreshold={1}
                     ListFooterComponent={this.listFooterComponent}
-                    ListHeaderComponent={this.listHeader}
-            />
+                    style={{ flex: 1 }}
+                />
+
+                <View style={{ height: 80, }}>
+                    <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', padding: 10 }}>
+                        <View style={{ flex: 1, }}>
+                            <TextInput style={{ padding: 10 }} value={this.state.reply} placeholder={this.state.placeholder} onChangeText={(reply) => this.setState({ reply })} />
+                            <View style={{ height: 1, backgroundColor: "gray" }}></View>
+                        </View>
+                        <TouchableOpacity onPress={() => this.toReply()}>
+                            <Image source={require('../../resources/index/tw.png')} style={{ width: 30, height: 30, paddingRight: 10 }} />
+                        </TouchableOpacity>
+                    </View>
+                </View>
 
 
 

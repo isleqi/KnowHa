@@ -22,7 +22,8 @@ import FollowQues from '../modules/usercenter/FollowQues';
 import MyColumn from '../modules/usercenter/MyColumn';
 import MyAnswer from '../modules/usercenter/MyAnswer';
 import MyQuestion from '../modules/usercenter/MyQuestion';
-
+import AnsCommentList from '../modules/index/AnsCommentList';
+import CommentReplyList from '../modules/index/CommentReplyList';
 const AppStack = createStackNavigator({
    Home: HomeScreen,
    UserScreen:UserScreen,
@@ -40,7 +41,9 @@ const AppStack = createStackNavigator({
    FollowQues:FollowQues,
    MyColumn:MyColumn,
    MyAnswer:MyAnswer,
-   MyQuestion:MyQuestion
+   MyQuestion:MyQuestion,
+   AnsCommentList:AnsCommentList,
+   CommentReplyList:CommentReplyList
   });
 const AuthStack = createStackNavigator({ SignIn: SignInScreen,Oauth:OauthScreen});
 const RegisterStack=createStackNavigator({Register:RegisterScreen,RegisterDetail:RegisterDetail});

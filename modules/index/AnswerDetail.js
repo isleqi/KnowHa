@@ -219,6 +219,15 @@ export default class AnswerDetail extends Component {
 
     }
 
+    navigateToAnsCommentList = (item) => {
+
+        this
+        .props
+        .navigation
+        .navigate('AnsCommentList',{ansId:item});
+
+    }
+
 
 
     render() {
@@ -241,7 +250,7 @@ export default class AnswerDetail extends Component {
 
                             </View>
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={() => { this.navigateToSearchQuestion() }} style={{ flexDirection: 'row', flex: 1, alignItems: 'center' }}>
+                        <TouchableOpacity onPress={() => { this.navigateToSearchQuestion(answer.ansId) }} style={{ flexDirection: 'row', flex: 1, alignItems: 'center' }}>
                             <View style={{ flexDirection: 'row', flex: 1, alignItems: 'center' }}>
                                 <TextInput placeholder='搜索答案' style={{ flex: 1, fontSize: 12 }} editable={false} />
                                 <Image source={require("../../resources/index/ss.png")} style={{ height: 25, width: 25 }} />
@@ -327,7 +336,7 @@ export default class AnswerDetail extends Component {
                         </View>
                     </ScrollView>
                     <View style={{ height: 60, justifyContent: 'flex-end', backgroundColor: '#ffffff' }}>
-                        <View style={{ flexDirection: 'row', padding: 10 }}>
+                        <View style={{ flexDirection: 'row', paddingTop: 10, paddingBottom: 10,paddingRight:15,paddingLeft:15 }}>
                             <TouchableOpacity onPress={() => this.setLike()}>
                                 <View style={{ alignItems: 'center' }}>
                                     <Image source={
@@ -351,7 +360,7 @@ export default class AnswerDetail extends Component {
                                         <Text style={{ fontSize: 10, color: 'gray' }}>收藏</Text>
                                     </View>
                                 </TouchableOpacity>
-                                <TouchableOpacity onPress={() => this.commentDetail()}>
+                                <TouchableOpacity onPress={() => this.navigateToAnsCommentList(answer.ansId)}>
                                     <View style={{ alignItems: 'center' }}>
                                         <Image source={require('../../resources/index/pl.png')} style={{ width: 25, height: 25 }} />
                                         <Text style={{ fontSize: 10, color: 'gray' }}>{answer.commentNum}</Text>

@@ -34,13 +34,13 @@ export default class MyAnswer extends Component {
     }
 
     componentDidMount() {
-        this.getFollowAnsList();
+        this.getMyAnswerList();
     }
 
-    getFollowAnsList = async () => {
+    getMyAnswerList = async () => {
         let limit = this.state.limit;
         let page = this.state.page + 1;
-        let url = 'http://192.168.1.6:8070/app/user/getFollowAnswerList?' + '&pageNum=' + page + '&pageSize=' + limit;
+        let url = 'http://192.168.1.6:8070/app/user/getMyAnswer?' + '&pageNum=' + page + '&pageSize=' + limit;
         let token = await AsyncStorage.getItem("userToken");
         fetch(url, {
             method: 'GET',
@@ -185,7 +185,7 @@ export default class MyAnswer extends Component {
             showFoot: 0,
             animating: false
         }, () => {
-            this.getFollowAnsList();
+            this.getMyAnswerList();
             this.setState({ isRefreshing: false });
         });
     }
@@ -250,7 +250,7 @@ export default class MyAnswer extends Component {
             return;
         }
 
-        this.getFollowAnsList();
+        this.getMyAnswerList();
     }
 
     listHeader = () => {
