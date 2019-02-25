@@ -52,7 +52,7 @@ export default class AnswerDetail extends Component {
     }
     hasFollowAns = () => {
         let ansId = this.state.answer.ansId;
-        let url = 'http://192.168.1.6:8070/app/answer/hasfollow?ansId=' + ansId;
+        let url = 'http://192.168.1.100:8070/app/answer/hasfollow?ansId=' + ansId;
         fetch(url, {
             method: 'GET',
             headers: {
@@ -78,7 +78,7 @@ export default class AnswerDetail extends Component {
 
     hasFollowUser = () => {
         let useredId = this.state.user.id;
-        let url = 'http://192.168.1.6:8070/app/user/hasfollow?useredId=' + useredId;
+        let url = 'http://192.168.1.100:8070/app/user/hasfollow?useredId=' + useredId;
         fetch(url, {
             method: 'GET',
             headers: {
@@ -106,9 +106,9 @@ export default class AnswerDetail extends Component {
         let ansId = this.state.answer.ansId;
         let url;
         if (this.state.followAns)
-            url = 'http://192.168.1.6:8070/app/answer/cancelFollow?ansId=' + ansId;
+            url = 'http://192.168.1.100:8070/app/answer/cancelFollow?ansId=' + ansId;
         else
-            url = 'http://192.168.1.6:8070/app/answer/follow?ansId=' + ansId;
+            url = 'http://192.168.1.100:8070/app/answer/follow?ansId=' + ansId;
         fetch(url, {
             method: 'GET',
             headers: {
@@ -135,7 +135,7 @@ export default class AnswerDetail extends Component {
 
     followUser = () => {
         let useredId = this.state.user.id;
-        let url = 'http://192.168.1.6:8070/app/user/follow?useredId=' + useredId;
+        let url = 'http://192.168.1.100:8070/app/user/follow?useredId=' + useredId;
         fetch(url, {
             method: 'GET',
             headers: {
@@ -167,7 +167,7 @@ export default class AnswerDetail extends Component {
 
     cancelFollowAns = () => {
         let ansId = this.state.answer.ansId;
-        let url = 'http://192.168.1.6:8070/app/answer/cancelFollow?ansId=' + ansId;
+        let url = 'http://192.168.1.100:8070/app/answer/cancelFollow?ansId=' + ansId;
         fetch(url, {
             method: 'GET',
             headers: {
@@ -194,7 +194,7 @@ export default class AnswerDetail extends Component {
 
     cancelFollowUser = () => {
         let useredId = this.state.user.id;
-        let url = 'http://192.168.1.6:8070/app/user/cancelFollow?useredId=' + useredId;
+        let url = 'http://192.168.1.100:8070/app/user/cancelFollow?useredId=' + useredId;
         fetch(url, {
             method: 'GET',
             headers: {
@@ -231,7 +231,7 @@ export default class AnswerDetail extends Component {
 
 
     render() {
-        let text = '<img  src="http://192.168.1.6:8070/graduationproject/image/1550318822464image.jpg" />';
+        let text = '<img  src="http://192.168.1.100:8070/graduationproject/image/1550318822464image.jpg" />';
         let user = this.state.user;
         let answer = this.state.answer;
         let quesTitle = this.props.navigation.state.params.item.quesTitle;

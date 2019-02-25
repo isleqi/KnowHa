@@ -28,7 +28,7 @@ export default class QuestionByTag extends Component {
 
     getQuestionListByTagId = () => {
         let tagId = this.props.navigation.state.params.tag.id;
-        let url = 'http://192.168.1.6:8070/app/question/getByTag?pageNum=1&pageSize=10&tagId=' + tagId;
+        let url = 'http://192.168.1.100:8070/app/question/getByTag?pageNum=1&pageSize=10&tagId=' + tagId;
 
         fetch(url, {
             method: 'GET',

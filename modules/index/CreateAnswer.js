@@ -84,7 +84,7 @@ export default class AskQuestion extends Component {
     }
 
     uploadImage = (path) => {
-        let url = 'http://192.168.1.6:8070/app/user/uploadImage';
+        let url = 'http://192.168.1.100:8070/app/user/uploadImage';
         let file = { uri: path, type: 'application/octet-stream', name: 'image.jpg' };
         let formData = new FormData();
         formData.append("files", file);
@@ -132,7 +132,7 @@ export default class AskQuestion extends Component {
     finish = async () => {
 
 
-        let url = 'http://192.168.1.6:8070/app/answer/add';
+        let url = 'http://192.168.1.100:8070/app/answer/add';
       let ansContent=await this.richtext.getContentHtml();
 
         let params = {

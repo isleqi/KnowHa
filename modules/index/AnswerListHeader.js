@@ -63,7 +63,7 @@ export default class AnswerListHeader extends Component {
 
     hasFollowQues = () => {
         let quesId = this.state.quesData.id;
-        let url = 'http://192.168.1.6:8070/app/question/hasfollow?quesId=' + quesId;
+        let url = 'http://192.168.1.100:8070/app/question/hasfollow?quesId=' + quesId;
         fetch(url, {
             method: 'GET',
             headers: {
@@ -90,7 +90,7 @@ export default class AnswerListHeader extends Component {
 
     followQues = () => {
         let quesId = this.state.quesData.id;
-        let url = 'http://192.168.1.6:8070/app/question/follow?quesId=' + quesId;
+        let url = 'http://192.168.1.100:8070/app/question/follow?quesId=' + quesId;
         fetch(url, {
             method: 'GET',
             headers: {
@@ -118,7 +118,7 @@ export default class AnswerListHeader extends Component {
 
     cancelFollowQues = () => {
         let quesId = this.state.quesData.id;
-        let url = 'http://192.168.1.6:8070/app/question/cancelFollow?quesId=' + quesId;
+        let url = 'http://192.168.1.100:8070/app/question/cancelFollow?quesId=' + quesId;
         fetch(url, {
             method: 'GET',
             headers: {

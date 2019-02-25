@@ -3,7 +3,7 @@ import {
     ActivityIndicator,
     AsyncStorage,
     StatusBar,
-    StyleSheet, TouchableOpacity, SafeAreaView, ToastAndroid,
+    StyleSheet, TouchableOpacity, SafeAreaView, ToastAndroid,PixelRatio,
     View, Button, Text, DeviceEventEmitter, TouchableNativeFeedback, Image, ScrollView, RefreshControl, FlatList, Dimensions
 } from 'react-native';
 import ScreenUtil from '../../utils/ScreenUtil';
@@ -40,7 +40,7 @@ export default class AllQuestion extends Component {
     getQuestionList = () => {
         let limit = this.state.limit;
         let page = this.state.page + 1;
-        let url = 'http://192.168.1.6:8070/app/question/getAllQuestion?&pageNum='+page +'&pageSize=' +limit;
+        let url = 'http://192.168.1.100:8070/app/question/getAllQuestion?&pageNum='+page +'&pageSize=' +limit;
        
         fetch(url, {
             method: 'GET',
@@ -157,7 +157,7 @@ export default class AllQuestion extends Component {
 
                         <TouchableOpacity onPress={() => this.navigateToAnswerList(item)}>
                             <View style={{ paddingTop: 10, paddingBottom: 10 }}>
-                                <Text style={{ fontWeight: 'bold', fontSize: 15 }}>{item.quesTitle}</Text>
+                                <Text style={{ fontWeight: 'bold', fontSize:16 ,}}>{item.quesTitle}</Text>
                             </View>
                         </TouchableOpacity>
                         {answer == null ?

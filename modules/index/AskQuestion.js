@@ -93,7 +93,7 @@ export default class AskQuestion extends Component {
   }
 
   uploadImage = (path) => {
-    let url = 'http://192.168.1.6:8070/app/user/uploadImage';
+    let url = 'http://192.168.1.100:8070/app/user/uploadImage';
     let file = { uri: path, type: 'application/octet-stream', name: 'image.jpg' };
     let formData = new FormData();
     formData.append("files", file);
@@ -144,7 +144,7 @@ export default class AskQuestion extends Component {
     }
     this.state.addTag = true;
     let tagName = this.state.tagName;
-    let url = 'http://192.168.1.6:8070/app/question/tag/add?tagName=' + tagName;
+    let url = 'http://192.168.1.100:8070/app/question/tag/add?tagName=' + tagName;
 
     fetch(url, {
       method: 'GET',
@@ -197,7 +197,7 @@ export default class AskQuestion extends Component {
   finish = async () => {
 
   
-    let url = 'http://192.168.1.6:8070/app/question/add';
+    let url = 'http://192.168.1.100:8070/app/question/add';
     let tagIds = [];
     let tagList = this.state.tagList;
 
@@ -299,7 +299,7 @@ export default class AskQuestion extends Component {
 
   renderHotTag = () => {
 
-    let url = 'http://192.168.1.6:8070/app/question/tag/getHot';
+    let url = 'http://192.168.1.100:8070/app/question/tag/getHot';
 
     fetch(url, {
       method: 'GET',
@@ -378,7 +378,7 @@ export default class AskQuestion extends Component {
       return;
 
     }
-    let url = 'http://192.168.1.6:8070/app/question/tag/get?str=' + this.state.tagName;
+    let url = 'http://192.168.1.100:8070/app/question/tag/get?str=' + this.state.tagName;
 
     fetch(url, {
       method: 'GET',

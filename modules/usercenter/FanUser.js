@@ -7,10 +7,12 @@ import {
     View, Button, Text, DeviceEventEmitter, TouchableNativeFeedback, Image, ScrollView, RefreshControl, FlatList, Dimensions
 } from 'react-native';
 import ScreenUtil from '../../utils/ScreenUtil';
+import Base from '../../utils/Base';
 
 
 
-export default class MyAnswer extends Component {
+let baseUrl=Base.baseUrl;
+export default class FanUser extends Component {
     static navigationOptions = {
         header: null
     };
@@ -34,13 +36,14 @@ export default class MyAnswer extends Component {
     }
 
     componentDidMount() {
-        this.getMyAnswerList();
+        this.getFollowUserList();
     }
 
-    getMyAnswerList = async () => {
+    getFollowUserList = async () => {
         let limit = this.state.limit;
         let page = this.state.page + 1;
-        let url = 'http://192.168.1.100:8070/app/user/getMyAnswer?' + '&pageNum=' + page + '&pageSize=' + limit;
+        let url = baseUrl+'/app/user/getFanUsers?' + '&pageNum=' + page + '&pageSize=' + limit;
+        console.log(url);
         let token = await AsyncStorage.getItem("userToken");
         fetch(url, {
             method: 'GET',
@@ -100,77 +103,39 @@ export default class MyAnswer extends Component {
         this.props.navigation.goBack();
     }
 
-    renderTag = (tagList) => {
-        let tags = tagList;
-        let view = [];
-
-        for (let i = 0; i < tags.length; i++) {
-
-            let tag = tags[i];
-            view.push(
-                <View style={{ backgroundColor: 'gray', padding: 4, borderRadius: 5, marginRight: 5 }}>
-                    <Text style={{ fontSize: 9, color: 'white' }}>{tag.tagName}</Text>
-                </View>
-            )
-        }
-
-        return view;
-    }
-
-
+  
 
 
     renderItem = (data) => {
         let item = data.item;
         let user = item.user;
-        let ques = item.ques;
+       
         return (
-            <View>
-                <View style={{ paddingLeft: 15, paddingTop: 20, flexDirection: 'row', alignItems: 'center' }}>
+       
 
+            <View style={{ backgroundColor: '#ffffff', padding: 10, flexDirection: 'row', alignItems: 'center', }}>
+
+
+                <View style={{ flexDirection: 'row', flex: 1 }}>
                     <View style={{ alignItems: 'center', paddingRight: 10 }}>
-                        <TouchableOpacity onPress={() => { }} >
+                        <TouchableOpacity >
                             <Image source={{ uri: user.userIconUrl }}
-                                style={{ width: 20, height: 20, borderRadius: 10 }}>
+                                style={{ width: 40, height: 40, borderRadius: 20 }}>
                             </Image>
 
                         </TouchableOpacity>
                     </View>
-                    <Text style={{ fontSize: 11, }}>{user.userName}</Text>
-
+                    <Text style={{ fontSize: 13, }}>{user.userName}</Text>
                 </View>
-                <View style={{ paddingLeft: 15, paddingBottom: 15, paddingTop: 10, paddingBottom: 10, flexDirection: 'row', alignItems: 'center' }}>
-
-                    <Text style={{ fontWeight: 'bold' }}>{ques.quesTitle}</Text>
-
-                </View>
-
-                <View style={{ flexDirection: 'row' }}>
-                    <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, }}>
+              
+                    
+                        
+                
 
 
 
-                        <View style={{ paddingTop: 5, paddingBottom: 5 }}>
-                            <Text style={[{ lineHeight: 17, fontSize: 12 }]}
-                                numberOfLines={3}>
-                                {item.ansContent}
-                            </Text>
-                        </View>
-
-                        <View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 20 }}>
-                            <View style={{ flex: 1, flexDirection: 'row', }}>
-                                <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{item.likeNum} 赞同 · </Text>
-                                <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{item.commentNum} 评论</Text>
-                            </View>
-
-
-                        </View>
-                    </View>
-
-                </View>
-                <View style={{ height: 8, backgroundColor: "#eae9e961" }}></View>
             </View>
-
+         
         );
     }
 
@@ -185,7 +150,7 @@ export default class MyAnswer extends Component {
             showFoot: 0,
             animating: false
         }, () => {
-            this.getMyAnswerList();
+            this.getFollowUserList();
             this.setState({ isRefreshing: false });
         });
     }
@@ -250,15 +215,14 @@ export default class MyAnswer extends Component {
             return;
         }
 
-        this.getMyAnswerList();
+        this.getFollowUserList();
     }
 
     listHeader = () => {
         return (
             <View style={{ height: 100,backgroundColor:'#0084ff', flexDirection: 'row', alignItems: 'center' }}>
             <View>
-                <Text style={{color:'white',paddingLeft:20,fontSize:18,fontWeight:'bold'}}>我的回答</Text>
-                <Text style={{color:'white',paddingLeft:20,paddingTop:10, fontSize:10}}>共 {this.state.data.length} 个内容</Text>
+                <Text style={{color:'white',paddingLeft:20,fontSize:18,fontWeight:'bold'}}>我的粉丝</Text>
 
                 </View>
             </View>

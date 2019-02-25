@@ -95,6 +95,18 @@ export default class HomeScreen extends React.Component {
                 .navigation
                 .navigate('FollowQues');
         });
+        DeviceEventEmitter.addListener('navigateToFollowUser', (e) => {
+            this
+                .props
+                .navigation
+                .navigate('FollowUser');
+        });
+        DeviceEventEmitter.addListener('navigateToFanUser', (e) => {
+            this
+                .props
+                .navigation
+                .navigate('FanUser');
+        });
      
     }
 

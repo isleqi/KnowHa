@@ -39,7 +39,7 @@ export default class FollowQuestion extends Component {
     getFollowQuestionList =async () => {
         let limit = this.state.limit;
         let page = this.state.page + 1;
-        let url = 'http://192.168.1.6:8070/app/question/getFollowQuesList?&pageNum='+page +'&pageSize=' +limit;
+        let url = 'http://192.168.1.100:8070/app/question/getFollowQuesList?&pageNum='+page +'&pageSize=' +limit;
             let token = await AsyncStorage.getItem("userToken");
             if (token == null) {
                 ToastAndroid.show("请先登录", ToastAndroid.SHORT);

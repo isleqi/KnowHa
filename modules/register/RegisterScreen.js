@@ -67,7 +67,7 @@ export default class RegisterScreen extends Component {
       type: type
     });
 
-    let url = 'http://192.168.1.6:8070/app/register/' + str;
+    let url = 'http://192.168.1.100:8070/app/register/' + str;
 
 
 
@@ -98,7 +98,7 @@ export default class RegisterScreen extends Component {
     }
     formData.append('code', this.state.code);
 
-    let url = 'http://192.168.1.6:8070/app/register/' + str;
+    let url = 'http://192.168.1.100:8070/app/register/' + str;
     fetch(url, {
       method: 'POST',
       body: formData

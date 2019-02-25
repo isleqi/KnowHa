@@ -80,7 +80,7 @@ export default class RegisterDetail extends Component {
 
     navigateHome = () => {
 
-        let url = 'http://192.168.1.6:8070/app/register/submit';
+        let url = 'http://192.168.1.100:8070/app/register/submit';
         let formData = new FormData();
         formData.append("account", this.state.account);
         formData.append("identityType", this.state.identityType);

@@ -24,6 +24,8 @@ import MyAnswer from '../modules/usercenter/MyAnswer';
 import MyQuestion from '../modules/usercenter/MyQuestion';
 import AnsCommentList from '../modules/index/AnsCommentList';
 import CommentReplyList from '../modules/index/CommentReplyList';
+import FollowUser from '../modules/usercenter/FollowUser';
+import FanUser from '../modules/usercenter/FanUser';
 const AppStack = createStackNavigator({
    Home: HomeScreen,
    UserScreen:UserScreen,
@@ -43,7 +45,9 @@ const AppStack = createStackNavigator({
    MyAnswer:MyAnswer,
    MyQuestion:MyQuestion,
    AnsCommentList:AnsCommentList,
-   CommentReplyList:CommentReplyList
+   CommentReplyList:CommentReplyList,
+   FanUser:FanUser,
+   FollowUser:FollowUser,
   });
 const AuthStack = createStackNavigator({ SignIn: SignInScreen,Oauth:OauthScreen});
 const RegisterStack=createStackNavigator({Register:RegisterScreen,RegisterDetail:RegisterDetail});

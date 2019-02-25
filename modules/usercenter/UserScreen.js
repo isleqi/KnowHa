@@ -6,6 +6,8 @@ import {
   StyleSheet, TouchableOpacity, SafeAreaView, ToastAndroid,
   View, Button, Text, DeviceEventEmitter, TouchableNativeFeedback, Image, ScrollView, RefreshControl, FlatList, Dimensions
 } from 'react-native';
+import {baseUrl} from '../../utils/Base';
+
 
 let userToken;
 export default class UserScreen extends Component {
@@ -56,9 +58,15 @@ export default class UserScreen extends Component {
   navigateToFollowQues = () => {
     DeviceEventEmitter.emit('navigateToFollowQues');
   }
+  navigateToFollowUser = () => {
+    DeviceEventEmitter.emit('navigateToFollowUser');
+  }
+  navigateToFanUser = () => {
+    DeviceEventEmitter.emit('navigateToFanUser');
+  }
 
   getUserInfo = () => {
-    let url = 'http://192.168.1.6:8070/app/user/getBaseUserInfo';
+    let url = 'http://192.168.1.100:8070/app/user/getBaseUserInfo';
     let formData = new FormData();
     formData.append("token", userToken);
     let params = {
@@ -125,8 +133,12 @@ export default class UserScreen extends Component {
                 </View>
 
                 <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingBottom: 10 }}>
+                 <TouchableOpacity onPress={()=>this.navigateToFollowUser()}>
                   <Text style={{ fontSize: 10 }}>关注 {this.state.followsNum}  |   </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={()=>this.navigateToFanUser()}>
                   <Text style={{ fontSize: 10 }}>粉丝 {this.state.fansNum}</Text>
+                  </TouchableOpacity>
                 </View>
 
                 <View style={{ alignItems: 'center', paddingBottom: 10 }}>

@@ -40,7 +40,7 @@ export default class MyColumn extends Component {
     getFollowAnsList = async () => {
         let limit = this.state.limit;
         let page = this.state.page + 1;
-        let url = 'http://192.168.1.6:8070/app/user/getFollowAnswerList?' + '&pageNum=' + page + '&pageSize=' + limit;
+        let url = 'http://192.168.1.100:8070/app/user/getFollowAnswerList?' + '&pageNum=' + page + '&pageSize=' + limit;
         let token = await AsyncStorage.getItem("userToken");
         fetch(url, {
             method: 'GET',

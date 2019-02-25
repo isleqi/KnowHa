@@ -84,7 +84,7 @@ export default class CreateArticle extends Component {
   }
 
   uploadImage = (path) => {
-    let url = 'http://192.168.1.6:8070/app/user/uploadImage';
+    let url = 'http://192.168.1.100:8070/app/user/uploadImage';
     let file = { uri: path, type: 'application/octet-stream', name: 'image.jpg' };
     let formData = new FormData();
     formData.append("files", file);

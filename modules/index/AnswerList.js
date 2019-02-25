@@ -44,7 +44,7 @@ export default class AnswerList extends Component {
         let quesId = this.props.navigation.state.params.item.id;
         let limit = this.state.limit;
         let page = this.state.page + 1;
-        let url = 'http://192.168.1.6:8070/app/answer/getAnswerList?quesId=' + quesId + '&pageNum=' + page + '&pageSize=' + limit;
+        let url = 'http://192.168.1.100:8070/app/answer/getAnswerList?quesId=' + quesId + '&pageNum=' + page + '&pageSize=' + limit;
 
         fetch(url, {
             method: 'GET',

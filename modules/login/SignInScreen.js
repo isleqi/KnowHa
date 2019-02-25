@@ -43,7 +43,7 @@ export default class SignInScreen extends Component {
         "524337518" +
         "&response_type=code" +
         "&redirect_uri=" +
-        "http://192.168.1.6:8070/app/login/sinaOauth";
+        "http://192.168.1.100:8070/app/login/sinaOauth";
     }
     else if (type == 'github') {
        uri_ = "https://github.com/login/oauth/authorize?client_id=" + "742507a3c11705661108";
@@ -59,7 +59,7 @@ export default class SignInScreen extends Component {
   }
 
   submit=()=>{
-    let url = 'http://192.168.1.6:8070/app/login/submit';
+    let url = 'http://192.168.1.100:8070/app/login/submit';
     let formData = new FormData();
     formData.append("account", this.state.account);
     formData.append("password",this.state.password);
