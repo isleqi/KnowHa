@@ -6,7 +6,7 @@ import {
   StyleSheet, TouchableOpacity, SafeAreaView, ToastAndroid,
   View, Button, Text, DeviceEventEmitter, TouchableNativeFeedback, Image, ScrollView, RefreshControl, FlatList, Dimensions
 } from 'react-native';
-import {baseUrl} from '../../utils/Base';
+import { baseUrl } from '../../utils/Base';
 
 
 let userToken;
@@ -24,7 +24,10 @@ export default class UserScreen extends Component {
       description: '',
       fansNum: 0,
       followsNum: 0,
-
+      //是否显示指示器
+      animating: false,
+      //是否刷新
+      isRefreshing: false
     };
 
   }
@@ -104,10 +107,31 @@ export default class UserScreen extends Component {
     DeviceEventEmitter.emit('navigateToAuth');
   }
 
+    //上拉刷新
+    onRefresh = () => {
+      //重置参数
+      this.setState({
+          isRefreshing: true,
+          animating: false
+      }, () => {
+          this.getUserInfo();
+          this.setState({ isRefreshing: false });
+      });
+  }
+
+
   render() {
     console.log(this.state.avatarSource);
     return (
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            refreshing={this.state.isRefreshing}
+            onRefresh={this.onRefresh}
+            colors={['rgb(217, 51, 58)']}
+          />
+        }
+      >
         <View style={styles.container}>
           <View style={styles.content}>
 
@@ -133,11 +157,11 @@ export default class UserScreen extends Component {
                 </View>
 
                 <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingBottom: 10 }}>
-                 <TouchableOpacity onPress={()=>this.navigateToFollowUser()}>
-                  <Text style={{ fontSize: 10 }}>关注 {this.state.followsNum}  |   </Text>
+                  <TouchableOpacity onPress={() => this.navigateToFollowUser()}>
+                    <Text style={{ fontSize: 10 }}>关注 {this.state.followsNum}  |   </Text>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={()=>this.navigateToFanUser()}>
-                  <Text style={{ fontSize: 10 }}>粉丝 {this.state.fansNum}</Text>
+                  <TouchableOpacity onPress={() => this.navigateToFanUser()}>
+                    <Text style={{ fontSize: 10 }}>粉丝 {this.state.fansNum}</Text>
                   </TouchableOpacity>
                 </View>
 

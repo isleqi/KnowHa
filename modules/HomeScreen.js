@@ -107,6 +107,12 @@ export default class HomeScreen extends React.Component {
                 .navigation
                 .navigate('FanUser');
         });
+        DeviceEventEmitter.addListener('navigateToArticleDetail', (e) => {
+            this
+                .props
+                .navigation
+                .navigate('ArticleDetail',{item:e});
+        });
      
     }
 
