@@ -67,6 +67,9 @@ export default class UserScreen extends Component {
   navigateToFanUser = () => {
     DeviceEventEmitter.emit('navigateToFanUser');
   }
+  navigateToMyWallet = () => {
+    DeviceEventEmitter.emit('navigateToMyWallet');
+  }
 
   getUserInfo = () => {
     let url = 'http://192.168.1.100:8070/app/user/getBaseUserInfo';
@@ -228,6 +231,7 @@ export default class UserScreen extends Component {
               </View>
             </TouchableOpacity>
 
+            <TouchableOpacity onPress={() => this.navigateToMyWallet()} style={{ flexDirection: 'row', alignItems: 'center' }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', paddingLeft: 15 }}>
               <Image source={require("../../resources/user/qb.png")} style={{ height: 30, width: 30 }} />
 
@@ -236,6 +240,8 @@ export default class UserScreen extends Component {
                 <View style={{ height: 1, backgroundColor: "#e0dfdf" }}></View>
               </View>
             </View>
+            </TouchableOpacity>
+
 
             <View style={{ flexDirection: 'row', alignItems: 'center', paddingLeft: 15 }}>
               <Image source={require("../../resources/user/sz.png")} style={{ height: 30, width: 30 }} />

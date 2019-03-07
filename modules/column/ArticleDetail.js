@@ -3,8 +3,10 @@ import {
     ActivityIndicator,
     AsyncStorage,
     StatusBar,
-    StyleSheet, TouchableOpacity, SafeAreaView, TextInput,
-    View, Button, Text, DeviceEventEmitter, TouchableNativeFeedback, Image, ScrollView, RefreshControl, FlatList, Dimensions
+    StyleSheet, TouchableOpacity, SafeAreaView, TextInput, BackAndroid,
+    Platform, ToastAndroid,
+    View, Button, Text, DeviceEventEmitter, TouchableNativeFeedback, Image, ScrollView,
+    RefreshControl, FlatList, Dimensions
 } from 'react-native';
 
 import HTMLView from 'react-native-htmlview';
@@ -19,13 +21,18 @@ export default class ArticleDetail extends Component {
     };
     constructor(props) {
         super(props);
-        let articleVo = this.props.navigation.state.params.item;
+        console.log(this.props.navigation.state.params.data);
+        let articleVo = this.props.navigation.state.params.data.item;
+        let index = this.props.navigation.state.params.data.index;
+        let refreshItem = this.props.navigation.state.params.data.refreshItem;
         let user = articleVo.user;
         this.state = {
             like: false,
             followUser: false,
             user: user,
-            article: articleVo
+            article: articleVo,
+            index: index,
+            refreshItem: refreshItem
         };
 
 
@@ -33,13 +40,25 @@ export default class ArticleDetail extends Component {
 
     componentDidMount() {
         this.getToken();
+        if (Platform.OS === 'android') {
+            BackAndroid.addEventListener("hardwareBackPress", this.refreshItem);
+        } else {
+
+        }
+    }
+
+    refreshItem = () => {
+        if(this.state.refreshItem!=undefined)
+           this.state.refreshItem(this.state.article.articleId, this.state.index);
+          
+      
     }
 
     getToken = async () => {
         token = await AsyncStorage.getItem("userToken");
         if (token != null) {
             this.hasFollowUser();
-        
+
         }
     }
 
@@ -49,7 +68,7 @@ export default class ArticleDetail extends Component {
         })
 
     }
-   
+
 
     hasFollowUser = () => {
         let useredId = this.state.user.id;
@@ -77,7 +96,7 @@ export default class ArticleDetail extends Component {
         })
     }
 
-   
+
 
     followUser = () => {
         let useredId = this.state.user.id;
@@ -111,7 +130,7 @@ export default class ArticleDetail extends Component {
 
     }
 
-   
+
 
     cancelFollowUser = () => {
         let useredId = this.state.user.id;
@@ -143,9 +162,9 @@ export default class ArticleDetail extends Component {
     navigateToArticleCommentList = (item) => {
 
         this
-        .props
-        .navigation
-        .navigate('ArticleCommentList',{articleId:item});
+            .props
+            .navigation
+            .navigate('ArticleCommentList', { articleId: item });
 
     }
 
@@ -255,7 +274,7 @@ export default class ArticleDetail extends Component {
                         </View>
                     </ScrollView>
                     <View style={{ height: 60, justifyContent: 'flex-end', backgroundColor: '#ffffff' }}>
-                        <View style={{ flexDirection: 'row', paddingTop: 10, paddingBottom: 10,paddingRight:15,paddingLeft:15 }}>
+                        <View style={{ flexDirection: 'row', paddingTop: 10, paddingBottom: 10, paddingRight: 15, paddingLeft: 15 }}>
                             <TouchableOpacity onPress={() => this.setLike()}>
                                 <View style={{ alignItems: 'center' }}>
                                     <Image source={
@@ -268,7 +287,7 @@ export default class ArticleDetail extends Component {
                                 </View>
                             </TouchableOpacity>
                             <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
-                              
+
                                 <TouchableOpacity onPress={() => this.navigateToArticleCommentList(article.articleId)}>
                                     <View style={{ alignItems: 'center' }}>
                                         <Image source={require('../../resources/index/pl.png')} style={{ width: 25, height: 25 }} />
@@ -298,5 +317,5 @@ const styles = StyleSheet.create({
 
 });
 const htmlStyles = StyleSheet.create({
-    
+
 });

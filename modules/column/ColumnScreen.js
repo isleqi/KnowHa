@@ -9,7 +9,6 @@ import {
 import ScrollableTabView, { ScrollableTabBar, DefaultTabBar } from 'react-native-scrollable-tab-view';
 import AllColumn from '../column/AllColumn';
 
-
 export default class ColumnScreen extends Component {
   static navigationOptions = {
     header: null
@@ -20,6 +19,50 @@ export default class ColumnScreen extends Component {
 
     };
 
+  }
+
+  componentWillMount() {
+    this._bootstrapAsync();
+    //  this.getUserInfo();
+  }
+
+  _bootstrapAsync = async () => {
+    userToken = await AsyncStorage.getItem('userToken');
+    //  ToastAndroid.show(userToken,ToastAndroid.SHORT);
+    if (userToken == null) {
+      ToastAndroid.show("请先登录", ToastAndroid.SHORT);
+      DeviceEventEmitter.emit('navigateToAuth');
+    }
+    this.getUserInfo();
+  }
+
+  getUserInfo = () => {
+    let url = 'http://192.168.1.100:8070/app/user/getBaseUserInfo';
+    let formData = new FormData();
+    formData.append("token", userToken);
+    let params = {
+      "token": userToken
+    }
+    console.log(userToken)
+    fetch(url, {
+      method: 'POST',
+      body: formData
+
+    }).then((response) => {
+      return response.json();
+    }).then((responseData) => {
+      console.log(responseData);
+      let data = responseData.data;
+      if (data.code != 'undefined' && data.code == 403) {
+        ToastAndroid.show("token失效，请重新登录", ToastAndroid.SHORT);
+        DeviceEventEmitter.emit('navigateToAuth');
+      } else {
+      
+      
+        
+      }
+
+    })
   }
 
   navigateToCreateArticle=()=>{

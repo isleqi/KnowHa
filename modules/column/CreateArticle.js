@@ -179,10 +179,13 @@ export default class CreateArticle extends Component {
 
   
   navigateToArticleDetail = (item) => {
+    let data={
+      item:item
+    };
     this
         .props
         .navigation
-        .navigate('ArticleDetail',{item:item});
+        .navigate('ArticleDetail',{data:data});
 }
 
 

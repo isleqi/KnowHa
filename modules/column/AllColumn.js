@@ -3,7 +3,7 @@ import {
     ActivityIndicator,
     AsyncStorage,
     StatusBar,
-    StyleSheet, TouchableOpacity, SafeAreaView, Alert,ToastAndroid,
+    StyleSheet, TouchableOpacity, SafeAreaView, Alert, ToastAndroid,
     View, Button, Text, DeviceEventEmitter, TouchableNativeFeedback, Image, ScrollView, RefreshControl, FlatList, Dimensions
 } from 'react-native';
 import Base from '../../utils/Base';
@@ -37,7 +37,34 @@ export default class AllColumn extends Component {
         this.getColumnList();
     }
 
-    getColumnList =async () => {
+    refreshItem =async (articleId, index) => {
+        let url = baseUrl + '/app/column/getArticleById?&articleId=' + articleId;
+        let token = await AsyncStorage.getItem("userToken");
+
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                "token": token
+            }
+        }).then((response) => {
+            return response.json();
+        }).then((responseData) => {
+            console.log(responseData);
+            if (responseData.code != "200") {
+                ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+                return;
+            }
+            let item = responseData.data;
+            let data = this.state.data;
+            data.splice(index, 1, item);
+            this.setState({
+                data: data
+            })
+        })
+
+    }
+
+    getColumnList = async () => {
         let limit = this.state.limit;
         let page = this.state.page + 1;
         let url = baseUrl + '/app/column/getArticleList?&pageNum=' + page + '&pageSize=' + limit;
@@ -169,17 +196,22 @@ export default class AllColumn extends Component {
         this.getColumnList();
     }
 
-    navigateToArticleDetail = (item,index) => {
+    navigateToArticleDetail = (item, index) => {
         if (item.type == 1) {
-            this.payArticle(item,index);
+            this.payArticle(item, index);
         }
         else {
-            DeviceEventEmitter.emit('navigateToArticleDetail', item);
+            let data = {
+                item: item,
+                index: index,
+                refreshItem: this.refreshItem
+            }
+            DeviceEventEmitter.emit('navigateToArticleDetail', data);
         }
 
     }
 
-    finishPay = async (item,index) => {
+    finishPay = async (item, index) => {
         let url = baseUrl + '/app/column/payForArticle?articleId=' + item.articleId + '&value=' + item.value;
         let token = await AsyncStorage.getItem("userToken");
         fetch(url, {
@@ -196,37 +228,87 @@ export default class AllColumn extends Component {
                 ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
                 return;
             }
-            let data=this.state.data;
-            item.hasPay=true;
-            data.splice(index,1,item);
+            let data = this.state.data;
+            item.hasPay = true;
+            data.splice(index, 1, item);
             this.setState({
-                data:data
+                data: data
             })
-            DeviceEventEmitter.emit('navigateToArticleDetail', item);
+            let params = {
+                item: item,
+                index: index,
+                refreshItem: this.refreshItem
+            }
+            DeviceEventEmitter.emit('navigateToArticleDetail', params);
         })
     }
 
-    payArticle = (item,index) => {
+    payArticle = (item, index) => {
         let value = item.value;
-        if(item.hasPay)
-        DeviceEventEmitter.emit('navigateToArticleDetail', item);
+
+        if (item.hasPay||item.myArticle) {
+            let params = {
+                item: item,
+                index: index,
+                refreshItem: this.refreshItem
+            }
+            DeviceEventEmitter.emit('navigateToArticleDetail', params);
+        }
+
         else
-        Alert.alert(
-            '付费',
-            "该内容为付费内容，查看需" + value + "积分，是否继续",
-            [
-                { text: '取消', onPress: () => console.log('Cancel Pressed!') },
-                { text: '继续', onPress: () => this.finishPay(item,index) },
-            ]
-        )
+            Alert.alert(
+                '付费',
+                "该内容为付费内容，查看需" + value + "积分，是否继续",
+                [
+                    { text: '取消', onPress: () => console.log('Cancel Pressed!') },
+                    { text: '继续', onPress: () => this.finishPay(item, index) },
+                ]
+            )
+    }
+
+    renderTag=(item) =>{
+       
+        let isMyArticle = item.myArticle;
+        if (isMyArticle)
+            return (
+                <View style={{ backgroundColor: '#efbb09', padding: 4, borderRadius: 5, marginRight: 10 }}>
+                    <Text style={{ fontSize: 9, color: 'white' }}>我的原创</Text>
+                </View>
+            );
+        else {
+            if (item.hasPay)
+                return (
+                    <View style={{ backgroundColor: 'gray', padding: 4, borderRadius: 5, marginRight: 10 }}>
+                        <Text style={{ fontSize: 9, color: 'white' }}>已付费</Text>
+                    </View>
+                );
+            else {
+                if (item.type == 0)
+                    return (
+                        <View style={{ backgroundColor: '#26e671', padding: 4, borderRadius: 5, marginRight: 5 }}>
+                            <Text style={{ fontSize: 9, color: 'white' }}>免费</Text>
+                        </View>
+                    );
+                else
+                    return (
+                        <View style={{ backgroundColor: 'red', padding: 4, borderRadius: 5, marginRight: 5 }}>
+                            <Text style={{ fontSize: 9, color: 'white' }}>付费</Text>
+                        </View>
+                    );
+            }
+        }
+
     }
 
     renderItem = (data) => {
         let item = data.item;
-        let index=data.index;
+        let index = data.index;
         let user = item.user;
+
+
+
         return (
-            <TouchableOpacity onPress={() => this.navigateToArticleDetail(item,index)}>
+            <TouchableOpacity onPress={() => this.navigateToArticleDetail(item, index)}>
                 <View>
                     <View style={{ paddingLeft: 15, paddingTop: 20, flexDirection: 'row', alignItems: 'center' }}>
 
@@ -242,29 +324,7 @@ export default class AllColumn extends Component {
                             <Text style={{ fontSize: 13, }}>{user.userName}</Text>
                         </View>
                         <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end', paddingRight: 20 }} >
-                            {
-                                !item.hasPay ?
-                                    null :
-                                    <View style={{ backgroundColor: 'gray', padding: 4, borderRadius: 5, marginRight: 10 }}>
-                                        <Text style={{ fontSize: 9, color: 'white' }}>已付费</Text>
-                                    </View>
-                            }
-                            {
-                                item.type == 0 ?
-                                    <View style={{ backgroundColor: '#26e671', padding: 4, borderRadius: 5, marginRight: 5 }}>
-                                        <Text style={{ fontSize: 9, color: 'white' }}>免费</Text>
-                                    </View>
-                                    :
-                                    (
-
-
-                                        <View style={{ backgroundColor: '#efbb09', padding: 4, borderRadius: 5, marginRight: 5 }}>
-                                            <Text style={{ fontSize: 9, color: 'white' }}>付费</Text>
-                                        </View>
-                                    )
-
-                            }
-
+                            {this.renderTag(item)}
                         </View>
 
                     </View>

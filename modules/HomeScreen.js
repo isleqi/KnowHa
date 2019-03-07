@@ -89,6 +89,12 @@ export default class HomeScreen extends React.Component {
                 .navigation
                 .navigate('MyColumn');
         });
+        DeviceEventEmitter.addListener('navigateToMyWallet', (e) => {
+            this
+                .props
+                .navigation
+                .navigate('MyWallet');
+        });
         DeviceEventEmitter.addListener('navigateToFollowQues', (e) => {
             this
                 .props
@@ -111,7 +117,7 @@ export default class HomeScreen extends React.Component {
             this
                 .props
                 .navigation
-                .navigate('ArticleDetail',{item:e});
+                .navigate('ArticleDetail',{data:e});
         });
      
     }
