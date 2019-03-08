@@ -29,7 +29,7 @@ export default class CommentReplyList extends Component {
         super(props);
         this.state = {
             data: [],
-            articleCommentId: this.props.navigation.state.params.articleCommentId,
+            articleCommentId: this.props.navigation.state.params.item.id,
             placeholder:'添加回复',
             reply: '',
             //条数限制
@@ -117,7 +117,7 @@ export default class CommentReplyList extends Component {
             ToastAndroid.show("回复不能为空", ToastAndroid.SHORT);
             return;
         }
-        let url = 'http://192.168.1.100:8070/app/articlewer/comment/reply';
+        let url = 'http://192.168.1.100:8070/app/column/comment/reply';
         let formData = new FormData();
         formData.append("commentId", commentId);
         formData.append("replyedUserId", useredId);
@@ -300,15 +300,69 @@ export default class CommentReplyList extends Component {
         this.getCommentList();
     }
 
+renderComment=(data)=>{
+    let item = data.item;
+    let user = item.user;
+    let date = new Date(item.creatTime);
+    let time = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
+    return (
+        <View>
 
+
+        <View style={{ flexDirection: 'row' }}>
+
+            <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, paddingTop: 10, paddingBottom: 10, flexDirection: 'row' }}>
+
+                <View style={{ flex: 0.2 }}>
+                    <TouchableOpacity onPress={() => { }} >
+                        <Image source={{ uri: user.userIconUrl }}
+                            style={{ width: 40, height: 40, borderRadius: 20 }}>
+                        </Image>
+
+                    </TouchableOpacity>
+                </View>
+               
+                <View style={{ flex: 1 }}>
+                <TouchableOpacity onPress={()=>this.reply(item)}>
+
+                    <Text style={{ fontSize: 13, }}>{user.userName}</Text>
+                    <Text style={{ fontSize: 13, }}>{item.commentContent}</Text>
+                    </TouchableOpacity>
+
+                    <View style={{ flexDirection: 'row' }} >
+                        <View style={{ flex: 1 }}>
+                            <Text style={{ fontSize: 10, color: 'gray' }}>{time}</Text>
+                        </View>
+                     
+                       
+                    </View>
+                </View>
+
+            </View>
+
+        </View>
+        <View style={{ height: 1, backgroundColor: "#eae9e961" }}></View>
+
+    </View>
+    );
+}
 
 
 
     render() {
+ 
+        let comment={
+            item:this.props.navigation.state.params.item
+        }
 
+    
 
         return (
             <View style={styles.container}>
+
+        {
+            this.renderComment(comment)
+        }
 
                 <FlatList keyExtractor={(item, index) => index.toString()}
                     data={this.state.data}

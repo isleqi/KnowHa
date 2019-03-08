@@ -110,7 +110,7 @@ export default class ArticleCommentList extends Component {
         this
         .props
         .navigation
-        .navigate('ArticleCommentReplyList', { articleCommentId: item });
+        .navigate('ArticleCommentReplyList', { item: item });
     }
 
     goBack = () => {
@@ -191,14 +191,14 @@ export default class ArticleCommentList extends Component {
                 ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
                 return;
             }
-            let item = responseData.data;
+           
          
             this.setState({
                 comment: '',
                 placeholder:'添加评论'
             });
 
-            this.navigateToCommentReplyList(commentId);
+            this.navigateToCommentReplyList(item);
 
 
         })
@@ -257,7 +257,7 @@ export default class ArticleCommentList extends Component {
                                 </View>
                                 {
                                     item.replyNum!=0? 
-                                    <TouchableOpacity onPress={()=>this.navigateToCommentReplyList(item.id)}>
+                                    <TouchableOpacity onPress={()=>this.navigateToCommentReplyList(item)}>
                                     <View style={{ flex: 1, alignItems: 'flex-end' }}>
                                         <Text style={{ fontSize: 10, flex: 1, color: 'gray' }}>查看对话</Text>
                                     </View>

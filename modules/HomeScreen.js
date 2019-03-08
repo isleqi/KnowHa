@@ -119,6 +119,18 @@ export default class HomeScreen extends React.Component {
                 .navigation
                 .navigate('ArticleDetail',{data:e});
         });
+        DeviceEventEmitter.addListener('navigateToArticleComment', (e) => {
+            this
+            .props
+            .navigation
+            .navigate('ArticleCommentReplyList', { item: e });
+        });
+        DeviceEventEmitter.addListener('navigateToAnswerComment', (e) => {
+            this
+            .props
+            .navigation
+            .navigate('CommentReplyList', { item: e });
+        });
      
     }
 
