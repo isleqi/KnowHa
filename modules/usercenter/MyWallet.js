@@ -23,7 +23,7 @@ export default class MyWallet extends Component {
         super(props);
         this.state = {
             value: 0,
-            showCode: true
+            showCode: false
         };
 
     }

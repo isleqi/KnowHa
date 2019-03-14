@@ -7,9 +7,11 @@ import {
     View, Button, Text, DeviceEventEmitter, TouchableNativeFeedback, Image, ScrollView, RefreshControl, FlatList, Dimensions
 } from 'react-native';
 import ScreenUtil from '../../utils/ScreenUtil';
+import Base from '../../utils/Base';
 
 
 
+let baseUrl = Base.baseUrl;
 export default class MyQuestion extends Component {
     static navigationOptions = {
         header: null
@@ -40,7 +42,7 @@ export default class MyQuestion extends Component {
     getMyQuestion = async () => {
         let limit = this.state.limit;
         let page = this.state.page + 1;
-        let url = 'http://192.168.1.100:8070/app/user/getMyQuestion?' + '&pageNum=' + page + '&pageSize=' + limit;
+        let url = baseUrl + '/app/user/getMyQuestion?' + '&pageNum=' + page + '&pageSize=' + limit;
         let token = await AsyncStorage.getItem("userToken");
         fetch(url, {
             method: 'GET',
@@ -117,38 +119,41 @@ export default class MyQuestion extends Component {
         return view;
     }
 
+    navigateToAnswerList = (item) => {
+        DeviceEventEmitter.emit('navigateToAnswerList', item);
 
-
+    }
 
     renderItem = (data) => {
         let ques = data.item;
-     
+
         return (
             <View>
 
 
                 <View style={{ flexDirection: 'row' }}>
-                    <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, }}>
+                    <TouchableOpacity onPress={()=>this.navigateToAnswerList(ques)} style={{flex:1}} >
+                        <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, }}>
 
 
 
-                        <View style={{ paddingLeft: 10, paddingBottom: 15, paddingTop: 10, paddingBottom: 10, flexDirection: 'row', alignItems: 'center' }}>
+                            <View style={{ paddingLeft: 10, paddingBottom: 15, paddingTop: 10, paddingBottom: 10, flexDirection: 'row', alignItems: 'center' }}>
 
-                            <Text style={{ fontWeight: 'bold' }}>{ques.quesTitle}</Text>
+                                <Text style={{ fontWeight: 'bold' }}>{ques.quesTitle}</Text>
 
-                        </View>
-
-
-                        <View style={{ flexDirection: 'row', paddingLeft: 10, paddingTop: 5, paddingBottom: 20 }}>
-                            <View style={{ flex: 1, flexDirection: 'row', }}>
-                                <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{ques.followNum} 人关注 · </Text>
-                                <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{ques.answerNum} 个回答 </Text>
                             </View>
 
 
-                        </View>
-                    </View>
+                            <View style={{ flexDirection: 'row', paddingLeft: 10, paddingTop: 5, paddingBottom: 20 }}>
+                                <View style={{ flex: 1, flexDirection: 'row', }}>
+                                    <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{ques.followNum} 人关注 · </Text>
+                                    <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{ques.answerNum} 个回答 </Text>
+                                </View>
 
+
+                            </View>
+                        </View>
+                    </TouchableOpacity>
                 </View>
                 <View style={{ height: 8, backgroundColor: "#eae9e961" }}></View>
             </View>

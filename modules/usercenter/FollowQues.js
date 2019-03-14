@@ -117,13 +117,42 @@ export default class FollowQues extends Component {
         return view;
     }
 
+    navigateToAnswerList = (item) => {
+        let data={
+            id:item.quesId,
+            quesTitle:item.ques.quesTitle,
+            quesDes:item.ques.quesDes,
+            followNum:item.ques.followNum,
+            answerNum:item.ques.answerNum,
+            answerVo:item,
+            tagList:item.tagList
+
+        }
+        DeviceEventEmitter.emit('navigateToAnswerList', data);
+
+    }
 
 
+    navigateToAnswerDetail = (item) => {
+        let data={
+            id:item.quesId,
+            quesTitle:item.ques.quesTitle,
+            quesDes:item.ques.quesDes,
+            followNum:item.ques.followNum,
+            answerNum:item.ques.answerNum,
+            answerVo:item,
+            tagList:item.tagList
+
+        }
+        DeviceEventEmitter.emit('navigateToAnswerDetail', data);
+
+    }
 
     renderItem = (data) => {
         let item = data.item;
-        let answer = item.answerVo;
+        let answer = item;
         let tags = item.tagList;
+        let ques=item.ques;
 
         return (
             <View>
@@ -136,7 +165,7 @@ export default class FollowQues extends Component {
 
                         <TouchableOpacity onPress={() => this.navigateToAnswerList(item)}>
                             <View style={{ paddingTop: 10, paddingBottom: 10 }}>
-                                <Text style={{ fontWeight: 'bold', fontSize: 15 }}>{item.quesTitle}</Text>
+                                <Text style={{ fontWeight: 'bold', fontSize: 15 }}>{ques.quesTitle}</Text>
                             </View>
                         </TouchableOpacity>
                         {answer == null ?

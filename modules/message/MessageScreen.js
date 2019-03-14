@@ -215,7 +215,7 @@ export default class MessageScreen extends Component {
   }
   navigateToAnswerList = (item) => {
    
-    DeviceEventEmitter.emit('navigateToAnswerList', item.ques);
+    DeviceEventEmitter.emit('navigateToAnswerList', item);
    
   }
   navigateToArticleDetail = (item) => {
@@ -301,6 +301,20 @@ export default class MessageScreen extends Component {
           <TouchableOpacity onPress={() => {this.navigateToArticleComment(target) ; this.updateHadRead(item.id,index)}} style={{ flex: 1 }}>
             <View style={{ flexDirection: 'row' }} >
               <Text style={{ fontSize: 16 ,width:150}} numberOfLines={1}>{item.type}了你: {item.content}</Text>
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: "center", justifyContent: 'flex-end', flex: 1, paddingTop: 10 }} >
+              <Text style={{ fontSize: 12, color: 'gray' }}>{date}</Text>
+
+            </View>
+          </TouchableOpacity>
+        );
+        case 6:
+        return (
+          <TouchableOpacity onPress={() => { this.navigateToAnswerList(target); this.updateHadRead(item.id,index) }} style={{ flex: 1 }}>
+            <View style={{ flexDirection: 'row' }} >
+              <Text style={{ fontSize: 16 }} >{item.type} </Text>
+              <Text style={{ fontSize: 16 }} >你回答 </Text>
+              <Text style={{ fontSize: 16, fontWeight: 'bold', width: 150 }} numberOfLines={1}>{target.quesTitle}</Text>
             </View>
             <View style={{ flexDirection: 'row', alignItems: "center", justifyContent: 'flex-end', flex: 1, paddingTop: 10 }} >
               <Text style={{ fontSize: 12, color: 'gray' }}>{date}</Text>

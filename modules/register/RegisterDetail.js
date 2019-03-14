@@ -7,8 +7,11 @@ import {
     View, Button, Text, DeviceEventEmitter, TouchableNativeFeedback, Image, ScrollView, RefreshControl, FlatList, Dimensions
 } from 'react-native';
 import ImagePicker from 'react-native-image-picker';
+import ScreenUtil from '../../utils/ScreenUtil';
+import Base from '../../utils/Base';
 
 
+let baseUrl = Base.baseUrl;
 let timerId;
 export default class RegisterDetail extends Component {
     static navigationOptions = {
@@ -20,6 +23,7 @@ export default class RegisterDetail extends Component {
             sex: 1,    //1 男  0 女
             activity: 1,
             avatarSource: '',
+            avatarPath:"",
             identityType: this.props.navigation.state.params.type,
             account: this.props.navigation.state.params.account,
             userName: '',
@@ -65,10 +69,45 @@ export default class RegisterDetail extends Component {
                 // let source = { uri: 'data:image/jpeg;base64,' + response.data };
                 this.setState({
                     avatarSource: source
+
                 });
+
+                this.uploadImage(response.uri);
+
             }
         });
     }
+
+    uploadImage = (path) => {
+        let url =baseUrl+ '/app/user/uploadAvatar';
+        let file = { uri: path, type: 'application/octet-stream', name: 'image.jpg' };
+        let formData = new FormData();
+        formData.append("file", file);
+    
+        fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'multipart/form-data;charset=utf-8',
+    
+          },
+    
+          body: formData
+    
+        }).then((response) => {
+          return response.json();
+        }).then((responseData) => {
+            if (responseData.code != "200") {
+                ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+                return;
+            }
+            let data=responseData.data;
+            this.setState({
+               avatarPath:data
+            })
+        })
+    
+      }
+    
 
     selectSex = (sex) => {
         console.log(sex)
@@ -85,12 +124,15 @@ export default class RegisterDetail extends Component {
         formData.append("account", this.state.account);
         formData.append("identityType", this.state.identityType);
         formData.append("userName", this.state.userName);
+        formData.append("description", this.state.description);
         formData.append("password", this.state.password);
         let params={
             "account":this.state.account,
             "identityType": this.state.identityType,
             "password": this.state.password,
-            "userName": this.state.userName
+            "userName": this.state.userName,
+            "description":this.state.description,
+            'avatarPath':this.state.avatarPath
         }
 
         fetch(url, {

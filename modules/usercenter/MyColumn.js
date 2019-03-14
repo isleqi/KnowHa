@@ -7,7 +7,11 @@ import {
     View, Button, Text, DeviceEventEmitter, TouchableNativeFeedback, Image, ScrollView, RefreshControl, FlatList, Dimensions
 } from 'react-native';
 import ScreenUtil from '../../utils/ScreenUtil';
+import Base from '../../utils/Base';
 
+
+
+let baseUrl=Base.baseUrl;
 
 
 export default class MyColumn extends Component {
@@ -34,13 +38,13 @@ export default class MyColumn extends Component {
     }
 
     componentDidMount() {
-        this.getFollowAnsList();
+        this.getFollowArticleList();
     }
 
-    getFollowAnsList = async () => {
+    getFollowArticleList = async () => {
         let limit = this.state.limit;
         let page = this.state.page + 1;
-        let url = 'http://192.168.1.100:8070/app/user/getFollowAnswerList?' + '&pageNum=' + page + '&pageSize=' + limit;
+        let url = baseUrl+'/app/user/getMyArticle?' + '&pageNum=' + page + '&pageSize=' + limit;
         let token = await AsyncStorage.getItem("userToken");
         fetch(url, {
             method: 'GET',
@@ -117,60 +121,80 @@ export default class MyColumn extends Component {
         return view;
     }
 
+    navigateToArticleDetail = (item, index) => {
+     
+       
+            let data = {
+                item: item,
+                index: index,
+                refreshItem: this.refreshItem
+            }
+            DeviceEventEmitter.emit('navigateToArticleDetail', data);
+        
 
+    }
 
 
     renderItem = (data) => {
         let item = data.item;
+        let index = data.index;
         let user = item.user;
-        let ques = item.ques;
+
         return (
-            <View>
-                <View style={{ paddingLeft: 15, paddingTop: 20, flexDirection: 'row', alignItems: 'center' }}>
+            <TouchableOpacity onPress={() => this.navigateToArticleDetail(item, index)}>
+                <View>
+                    <View style={{ paddingLeft: 15, paddingTop: 20, flexDirection: 'row', alignItems: 'center' }}>
 
-                    <View style={{ alignItems: 'center', paddingRight: 10 }}>
-                        <TouchableOpacity onPress={() => { }} >
-                            <Image source={{ uri: user.userIconUrl }}
-                                style={{ width: 20, height: 20, borderRadius: 10 }}>
-                            </Image>
+                        <View style={{ flex: 1, flexDirection: 'row' }} >
+                            <View style={{ alignItems: 'center', paddingRight: 10 }}>
+                                <TouchableOpacity onPress={() => { }} >
+                                    <Image source={{ uri: user.userIconUrl }}
+                                        style={{ width: 25, height: 25, borderRadius: 13 }}>
+                                    </Image>
 
-                        </TouchableOpacity>
-                    </View>
-                    <Text style={{ fontSize: 11, }}>{user.userName}</Text>
-
-                </View>
-                <View style={{ paddingLeft: 15, paddingBottom: 15, paddingTop: 10, paddingBottom: 10, flexDirection: 'row', alignItems: 'center' }}>
-
-                    <Text style={{ fontWeight: 'bold' }}>{ques.quesTitle}</Text>
-
-                </View>
-
-                <View style={{ flexDirection: 'row' }}>
-                    <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, }}>
-
-
-
-                        <View style={{ paddingTop: 5, paddingBottom: 5 }}>
-                            <Text style={[{ lineHeight: 17, fontSize: 12 }]}
-                                numberOfLines={3}>
-                                {item.ansContent}
-                            </Text>
+                                </TouchableOpacity>
+                            </View>
+                            <Text style={{ fontSize: 13, }}>{user.userName}</Text>
+                        </View>
+                        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end', paddingRight: 20 }} >
+                            {this.renderTag(item)}
                         </View>
 
-                        <View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 20 }}>
-                            <View style={{ flex: 1, flexDirection: 'row', }}>
-                                <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{item.likeNum} 赞同 · </Text>
-                                <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{item.commentNum} 评论</Text>
+                    </View>
+
+                    <View style={{ flexDirection: 'row' }}>
+                        <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, }}>
+
+
+                            <View style={{ paddingTop: 5, paddingBottom: 5 }}>
+                                <Text style={{ fontWeight: 'bold', fontSize: 15 }}>{item.articleTitle}</Text>
                             </View>
 
+                            <View style={{ paddingTop: 5, paddingBottom: 5 }}>
+                                <Text style={[{ lineHeight: 17, fontSize: 12 }]}
+                                    numberOfLines={3}>
+                                    {item.articleContent}
+                                </Text>
+                            </View>
 
+                            <View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 20 }}>
+                                <View style={{ flex: 1, flexDirection: 'row', }}>
+                                    <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{item.likeNum} 赞同 · </Text>
+                                    <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{item.commentNum} 评论</Text>
+                                </View>
+                                <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
+                                    <Image source={require('../../resources/column/yj.png')}
+                                        style={{ width: 20, height: 12, opacity: 0.3, marginRight: 10 }} />
+                                    <Text style={{ fontSize: 11, color: '#bdbcbce8', marginRight: 15 }}>{item.browse}</Text>
+                                </View>
+
+                            </View>
                         </View>
+
                     </View>
-
+                    <View style={{ height: 8, backgroundColor: "#eae9e961" }}></View>
                 </View>
-                <View style={{ height: 8, backgroundColor: "#eae9e961" }}></View>
-            </View>
-
+            </TouchableOpacity>
         );
     }
 
@@ -185,7 +209,7 @@ export default class MyColumn extends Component {
             showFoot: 0,
             animating: false
         }, () => {
-            this.getFollowAnsList();
+            this.getFollowArticleList();
             this.setState({ isRefreshing: false });
         });
     }
@@ -250,7 +274,7 @@ export default class MyColumn extends Component {
             return;
         }
 
-        this.getFollowAnsList();
+        this.getFollowArticleList();
     }
 
     listHeader = () => {

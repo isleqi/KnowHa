@@ -6,9 +6,12 @@ import {
   StyleSheet, TouchableOpacity, SafeAreaView, ToastAndroid,
   View, Button, Text, DeviceEventEmitter, TouchableNativeFeedback, Image, ScrollView, RefreshControl, FlatList, Dimensions
 } from 'react-native';
-import { baseUrl } from '../../utils/Base';
+import ScreenUtil from '../../utils/ScreenUtil';
+import Base from '../../utils/Base';
+import ImagePicker from 'react-native-image-picker';
 
 
+let baseUrl = Base.baseUrl;
 let userToken;
 export default class UserScreen extends Component {
   static navigationOptions = {
@@ -72,7 +75,7 @@ export default class UserScreen extends Component {
   }
 
   getUserInfo = () => {
-    let url = 'http://192.168.1.100:8070/app/user/getBaseUserInfo';
+    let url = baseUrl + '/app/user/getBaseUserInfo';
     let formData = new FormData();
     formData.append("token", userToken);
     let params = {
@@ -110,18 +113,118 @@ export default class UserScreen extends Component {
     DeviceEventEmitter.emit('navigateToAuth');
   }
 
-    //上拉刷新
-    onRefresh = () => {
-      //重置参数
-      this.setState({
-          isRefreshing: true,
-          animating: false
-      }, () => {
-          this.getUserInfo();
-          this.setState({ isRefreshing: false });
-      });
+  //上拉刷新
+  onRefresh = () => {
+    //重置参数
+    this.setState({
+      isRefreshing: true,
+      animating: false
+    }, () => {
+      this.getUserInfo();
+      this.setState({ isRefreshing: false });
+    });
   }
 
+
+  choosePicker = () => {
+
+    const photoOptions = {
+      title: '',
+      quality: 0.8,
+      cancelButtonTitle: '取消',
+      takePhotoButtonTitle: '拍照',
+      chooseFromLibraryButtonTitle: '选择相册',
+      allowsEditing: true,
+      noData: false,
+      storageOptions: {
+        skipBackup: true,
+        path: 'images'
+      }
+    };
+
+
+    ImagePicker.showImagePicker(photoOptions, (response) => {
+      console.log('Response = ', response);
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      }
+      else if (response.error) {
+        console.log('ImagePicker Error: ', response.error);
+      }
+      else if (response.customButton) {
+        console.log('User tapped custom button: ', response.customButton);
+      }
+      else {
+        let source = { uri: response.uri };
+        this.setState({
+          avatarSource: source
+
+      });
+        this.uploadImage(response.uri);
+      }
+    });
+  }
+
+  uploadImage = (path) => {
+    let url = baseUrl + '/app/user/uploadAvatar';
+    let file = { uri: path, type: 'application/octet-stream', name: 'image.jpg' };
+    let formData = new FormData();
+    formData.append("file", file);
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'multipart/form-data;charset=utf-8',
+
+      },
+
+      body: formData
+
+    }).then((response) => {
+      return response.json();
+    }).then((responseData) => {
+      if (responseData.code != "200") {
+        ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+        return;
+      }
+      let data = responseData.data;
+     this.updateUserInfo(data,"")
+    })
+
+  }
+
+  updateUserInfo =async (avatarPath, des) => {
+    let formData = new FormData();
+    let url = baseUrl + '/app/user/updateUserInfo';
+    let token = await AsyncStorage.getItem("userToken");
+    if (avatarPath != "") {
+      formData.append("avatarPath", avatarPath);
+    }
+
+    if (des != "") {
+      formData.append("des", des);
+    }
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+          "token": token,
+      },
+      body: formData
+
+  }).then((response) => {
+      return response.json();
+  }).then((responseData) => {
+      console.log(responseData);
+      if (responseData.code != "200") {
+          ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+          return;
+      }
+      ToastAndroid.show("更新成功", ToastAndroid.SHORT);
+
+  }
+  )
+  }
 
   render() {
     console.log(this.state.avatarSource);
@@ -145,10 +248,12 @@ export default class UserScreen extends Component {
                   <TouchableOpacity onPress={() => this.choosePicker()} >
 
                     <Image source={
-                      this.state.avatarSource == '' ?
+                      this.state.avatarSource != '' ?
+                      { uri: this.state.avatarSource }
+                      :
                         (this.state.sex == 1 ? require('../../resources/register/boy.png') :
-                          require('../../resources/register/girl.png')) :
-                        { uri: this.state.avatarSource }
+                          require('../../resources/register/girl.png')) 
+                       
                     }
                       style={{ width: 80, height: 80, borderRadius: 40 }}>
                     </Image>
@@ -232,14 +337,14 @@ export default class UserScreen extends Component {
             </TouchableOpacity>
 
             <TouchableOpacity onPress={() => this.navigateToMyWallet()} style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', paddingLeft: 15 }}>
-              <Image source={require("../../resources/user/qb.png")} style={{ height: 30, width: 30 }} />
+              <View style={{ flexDirection: 'row', alignItems: 'center', paddingLeft: 15 }}>
+                <Image source={require("../../resources/user/qb.png")} style={{ height: 30, width: 30 }} />
 
-              <View style={{ flex: 1 }}>
-                <Text style={{ paddingTop: 15, paddingBottom: 15, paddingLeft: 10 }}>我的钱包</Text>
-                <View style={{ height: 1, backgroundColor: "#e0dfdf" }}></View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ paddingTop: 15, paddingBottom: 15, paddingLeft: 10 }}>我的钱包</Text>
+                  <View style={{ height: 1, backgroundColor: "#e0dfdf" }}></View>
+                </View>
               </View>
-            </View>
             </TouchableOpacity>
 
 

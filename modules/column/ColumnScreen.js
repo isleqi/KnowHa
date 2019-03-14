@@ -8,6 +8,8 @@ import {
 } from 'react-native';
 import ScrollableTabView, { ScrollableTabBar, DefaultTabBar } from 'react-native-scrollable-tab-view';
 import AllColumn from '../column/AllColumn';
+import FollowUserArticle from '../column/FollowUserArticle';
+
 
 export default class ColumnScreen extends Component {
   static navigationOptions = {
@@ -112,7 +114,7 @@ export default class ColumnScreen extends Component {
 
 
           <AllColumn tabLabel='全部文章' ></AllColumn>
-          <Text tabLabel='关注的人'>favorite</Text>
+          <FollowUserArticle tabLabel='关注的人'></FollowUserArticle>
         </ScrollableTabView>
       </View>
     );

@@ -144,6 +144,8 @@ export default class MyAnswer extends Component {
                     <Text style={{ fontWeight: 'bold' }}>{ques.quesTitle}</Text>
 
                 </View>
+                <TouchableOpacity onPress={() => this.navigateToAnswerDetail(item)}>
+
 
                 <View style={{ flexDirection: 'row' }}>
                     <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, }}>
@@ -168,6 +170,7 @@ export default class MyAnswer extends Component {
                     </View>
 
                 </View>
+                </TouchableOpacity>
                 <View style={{ height: 8, backgroundColor: "#eae9e961" }}></View>
             </View>
 
@@ -265,7 +268,14 @@ export default class MyAnswer extends Component {
         );
     }
 
+    navigateToAnswerDetail = (item) => {
+        let data={
+            answerVo:item,
+            quesTitle:item.ques.quesTitle
+        }
+        DeviceEventEmitter.emit('navigateToAnswerDetail', data);
 
+    }
 
     render() {
 

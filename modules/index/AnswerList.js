@@ -118,7 +118,14 @@ export default class AnswerList extends Component {
         return view;
     }
 
+    navigateToAnswerDetail = (item) => {
+        let data={
+            answerVo:item,
+            quesTitle:this.state.quesData.quesTitle
+        }
+        DeviceEventEmitter.emit('navigateToAnswerDetail', data);
 
+    }
 
 
     renderItem = (data) => {
@@ -141,36 +148,39 @@ export default class AnswerList extends Component {
                 </View>
 
                 <View style={{ flexDirection: 'row' }}>
-                    <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, }}>
+                    <TouchableOpacity onPress={() => this.navigateToAnswerDetail(item)}>
+                        <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, }}>
 
 
 
-                        <View style={{ paddingTop: 5, paddingBottom: 5 }}>
-                            <Text style={[{ lineHeight: 17, fontSize: 12 }]}
-                                numberOfLines={3}>
-                                {item.ansContent}
-                            </Text>
-                        </View>
 
-                        <View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 20 }}>
-                            <View style={{ flex: 1, flexDirection: 'row', }}>
-                                <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{item.likeNum} 赞同 · </Text>
-                                <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{item.commentNum} 评论</Text>
+                            <View style={{ paddingTop: 5, paddingBottom: 5 }}>
+                                <Text style={[{ lineHeight: 17, fontSize: 12 }]}
+                                    numberOfLines={3}>
+                                    {item.ansContent}
+                                </Text>
                             </View>
 
+                            <View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 20 }}>
+                                <View style={{ flex: 1, flexDirection: 'row', }}>
+                                    <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{item.likeNum} 赞同 · </Text>
+                                    <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{item.commentNum} 评论</Text>
+                                </View>
 
+
+                            </View>
                         </View>
-                    </View>
-
+                    </TouchableOpacity>
                 </View>
                 <View style={{ height: 8, backgroundColor: "#eae9e961" }}></View>
+
             </View>
 
         );
     }
 
-     //上拉刷新
-     onRefresh = () => {
+    //上拉刷新
+    onRefresh = () => {
         //重置参数
         this.setState({
             isRefreshing: true,
@@ -185,68 +195,68 @@ export default class AnswerList extends Component {
         });
     }
 
-        //底部组件
-        listFooterComponent = () => {
-            if (this.state.showFoot == 2) {
-                return (
-                    <View
+    //底部组件
+    listFooterComponent = () => {
+        if (this.state.showFoot == 2) {
+            return (
+                <View
+                    style={{
+                        height: ScreenUtil.scaleSize(50),
+                        alignItems: 'center',
+                        justifyContent: 'flex-start'
+                    }}>
+                    <Text
                         style={{
-                            height: ScreenUtil.scaleSize(50),
-                            alignItems: 'center',
-                            justifyContent: 'flex-start'
+                            color: '#999999',
+                            fontSize: ScreenUtil.scaleSize(12),
+                            marginTop: ScreenUtil.scaleSize(15),
+                            marginBottom: ScreenUtil.scaleSize(10)
                         }}>
-                        <Text
-                            style={{
-                                color: '#999999',
-                                fontSize: ScreenUtil.scaleSize(12),
-                                marginTop: ScreenUtil.scaleSize(15),
-                                marginBottom: ScreenUtil.scaleSize(10)
-                            }}>
-                            没有更多数据了
+                        没有更多数据了
                         </Text>
-                    </View>
-                );
-            } else if (this.state.showFoot == 1) {
-                return (
-                    <View
-                        style={{
-                            height: ScreenUtil.scaleSize(50),
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            justifyContent: 'center'
-                        }}>
-                        <ActivityIndicator animating={this.state.animating} size="small" color="grey" />
-                        <Text>正在加载更多数据...</Text>
-                    </View>
-                );
-            } else if (this.state.showFoot == 0) {
-                return (
-                    <View
-                        style={{
-                            height: ScreenUtil.scaleSize(30),
-                            alignItems: 'center',
-                            justifyContent: 'flex-start'
-                        }}>
-                        <Text></Text>
-                    </View>
-                );
-            } else {
-                return (
-                    <View style={{ height: ScreenUtil.scaleSize(30), alignItems: 'center', justifyContent: 'flex-start', }}>
-                        <Text></Text>
-                    </View>
-                );
-            }
+                </View>
+            );
+        } else if (this.state.showFoot == 1) {
+            return (
+                <View
+                    style={{
+                        height: ScreenUtil.scaleSize(50),
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }}>
+                    <ActivityIndicator animating={this.state.animating} size="small" color="grey" />
+                    <Text>正在加载更多数据...</Text>
+                </View>
+            );
+        } else if (this.state.showFoot == 0) {
+            return (
+                <View
+                    style={{
+                        height: ScreenUtil.scaleSize(30),
+                        alignItems: 'center',
+                        justifyContent: 'flex-start'
+                    }}>
+                    <Text></Text>
+                </View>
+            );
+        } else {
+            return (
+                <View style={{ height: ScreenUtil.scaleSize(30), alignItems: 'center', justifyContent: 'flex-start', }}>
+                    <Text></Text>
+                </View>
+            );
         }
-    
-        onEndReached = () => {
-            //最后一页，直接返回
-            if (this.state.page >= this.state.totalPage && this.state.page > 0) {
-                return;
-            }
-    
-            this.getAnswerListById();
+    }
+
+    onEndReached = () => {
+        //最后一页，直接返回
+        if (this.state.page >= this.state.totalPage && this.state.page > 0) {
+            return;
         }
+
+        this.getAnswerListById();
+    }
 
 
 

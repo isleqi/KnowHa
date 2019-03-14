@@ -3,12 +3,16 @@ import {
     ActivityIndicator,
     AsyncStorage,
     StatusBar,
-    StyleSheet, TouchableOpacity, SafeAreaView, TextInput,
+    StyleSheet, TouchableOpacity, SafeAreaView, TextInput,ToastAndroid,Alert,
     View, Button, Text, DeviceEventEmitter, TouchableNativeFeedback, Image, ScrollView, RefreshControl, FlatList, Dimensions
 } from 'react-native';
 
 import HTMLView from 'react-native-htmlview';
+import Base from '../../utils/Base';
+import ScreenUtil from '../../utils/ScreenUtil';
 
+
+let baseUrl = Base.baseUrl;
 var { width, height } = Dimensions.get('window');
 let token;
 
@@ -219,6 +223,40 @@ export default class AnswerDetail extends Component {
 
     }
 
+    toThanks=()=>{
+        Alert.alert(
+            '打赏',
+            "是否打赏5积分给作者",
+            [
+                { text: '取消', onPress: () => console.log('Cancel Pressed!') },
+                { text: '继续', onPress: () => this.thanks() },
+            ]
+        )
+    }
+
+    thanks=()=>{
+        let ansId = this.state.answer.ansId;
+        let url = baseUrl+'/app/answer/thanks?ansId='+ansId ;
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                "token": token
+            }
+
+        }).then((response) => {
+            return response.json();
+        }).then((responseData) => {
+            console.log(responseData);
+            if (responseData.code != "200") {
+                ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+                return;
+            }
+           ToastAndroid.show("打赏成功",ToastAndroid.SHORT);
+
+        })
+
+    }
+
     navigateToAnsCommentList = (item) => {
 
         this
@@ -349,6 +387,16 @@ export default class AnswerDetail extends Component {
                                 </View>
                             </TouchableOpacity>
                             <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
+                            <TouchableOpacity onPress={() => this.toThanks()}>
+                                    <View>
+                                        <Image source={
+                                           
+                                                require('../../resources/index/ds.png')
+                                              
+                                        } style={{ width: 25, height: 25, marginRight: 20 }} />
+                                        <Text style={{ fontSize: 10, color: 'gray' }}>打赏</Text>
+                                    </View>
+                                </TouchableOpacity>
                                 <TouchableOpacity onPress={() => this.followAns()}>
                                     <View>
                                         <Image source={

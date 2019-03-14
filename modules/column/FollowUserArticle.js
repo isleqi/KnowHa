@@ -3,26 +3,23 @@ import {
     ActivityIndicator,
     AsyncStorage,
     StatusBar,
-    StyleSheet, TouchableOpacity, SafeAreaView, TextInput, Alert,ToastAndroid,
+    StyleSheet, TouchableOpacity, SafeAreaView, Alert, ToastAndroid,
     View, Button, Text, DeviceEventEmitter, TouchableNativeFeedback, Image, ScrollView, RefreshControl, FlatList, Dimensions
 } from 'react-native';
 import Base from '../../utils/Base';
 import ScreenUtil from '../../utils/ScreenUtil';
 
-
 let baseUrl = Base.baseUrl;
-let tempStr = '';
-export default class SearchArticle extends Component {
+export default class FollowUserArticle extends Component {
     static navigationOptions = {
         header: null
     };
     constructor(props) {
         super(props);
         this.state = {
-            str: '',
             data: [],
             //条数限制
-            limit: 1,
+            limit: 10,
             //当前页数
             page: 0,
             //总页数
@@ -32,27 +29,52 @@ export default class SearchArticle extends Component {
             animating: false,
             //是否刷新
             isRefreshing: false
-
         };
 
     }
 
-    search2 = async() => {
-        let url = baseUrl + '/app/column/search';
+    componentDidMount() {
+        this.getColumnList();
+    }
+
+    refreshItem =async (articleId, index) => {
+        let url = baseUrl + '/app/column/getArticleById?&articleId=' + articleId;
         let token = await AsyncStorage.getItem("userToken");
-        let limit = this.state.limit;
-        let page = this.state.page + 1;
-        let formData = new FormData();
-        formData.append("str", this.state.str);
-        formData.append("pageNum", page);
-        formData.append("pageSize", limit);
-        console.log(this.state.str);
+
         fetch(url, {
-            method: 'POST',
+            method: 'GET',
             headers: {
                 "token": token
-            },
-            body: formData
+            }
+        }).then((response) => {
+            return response.json();
+        }).then((responseData) => {
+            console.log(responseData);
+            if (responseData.code != "200") {
+                ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+                return;
+            }
+            let item = responseData.data;
+            let data = this.state.data;
+            data.splice(index, 1, item);
+            this.setState({
+                data: data
+            })
+        })
+
+    }
+
+    getColumnList = async () => {
+        let limit = this.state.limit;
+        let page = this.state.page + 1;
+        let url = baseUrl + '/app/column/getFollowUserArticleList?&pageNum=' + page + '&pageSize=' + limit;
+        let token = await AsyncStorage.getItem("userToken");
+
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                "token": token
+            }
 
         }).then((response) => {
             return response.json();
@@ -62,10 +84,9 @@ export default class SearchArticle extends Component {
                 ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
                 return;
             }
-
             //   let data = responseData.data.list;
             let list = responseData.data.list;
-
+            console.log(list);
             //当前页数
             let currPage = responseData.data.pageNum;
             //总页数
@@ -85,92 +106,31 @@ export default class SearchArticle extends Component {
                 animating = false;
             }
 
-
             this.setState({
                 data: list,
                 showFoot: foot,
                 totalPage: totalPage,
                 animating: animating,
                 page: currPage
-            });
+            })
 
         })
-
     }
 
-    search = async() => {
-        if (tempStr == this.state.str)
-            return
-        tempStr = this.state.str;
-        let token = await AsyncStorage.getItem("userToken");
+    //上拉刷新
+    onRefresh = () => {
+        //重置参数
         this.setState({
             isRefreshing: true,
             page: 0,
             totalPage: 0,
             data: [],
             showFoot: 0,
-            animating: false       
-         },
-        ()=>{
-            let url = baseUrl + '/app/column/search';
-            let limit = this.state.limit;
-            let page = this.state.page + 1;
-            let formData = new FormData();
-            formData.append("str", this.state.str);
-            formData.append("pageNum", page);
-            formData.append("pageSize", limit);
-            console.log(this.state.str);
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    "token": token
-                },
-                body: formData
-    
-            }).then((response) => {
-                return response.json();
-            }).then((responseData) => {
-                console.log(responseData);
-                if (responseData.code != "200") {
-                    ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
-                    return;
-                }
-    
-                //   let data = responseData.data.list;
-                let list = responseData.data.list;
-    
-                //当前页数
-                let currPage = responseData.data.pageNum;
-                //总页数
-                let totalPage = responseData.data.pages;
-    
-                //将请求到的数据拼接到原来数据的后面
-                list = this.state.data.concat(list);
-                let foot = 1;
-                let animating = true;
-                if (currPage >= totalPage) {
-                    foot = 2; //没有更多数据了    
-                    animating = false;
-                }
-                if (list == null || list.length == 0) {
-                    //没有数据
-                    foot = 0;
-                    animating = false;
-                }
-    
-    
-                this.setState({
-                    data: list,
-                    showFoot: foot,
-                    totalPage: totalPage,
-                    animating: animating,
-                    page: currPage
-                });
-    
-            })
+            animating: false
+        }, () => {
+            this.getColumnList();
+            this.setState({ isRefreshing: false });
         });
-      
-
     }
 
     //底部组件
@@ -191,7 +151,7 @@ export default class SearchArticle extends Component {
                             marginBottom: ScreenUtil.scaleSize(10)
                         }}>
                         没有更多数据了
-                      </Text>
+                        </Text>
                 </View>
             );
         } else if (this.state.showFoot == 1) {
@@ -233,7 +193,7 @@ export default class SearchArticle extends Component {
             return;
         }
 
-        this.search2();
+        this.getColumnList();
     }
 
     navigateToArticleDetail = (item, index) => {
@@ -286,7 +246,7 @@ export default class SearchArticle extends Component {
     payArticle = (item, index) => {
         let value = item.value;
 
-        if (item.hasPay || item.myArticle) {
+        if (item.hasPay||item.myArticle) {
             let params = {
                 item: item,
                 index: index,
@@ -306,8 +266,8 @@ export default class SearchArticle extends Component {
             )
     }
 
-    renderTag = (item) => {
-
+    renderTag=(item) =>{
+       
         let isMyArticle = item.myArticle;
         if (isMyArticle)
             return (
@@ -344,6 +304,9 @@ export default class SearchArticle extends Component {
         let item = data.item;
         let index = data.index;
         let user = item.user;
+
+
+
         return (
             <TouchableOpacity onPress={() => this.navigateToArticleDetail(item, index)}>
                 <View>
@@ -410,36 +373,16 @@ export default class SearchArticle extends Component {
     }
 
 
-
     render() {
         return (
             <View style={styles.container}>
-                <View style={{ flexDirection: 'row', paddingLeft: 15, paddingRight: 15, paddingTop: 15 }}>
-                    <View style={{
-                        flexDirection: 'row',
-                        backgroundColor: '#eaeaea', borderRadius: 5, flex: 1
-                        , paddingLeft: 10, paddingRight: 10
-                    }}>
-
-                        <View style={{ flexDirection: 'row', flex: 1, alignItems: 'center' }}>
-                            <TextInput placeholder='搜索文章' style={{ flex: 1, fontSize: 12 }}
-                                onChangeText={(str) => {
-                                    this.setState({ str });
-                                }}
-                            />
-                            <TouchableOpacity onPress={() => this.search()} >
-                                <Image source={require("../../resources/index/ss.png")} style={{ height: 25, width: 25 }} />
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
 
                 <FlatList keyExtractor={(item, index) => index.toString()}
                     data={this.state.data}
                     renderItem={this.renderItem}
                     extraData={this.state}
-                    //  refreshing={this.state.isRefreshing}
-                    // onRefresh={this.onRefresh}
+                    refreshing={this.state.isRefreshing}
+                    onRefresh={this.onRefresh}
                     onEndReached={this.onEndReached}
                     onEndReachedThreshold={1}
                     ListFooterComponent={this.listFooterComponent}
@@ -448,6 +391,8 @@ export default class SearchArticle extends Component {
 
 
             </View>
+
+
         );
 
     }
@@ -456,7 +401,7 @@ export default class SearchArticle extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#ffffff',
+        backgroundColor: '#ffffff'
     },
 
 });

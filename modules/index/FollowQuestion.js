@@ -17,38 +17,40 @@ export default class FollowQuestion extends Component {
         super(props);
         this.state = {
             data: [],
-              //条数限制
-              limit: 10,
-              //当前页数
-              page: 0,
-              //总页数
-              totalPage: 0,
-              showFoot: 0,
-              //是否显示指示器
-              animating: false,
-              //是否刷新
-              isRefreshing: false
+            //条数限制
+            limit: 10,
+            //当前页数
+            page: 0,
+            //总页数
+            totalPage: 0,
+            showFoot: 0,
+            //是否显示指示器
+            animating: false,
+            //是否刷新
+            isRefreshing: false,
         };
-
     }
+
+
+
 
     componentDidMount() {
         this.getFollowQuestionList();
     }
 
-    getFollowQuestionList =async () => {
+    getFollowQuestionList = async () => {
         let limit = this.state.limit;
         let page = this.state.page + 1;
-        let url = 'http://192.168.1.100:8070/app/question/getFollowQuesList?&pageNum='+page +'&pageSize=' +limit;
-            let token = await AsyncStorage.getItem("userToken");
-            if (token == null) {
-                ToastAndroid.show("请先登录", ToastAndroid.SHORT);
-                DeviceEventEmitter.emit('navigateToAuth');
-              }
+        let url = 'http://192.168.1.100:8070/app/question/getFollowQuesList?&pageNum=' + page + '&pageSize=' + limit;
+        let token = await AsyncStorage.getItem("userToken");
+        if (token == null) {
+            ToastAndroid.show("请先登录", ToastAndroid.SHORT);
+            DeviceEventEmitter.emit('navigateToAuth');
+        }
         fetch(url, {
             method: 'GET',
-            headers:{
-                "token":token,
+            headers: {
+                "token": token,
             }
         }).then((response) => {
             return response.json();
@@ -58,54 +60,75 @@ export default class FollowQuestion extends Component {
                 ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
                 return;
             }
-         
-             let list = responseData.data.list;
-             console.log(list);
-         //当前页数
-         let currPage = responseData.data.pageNum;
-         //总页数
-         let totalPage = responseData.data.pages;
 
-         //将请求到的数据拼接到原来数据的后面
-         list = this.state.data.concat(list);
-         let foot = 1;
-         let   animating = true;
-         if (currPage >= totalPage) {
-             foot = 2; //没有更多数据了    
-             animating = false;
-         }
-         if (list == null || list.length == 0) {
-             //没有数据
-             foot = 0;
-             animating = false;
-         }
+            let list = responseData.data.list;
+            console.log(list);
+            //当前页数
+            let currPage = responseData.data.pageNum;
+            //总页数
+            let totalPage = responseData.data.pages;
 
-         this.setState({
-             data: list,
-             showFoot: foot,
-             totalPage: totalPage,
-             animating: animating,
-             page: currPage
-         })
+            //将请求到的数据拼接到原来数据的后面
+            list = this.state.data.concat(list);
+            let foot = 1;
+            let animating = true;
+            if (currPage >= totalPage) {
+                foot = 2; //没有更多数据了    
+                animating = false;
+            }
+            if (list == null || list.length == 0) {
+                //没有数据
+                foot = 0;
+                animating = false;
+            }
 
-     })
+            this.setState({
+                data: list,
+                showFoot: foot,
+                totalPage: totalPage,
+                animating: animating,
+                page: currPage
+            })
 
-      
- 
+        })
+
+
+
 
     }
 
     navigateToAnswerList = (item) => {
-        DeviceEventEmitter.emit('navigateToAnswerList', item);
+        let data = {
+            id: item.quesId,
+            quesTitle: item.ques.quesTitle,
+            quesDes: item.ques.quesDes,
+            followNum: item.ques.followNum,
+            answerNum: item.ques.answerNum,
+            answerVo: item,
+            tagList: item.tagList
+
+        }
+        DeviceEventEmitter.emit('navigateToAnswerList', data);
 
     }
 
     navigateToQuestionList = (item) => {
+
         DeviceEventEmitter.emit('navigateToQuestionList', item);
 
     }
     navigateToAnswerDetail = (item) => {
-        DeviceEventEmitter.emit('navigateToAnswerDetail', item);
+        let data = {
+            id: item.quesId,
+            quesTitle: item.ques.quesTitle,
+            quesDes: item.ques.quesDes,
+            followNum: item.ques.followNum,
+            answerNum: item.ques.answerNum,
+            answerVo: item,
+            tagList: item.tagList
+
+        }
+        DeviceEventEmitter.emit('navigateToAnswerDetail', data);
 
     }
 
@@ -128,8 +151,8 @@ export default class FollowQuestion extends Component {
         return view;
     }
 
-     //上拉刷新
-     onRefresh = () => {
+    //上拉刷新
+    onRefresh = () => {
         //重置参数
         this.setState({
             isRefreshing: true,
@@ -147,8 +170,9 @@ export default class FollowQuestion extends Component {
 
     renderItem = (data) => {
         let item = data.item;
-        let answer = item.answerVo;
+        let answer = item;
         let tags = item.tagList;
+        let ques = item.ques;
 
         return (
             <View>
@@ -161,27 +185,27 @@ export default class FollowQuestion extends Component {
 
                         <TouchableOpacity onPress={() => this.navigateToAnswerList(item)}>
                             <View style={{ paddingTop: 5, paddingBottom: 5 }}>
-                                <Text style={{ fontWeight: 'bold', fontSize: 15 }}>{item.quesTitle}</Text>
+                                <Text style={{ fontWeight: 'bold', fontSize: 15 }}>{ques.quesTitle}</Text>
                             </View>
                         </TouchableOpacity>
                         {answer == null ?
                             <Text style={{ fontSize: 11, color: '#bdbcbce8', paddingTop: 5, paddingBottom: 5 }}>暂无回答</Text>
                             :
-                            <TouchableOpacity onPress={()=>this.navigateToAnswerDetail(item)}>
-                            <View>
-                                <View style={{ paddingTop: 5, paddingBottom: 5 }}>
-                                    <Text style={[{ lineHeight: 17, fontSize: 12 }]}
-                                        numberOfLines={3}>
-                                        {answer.ansContent}
-                                    </Text>
-                                </View>
+                            <TouchableOpacity onPress={() => this.navigateToAnswerDetail(item)}>
+                                <View>
+                                    <View style={{ paddingTop: 5, paddingBottom: 5 }}>
+                                        <Text style={[{ lineHeight: 17, fontSize: 12 }]}
+                                            numberOfLines={3}>
+                                            {answer.ansContent}
+                                        </Text>
+                                    </View>
 
-                                <View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 20 }}>
-                                    <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{answer.likeNum} 赞同 · </Text>
-                                    <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{answer.commentNum} 评论</Text>
+                                    <View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 20 }}>
+                                        <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{answer.likeNum} 赞同 · </Text>
+                                        <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{answer.commentNum} 评论</Text>
 
+                                    </View>
                                 </View>
-                            </View>
                             </TouchableOpacity>
                         }
 
@@ -200,8 +224,8 @@ export default class FollowQuestion extends Component {
         );
     }
 
-     //底部组件
-     listFooterComponent = () => {
+    //底部组件
+    listFooterComponent = () => {
         if (this.state.showFoot == 2) {
             return (
                 <View
@@ -263,13 +287,14 @@ export default class FollowQuestion extends Component {
         this.getFollowQuestionList();
     }
 
-
-
+ 
     render() {
         return (
             <View style={styles.container}>
 
-                  <FlatList keyExtractor={(item, index) => index.toString()}
+            
+
+                <FlatList keyExtractor={(item, index) => index.toString()}
                     data={this.state.data}
                     renderItem={this.renderItem}
                     extraData={this.state}
