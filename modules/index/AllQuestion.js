@@ -3,11 +3,15 @@ import {
     ActivityIndicator,
     AsyncStorage,
     StatusBar,
-    StyleSheet, TouchableOpacity, SafeAreaView, ToastAndroid,PixelRatio,
+    StyleSheet, TouchableOpacity, SafeAreaView, ToastAndroid, PixelRatio,
     View, Button, Text, DeviceEventEmitter, TouchableNativeFeedback, Image, ScrollView, RefreshControl, FlatList, Dimensions
 } from 'react-native';
+import Base from '../../utils/Base';
 import ScreenUtil from '../../utils/ScreenUtil';
+import HTMLView from 'react-native-htmlview';
 
+
+let baseUrl = Base.baseUrl;
 
 
 export default class AllQuestion extends Component {
@@ -18,17 +22,17 @@ export default class AllQuestion extends Component {
         super(props);
         this.state = {
             data: [],
-             //条数限制
-             limit: 10,
-             //当前页数
-             page: 0,
-             //总页数
-             totalPage: 0,
-             showFoot: 0,
-             //是否显示指示器
-             animating: false,
-             //是否刷新
-             isRefreshing: false
+            //条数限制
+            limit: 10,
+            //当前页数
+            page: 0,
+            //总页数
+            totalPage: 0,
+            showFoot: 0,
+            //是否显示指示器
+            animating: false,
+            //是否刷新
+            isRefreshing: false
         };
 
     }
@@ -40,8 +44,8 @@ export default class AllQuestion extends Component {
     getQuestionList = () => {
         let limit = this.state.limit;
         let page = this.state.page + 1;
-        let url = 'http://192.168.1.100:8070/app/question/getAllQuestion?&pageNum='+page +'&pageSize=' +limit;
-       
+        let url = baseUrl + '/app/question/getAllQuestion?&pageNum=' + page + '&pageSize=' + limit;
+
         fetch(url, {
             method: 'GET',
 
@@ -53,9 +57,9 @@ export default class AllQuestion extends Component {
                 ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
                 return;
             }
-         //   let data = responseData.data.list;
+            //   let data = responseData.data.list;
             let list = responseData.data.list;
-                console.log(list);
+            console.log(list);
             //当前页数
             let currPage = responseData.data.pageNum;
             //总页数
@@ -64,7 +68,7 @@ export default class AllQuestion extends Component {
             //将请求到的数据拼接到原来数据的后面
             list = this.state.data.concat(list);
             let foot = 1;
-            let   animating = true;
+            let animating = true;
             if (currPage >= totalPage) {
                 foot = 2; //没有更多数据了    
                 animating = false;
@@ -85,9 +89,9 @@ export default class AllQuestion extends Component {
 
         })
 
-            // this.setState({
-            //     data: data
-            // })
+        // this.setState({
+        //     data: data
+        // })
 
         //})
     }
@@ -124,8 +128,8 @@ export default class AllQuestion extends Component {
 
         return view;
     }
-     //上拉刷新
-     onRefresh = () => {
+    //上拉刷新
+    onRefresh = () => {
         //重置参数
         this.setState({
             isRefreshing: true,
@@ -147,44 +151,46 @@ export default class AllQuestion extends Component {
         let tags = item.tagList;
 
         return (
-            <View>
-                <View style={{ paddingLeft: 15, paddingTop: 20, flexDirection: 'row', }}>
+            <View style={{ backgroundColor: '#ffffff' }}>
+                <View style={{ paddingLeft: 15, paddingTop: 20, flexDirection: 'row', backgroundColor: '#ffffff' }}>
                     {this.renderTag(tags)}
                 </View>
 
-                <View style={{ flexDirection: 'row' }}>
+                <View style={{ flexDirection: 'row', backgroundColor: '#ffffff' }}>
                     <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, }}>
 
                         <TouchableOpacity onPress={() => this.navigateToAnswerList(item)}>
                             <View style={{ paddingTop: 10, paddingBottom: 10 }}>
-                                <Text style={{ fontWeight: 'bold', fontSize:16 ,}}>{item.quesTitle}</Text>
+                                <Text style={{ fontWeight: 'bold', fontSize: 16, }}>{item.quesTitle}</Text>
                             </View>
                         </TouchableOpacity>
                         {answer == null ?
                             <Text style={{ fontSize: 11, color: '#bdbcbce8', paddingTop: 5, paddingBottom: 5 }}>暂无回答</Text>
                             :
-                            <TouchableOpacity onPress={()=>this.navigateToAnswerDetail(item)}>
-                            <View>
-                                <View style={{ paddingTop: 5, paddingBottom: 5 }}>
-                                    <Text style={[{ lineHeight: 17, fontSize: 12 }]}
+                            <TouchableOpacity onPress={() => this.navigateToAnswerDetail(item)} activeOpacity={1}>
+                                <View>
+                                    <View style={{ paddingTop: 5, paddingBottom: 5, height: 50, backgroundColor: '#ffffff' }}>
+                                        <HTMLView value={answer.ansContent}> </HTMLView>
+
+                                        {/* <Text style={[{ lineHeight: 17, fontSize: 12 }]}
                                         numberOfLines={3}>
                                         {answer.ansContent}
-                                    </Text>
-                                </View>
+                                    </Text> */}
+                                    </View>
 
-                                <View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 20 }}>
-                                    <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{answer.likeNum} 赞同 · </Text>
-                                    <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{answer.commentNum} 评论</Text>
+                                    <View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 20, backgroundColor: '#ffffff' }}>
+                                        <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{answer.likeNum} 赞同 · </Text>
+                                        <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{answer.commentNum} 评论</Text>
 
+                                    </View>
                                 </View>
-                            </View>
                             </TouchableOpacity>
                         }
 
                     </View>
 
                 </View>
-                <View style={{ height: 8, backgroundColor: "#eae9e961" }}></View>
+                <View style={{ height: 8, backgroundColor: "#f3f3f3" }}></View>
             </View>
 
         );
@@ -195,15 +201,16 @@ export default class AllQuestion extends Component {
             <View style={{ height: 8, backgroundColor: "#eae9e961" }}></View>
         );
     }
-      //底部组件
-      listFooterComponent = () => {
+    //底部组件
+    listFooterComponent = () => {
         if (this.state.showFoot == 2) {
             return (
                 <View
                     style={{
                         height: ScreenUtil.scaleSize(50),
                         alignItems: 'center',
-                        justifyContent: 'flex-start'
+                        justifyContent: 'flex-start',
+                        backgroundColor: '#ffffff'
                     }}>
                     <Text
                         style={{
@@ -223,7 +230,8 @@ export default class AllQuestion extends Component {
                         height: ScreenUtil.scaleSize(50),
                         flexDirection: 'row',
                         alignItems: 'center',
-                        justifyContent: 'center'
+                        justifyContent: 'center',
+                        backgroundColor: '#ffffff'
                     }}>
                     <ActivityIndicator animating={this.state.animating} size="small" color="grey" />
                     <Text>正在加载更多数据...</Text>
@@ -235,14 +243,18 @@ export default class AllQuestion extends Component {
                     style={{
                         height: ScreenUtil.scaleSize(30),
                         alignItems: 'center',
-                        justifyContent: 'flex-start'
+                        justifyContent: 'flex-start',
+                        backgroundColor: '#ffffff'
                     }}>
                     <Text></Text>
                 </View>
             );
         } else {
             return (
-                <View style={{ height: ScreenUtil.scaleSize(30), alignItems: 'center', justifyContent: 'flex-start', }}>
+                <View style={{
+                    height: ScreenUtil.scaleSize(30), alignItems: 'center', justifyContent: 'flex-start',
+                    backgroundColor: '#ffffff'
+                }}>
                     <Text></Text>
                 </View>
             );
@@ -283,7 +295,7 @@ export default class AllQuestion extends Component {
                 //ListEmptyComponent={this._listEmptyComponent}
                 /> */}
 
-                  <FlatList keyExtractor={(item, index) => index.toString()}
+                <FlatList keyExtractor={(item, index) => index.toString()}
                     data={this.state.data}
                     renderItem={this.renderItem}
                     extraData={this.state}

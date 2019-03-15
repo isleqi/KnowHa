@@ -11,6 +11,12 @@ import {
 
 import HTMLView from 'react-native-htmlview';
 
+import Base from '../../utils/Base';
+import ScreenUtil from '../../utils/ScreenUtil';
+
+
+let baseUrl = Base.baseUrl;
+
 var { width, height } = Dimensions.get('window');
 let token;
 
@@ -66,13 +72,14 @@ export default class ArticleDetail extends Component {
         this.setState({
             like: !this.state.like,
         })
+        
 
     }
 
 
     hasFollowUser = () => {
         let useredId = this.state.user.id;
-        let url = 'http://192.168.1.100:8070/app/user/hasfollow?useredId=' + useredId;
+        let url =baseUrl+ '/app/user/hasfollow?useredId=' + useredId;
         fetch(url, {
             method: 'GET',
             headers: {
@@ -100,7 +107,7 @@ export default class ArticleDetail extends Component {
 
     followUser = () => {
         let useredId = this.state.user.id;
-        let url = 'http://192.168.1.100:8070/app/user/follow?useredId=' + useredId;
+        let url = baseUrl+'/app/user/follow?useredId=' + useredId;
         fetch(url, {
             method: 'GET',
             headers: {
@@ -134,7 +141,7 @@ export default class ArticleDetail extends Component {
 
     cancelFollowUser = () => {
         let useredId = this.state.user.id;
-        let url = 'http://192.168.1.100:8070/app/user/cancelFollow?useredId=' + useredId;
+        let url = baseUrl+'/app/user/cancelFollow?useredId=' + useredId;
         fetch(url, {
             method: 'GET',
             headers: {

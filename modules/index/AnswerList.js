@@ -7,8 +7,12 @@ import {
     View, Button, Text, DeviceEventEmitter, TouchableNativeFeedback, Image, ScrollView, RefreshControl, FlatList, Dimensions
 } from 'react-native';
 import AnswerListHeader from './AnswerListHeader';
+import Base from '../../utils/Base';
 import ScreenUtil from '../../utils/ScreenUtil';
+import HTMLView from 'react-native-htmlview';
 
+
+let baseUrl = Base.baseUrl;
 
 
 export default class AnswerList extends Component {
@@ -44,7 +48,7 @@ export default class AnswerList extends Component {
         let quesId = this.props.navigation.state.params.item.id;
         let limit = this.state.limit;
         let page = this.state.page + 1;
-        let url = 'http://192.168.1.100:8070/app/answer/getAnswerList?quesId=' + quesId + '&pageNum=' + page + '&pageSize=' + limit;
+        let url = baseUrl+'/app/answer/getAnswerList?quesId=' + quesId + '&pageNum=' + page + '&pageSize=' + limit;
 
         fetch(url, {
             method: 'GET',
@@ -132,7 +136,7 @@ export default class AnswerList extends Component {
         let item = data.item;
         let user = item.user;
         return (
-            <View>
+            <View style={{backgroundColor:'#ffffff'}} >
                 <View style={{ paddingLeft: 15, paddingTop: 20, flexDirection: 'row', alignItems: 'center' }}>
 
                     <View style={{ alignItems: 'center', paddingRight: 10 }}>
@@ -146,22 +150,24 @@ export default class AnswerList extends Component {
                     <Text style={{ fontSize: 11, }}>{user.userName}</Text>
 
                 </View>
+                <TouchableOpacity onPress={() => this.navigateToAnswerDetail(item)}activeOpacity={1}>
 
-                <View style={{ flexDirection: 'row' }}>
-                    <TouchableOpacity onPress={() => this.navigateToAnswerDetail(item)}>
+                <View style={{ flexDirection: 'row' ,backgroundColor:'#ffffff'}}>
                         <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, }}>
 
 
 
 
-                            <View style={{ paddingTop: 5, paddingBottom: 5 }}>
-                                <Text style={[{ lineHeight: 17, fontSize: 12 }]}
+                            <View style={{ paddingTop: 5, paddingBottom: 5,height:50 }}>
+                            <HTMLView value=   {item.ansContent}> </HTMLView>
+
+                                {/* <Text style={[{ lineHeight: 17, fontSize: 12 }]}
                                     numberOfLines={3}>
                                     {item.ansContent}
-                                </Text>
+                                </Text> */}
                             </View>
 
-                            <View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 20 }}>
+                            <View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 20,backgroundColor:'#ffffff' }}>
                                 <View style={{ flex: 1, flexDirection: 'row', }}>
                                     <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{item.likeNum} 赞同 · </Text>
                                     <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{item.commentNum} 评论</Text>
@@ -170,9 +176,10 @@ export default class AnswerList extends Component {
 
                             </View>
                         </View>
-                    </TouchableOpacity>
                 </View>
-                <View style={{ height: 8, backgroundColor: "#eae9e961" }}></View>
+                </TouchableOpacity>
+
+                <View style={{ height: 8, backgroundColor: "#f3f3f3" }}></View>
 
             </View>
 
@@ -203,7 +210,8 @@ export default class AnswerList extends Component {
                     style={{
                         height: ScreenUtil.scaleSize(50),
                         alignItems: 'center',
-                        justifyContent: 'flex-start'
+                        justifyContent: 'flex-start',
+                        backgroundColor:'#ffffff'
                     }}>
                     <Text
                         style={{
@@ -223,7 +231,8 @@ export default class AnswerList extends Component {
                         height: ScreenUtil.scaleSize(50),
                         flexDirection: 'row',
                         alignItems: 'center',
-                        justifyContent: 'center'
+                        justifyContent: 'center',
+                        backgroundColor:'#ffffff'
                     }}>
                     <ActivityIndicator animating={this.state.animating} size="small" color="grey" />
                     <Text>正在加载更多数据...</Text>
@@ -235,14 +244,16 @@ export default class AnswerList extends Component {
                     style={{
                         height: ScreenUtil.scaleSize(30),
                         alignItems: 'center',
-                        justifyContent: 'flex-start'
+                        justifyContent: 'flex-start',
+                        backgroundColor:'#ffffff'
                     }}>
                     <Text></Text>
                 </View>
             );
         } else {
             return (
-                <View style={{ height: ScreenUtil.scaleSize(30), alignItems: 'center', justifyContent: 'flex-start', }}>
+                <View style={{ height: ScreenUtil.scaleSize(30), alignItems: 'center', justifyContent: 'flex-start' ,
+                backgroundColor:'#ffffff'}}>
                     <Text></Text>
                 </View>
             );

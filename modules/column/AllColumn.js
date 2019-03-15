@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import Base from '../../utils/Base';
 import ScreenUtil from '../../utils/ScreenUtil';
+import HTMLView from 'react-native-htmlview';
 
 let baseUrl = Base.baseUrl;
 export default class AllColumn extends Component {
@@ -133,59 +134,63 @@ export default class AllColumn extends Component {
         });
     }
 
-    //底部组件
-    listFooterComponent = () => {
-        if (this.state.showFoot == 2) {
-            return (
-                <View
+  //底部组件
+  listFooterComponent = () => {
+    if (this.state.showFoot == 2) {
+        return (
+            <View
+                style={{
+                    height: ScreenUtil.scaleSize(50),
+                    alignItems: 'center',
+                    justifyContent: 'flex-start',
+                    backgroundColor:'#ffffff'
+                }}>
+                <Text
                     style={{
-                        height: ScreenUtil.scaleSize(50),
-                        alignItems: 'center',
-                        justifyContent: 'flex-start'
+                        color: '#999999',
+                        fontSize: ScreenUtil.scaleSize(12),
+                        marginTop: ScreenUtil.scaleSize(15),
+                        marginBottom: ScreenUtil.scaleSize(10)
                     }}>
-                    <Text
-                        style={{
-                            color: '#999999',
-                            fontSize: ScreenUtil.scaleSize(12),
-                            marginTop: ScreenUtil.scaleSize(15),
-                            marginBottom: ScreenUtil.scaleSize(10)
-                        }}>
-                        没有更多数据了
-                        </Text>
-                </View>
-            );
-        } else if (this.state.showFoot == 1) {
-            return (
-                <View
-                    style={{
-                        height: ScreenUtil.scaleSize(50),
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                    }}>
-                    <ActivityIndicator animating={this.state.animating} size="small" color="grey" />
-                    <Text>正在加载更多数据...</Text>
-                </View>
-            );
-        } else if (this.state.showFoot == 0) {
-            return (
-                <View
-                    style={{
-                        height: ScreenUtil.scaleSize(30),
-                        alignItems: 'center',
-                        justifyContent: 'flex-start'
-                    }}>
-                    <Text></Text>
-                </View>
-            );
-        } else {
-            return (
-                <View style={{ height: ScreenUtil.scaleSize(30), alignItems: 'center', justifyContent: 'flex-start', }}>
-                    <Text></Text>
-                </View>
-            );
-        }
+                    没有更多数据了
+                    </Text>
+            </View>
+        );
+    } else if (this.state.showFoot == 1) {
+        return (
+            <View
+                style={{
+                    height: ScreenUtil.scaleSize(50),
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor:'#ffffff'
+                }}>
+                <ActivityIndicator animating={this.state.animating} size="small" color="grey" />
+                <Text>正在加载更多数据...</Text>
+            </View>
+        );
+    } else if (this.state.showFoot == 0) {
+        return (
+            <View
+                style={{
+                    height: ScreenUtil.scaleSize(30),
+                    alignItems: 'center',
+                    justifyContent: 'flex-start',
+                    backgroundColor:'#ffffff'
+                }}>
+                <Text></Text>
+            </View>
+        );
+    } else {
+        return (
+            <View style={{ height: ScreenUtil.scaleSize(30), alignItems: 'center', justifyContent: 'flex-start' ,
+            backgroundColor:'#ffffff'}}>
+                <Text></Text>
+            </View>
+        );
     }
+}
 
     onEndReached = () => {
         //最后一页，直接返回
@@ -308,7 +313,7 @@ export default class AllColumn extends Component {
 
 
         return (
-            <TouchableOpacity onPress={() => this.navigateToArticleDetail(item, index)}>
+            <TouchableOpacity onPress={() => this.navigateToArticleDetail(item, index)} activeOpacity={1} style={{backgroundColor:'#ffffff'}}>
                 <View>
                     <View style={{ paddingLeft: 15, paddingTop: 20, flexDirection: 'row', alignItems: 'center' }}>
 
@@ -329,7 +334,7 @@ export default class AllColumn extends Component {
 
                     </View>
 
-                    <View style={{ flexDirection: 'row' }}>
+                    <View style={{ flexDirection: 'row',backgroundColor:'#ffffff' }}>
                         <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, }}>
 
 
@@ -337,14 +342,15 @@ export default class AllColumn extends Component {
                                 <Text style={{ fontWeight: 'bold', fontSize: 15 }}>{item.articleTitle}</Text>
                             </View>
 
-                            <View style={{ paddingTop: 5, paddingBottom: 5 }}>
-                                <Text style={[{ lineHeight: 17, fontSize: 12 }]}
+                            <View style={{ paddingTop: 5, paddingBottom: 5,height:50}}>
+                            <HTMLView value=  {item.articleContent} > </HTMLView>
+                                {/* <Text style={[{ lineHeight: 17, fontSize: 12 }]}
                                     numberOfLines={3}>
                                     {item.articleContent}
-                                </Text>
+                                </Text> */}
                             </View>
 
-                            <View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 20 }}>
+                            <View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 20 ,backgroundColor:'#ffffff'}}>
                                 <View style={{ flex: 1, flexDirection: 'row', }}>
                                     <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{item.likeNum} 赞同 · </Text>
                                     <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{item.commentNum} 评论</Text>
@@ -359,7 +365,7 @@ export default class AllColumn extends Component {
                         </View>
 
                     </View>
-                    <View style={{ height: 8, backgroundColor: "#eae9e961" }}></View>
+                    <View style={{ height: 8, backgroundColor: "#f3f3f3" }}></View>
                 </View>
             </TouchableOpacity>
 

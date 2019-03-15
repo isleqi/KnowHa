@@ -3,11 +3,12 @@ import {
     ActivityIndicator,
     AsyncStorage,
     StatusBar,
-    StyleSheet, TouchableOpacity, SafeAreaView, TextInput, Alert,ToastAndroid,
+    StyleSheet, TouchableOpacity, SafeAreaView, TextInput, Alert, ToastAndroid,
     View, Button, Text, DeviceEventEmitter, TouchableNativeFeedback, Image, ScrollView, RefreshControl, FlatList, Dimensions
 } from 'react-native';
 import Base from '../../utils/Base';
 import ScreenUtil from '../../utils/ScreenUtil';
+import HTMLView from 'react-native-htmlview';
 
 
 let baseUrl = Base.baseUrl;
@@ -22,7 +23,7 @@ export default class SearchArticle extends Component {
             str: '',
             data: [],
             //条数限制
-            limit: 1,
+            limit: 10,
             //当前页数
             page: 0,
             //总页数
@@ -37,7 +38,7 @@ export default class SearchArticle extends Component {
 
     }
 
-    search2 = async() => {
+    search2 = async () => {
         let url = baseUrl + '/app/column/search';
         let token = await AsyncStorage.getItem("userToken");
         let limit = this.state.limit;
@@ -98,7 +99,7 @@ export default class SearchArticle extends Component {
 
     }
 
-    search = async() => {
+    search = async () => {
         if (tempStr == this.state.str)
             return
         tempStr = this.state.str;
@@ -109,123 +110,127 @@ export default class SearchArticle extends Component {
             totalPage: 0,
             data: [],
             showFoot: 0,
-            animating: false       
-         },
-        ()=>{
-            let url = baseUrl + '/app/column/search';
-            let limit = this.state.limit;
-            let page = this.state.page + 1;
-            let formData = new FormData();
-            formData.append("str", this.state.str);
-            formData.append("pageNum", page);
-            formData.append("pageSize", limit);
-            console.log(this.state.str);
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    "token": token
-                },
-                body: formData
-    
-            }).then((response) => {
-                return response.json();
-            }).then((responseData) => {
-                console.log(responseData);
-                if (responseData.code != "200") {
-                    ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
-                    return;
-                }
-    
-                //   let data = responseData.data.list;
-                let list = responseData.data.list;
-    
-                //当前页数
-                let currPage = responseData.data.pageNum;
-                //总页数
-                let totalPage = responseData.data.pages;
-    
-                //将请求到的数据拼接到原来数据的后面
-                list = this.state.data.concat(list);
-                let foot = 1;
-                let animating = true;
-                if (currPage >= totalPage) {
-                    foot = 2; //没有更多数据了    
-                    animating = false;
-                }
-                if (list == null || list.length == 0) {
-                    //没有数据
-                    foot = 0;
-                    animating = false;
-                }
-    
-    
-                this.setState({
-                    data: list,
-                    showFoot: foot,
-                    totalPage: totalPage,
-                    animating: animating,
-                    page: currPage
-                });
-    
-            })
-        });
-      
+            animating: false
+        },
+            () => {
+                let url = baseUrl + '/app/column/search';
+                let limit = this.state.limit;
+                let page = this.state.page + 1;
+                let formData = new FormData();
+                formData.append("str", this.state.str);
+                formData.append("pageNum", page);
+                formData.append("pageSize", limit);
+                console.log(this.state.str);
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        "token": token
+                    },
+                    body: formData
+
+                }).then((response) => {
+                    return response.json();
+                }).then((responseData) => {
+                    console.log(responseData);
+                    if (responseData.code != "200") {
+                        ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+                        return;
+                    }
+
+                    //   let data = responseData.data.list;
+                    let list = responseData.data.list;
+
+                    //当前页数
+                    let currPage = responseData.data.pageNum;
+                    //总页数
+                    let totalPage = responseData.data.pages;
+
+                    //将请求到的数据拼接到原来数据的后面
+                    list = this.state.data.concat(list);
+                    let foot = 1;
+                    let animating = true;
+                    if (currPage >= totalPage) {
+                        foot = 2; //没有更多数据了    
+                        animating = false;
+                    }
+                    if (list == null || list.length == 0) {
+                        //没有数据
+                        foot = 0;
+                        animating = false;
+                    }
+
+
+                    this.setState({
+                        data: list,
+                        showFoot: foot,
+                        totalPage: totalPage,
+                        animating: animating,
+                        page: currPage
+                    });
+
+                })
+            });
+
 
     }
 
-    //底部组件
-    listFooterComponent = () => {
-        if (this.state.showFoot == 2) {
-            return (
-                <View
+  //底部组件
+  listFooterComponent = () => {
+    if (this.state.showFoot == 2) {
+        return (
+            <View
+                style={{
+                    height: ScreenUtil.scaleSize(50),
+                    alignItems: 'center',
+                    justifyContent: 'flex-start',
+                    backgroundColor:'#ffffff'
+                }}>
+                <Text
                     style={{
-                        height: ScreenUtil.scaleSize(50),
-                        alignItems: 'center',
-                        justifyContent: 'flex-start'
+                        color: '#999999',
+                        fontSize: ScreenUtil.scaleSize(12),
+                        marginTop: ScreenUtil.scaleSize(15),
+                        marginBottom: ScreenUtil.scaleSize(10)
                     }}>
-                    <Text
-                        style={{
-                            color: '#999999',
-                            fontSize: ScreenUtil.scaleSize(12),
-                            marginTop: ScreenUtil.scaleSize(15),
-                            marginBottom: ScreenUtil.scaleSize(10)
-                        }}>
-                        没有更多数据了
-                      </Text>
-                </View>
-            );
-        } else if (this.state.showFoot == 1) {
-            return (
-                <View
-                    style={{
-                        height: ScreenUtil.scaleSize(50),
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                    }}>
-                    <ActivityIndicator animating={this.state.animating} size="small" color="grey" />
-                    <Text>正在加载更多数据...</Text>
-                </View>
-            );
-        } else if (this.state.showFoot == 0) {
-            return (
-                <View
-                    style={{
-                        height: ScreenUtil.scaleSize(30),
-                        alignItems: 'center',
-                        justifyContent: 'flex-start'
-                    }}>
-                    <Text></Text>
-                </View>
-            );
-        } else {
-            return (
-                <View style={{ height: ScreenUtil.scaleSize(30), alignItems: 'center', justifyContent: 'flex-start', }}>
-                    <Text></Text>
-                </View>
-            );
-        }
+                    没有更多数据了
+                    </Text>
+            </View>
+        );
+    } else if (this.state.showFoot == 1) {
+        return (
+            <View
+                style={{
+                    height: ScreenUtil.scaleSize(50),
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor:'#ffffff'
+                }}>
+                <ActivityIndicator animating={this.state.animating} size="small" color="grey" />
+                <Text>正在加载更多数据...</Text>
+            </View>
+        );
+    } else if (this.state.showFoot == 0) {
+        return (
+            <View
+                style={{
+                    height: ScreenUtil.scaleSize(30),
+                    alignItems: 'center',
+                    justifyContent: 'flex-start',
+                    backgroundColor:'#ffffff'
+                }}>
+                <Text></Text>
+            </View>
+        );
+    } else {
+        return (
+            <View style={{ height: ScreenUtil.scaleSize(30), alignItems: 'center', justifyContent: 'flex-start' ,
+            backgroundColor:'#ffffff'}}>
+                <Text></Text>
+            </View>
+        );
     }
+}
 
     onEndReached = () => {
         //最后一页，直接返回
@@ -345,8 +350,8 @@ export default class SearchArticle extends Component {
         let index = data.index;
         let user = item.user;
         return (
-            <TouchableOpacity onPress={() => this.navigateToArticleDetail(item, index)}>
-                <View>
+            <TouchableOpacity onPress={() => this.navigateToArticleDetail(item, index)} activeOpacity={1}>
+            <View style={{ backgroundColor: '#ffffff' }}>
                     <View style={{ paddingLeft: 15, paddingTop: 20, flexDirection: 'row', alignItems: 'center' }}>
 
                         <View style={{ flex: 1, flexDirection: 'row' }} >
@@ -374,14 +379,15 @@ export default class SearchArticle extends Component {
                                 <Text style={{ fontWeight: 'bold', fontSize: 15 }}>{item.articleTitle}</Text>
                             </View>
 
-                            <View style={{ paddingTop: 5, paddingBottom: 5 }}>
-                                <Text style={[{ lineHeight: 17, fontSize: 12 }]}
+                            <View style={{ paddingTop: 5, paddingBottom: 5, height: 50, backgroundColor: '#ffffff' }}>
+                                        <HTMLView value={item.articleContent}> </HTMLView>
+                                {/* <Text style={[{ lineHeight: 17, fontSize: 12 }]}
                                     numberOfLines={3}>
                                     {item.articleContent}
-                                </Text>
+                                </Text> */}
                             </View>
 
-                            <View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 20 }}>
+                                    <View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 20, backgroundColor: '#ffffff' }}>
                                 <View style={{ flex: 1, flexDirection: 'row', }}>
                                     <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{item.likeNum} 赞同 · </Text>
                                     <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{item.commentNum} 评论</Text>
@@ -396,7 +402,7 @@ export default class SearchArticle extends Component {
                         </View>
 
                     </View>
-                    <View style={{ height: 8, backgroundColor: "#eae9e961" }}></View>
+                    <View style={{ height: 8, backgroundColor: "#f3f3f3" }}></View>
                 </View>
             </TouchableOpacity>
 
@@ -414,15 +420,15 @@ export default class SearchArticle extends Component {
     render() {
         return (
             <View style={styles.container}>
-                <View style={{ flexDirection: 'row', paddingLeft: 15, paddingRight: 15, paddingTop: 15 }}>
+                <View style={{ flexDirection: 'row',padding:15 }}>
                     <View style={{
                         flexDirection: 'row',
                         backgroundColor: '#eaeaea', borderRadius: 5, flex: 1
-                        , paddingLeft: 10, paddingRight: 10
+                        , padding:10
                     }}>
 
                         <View style={{ flexDirection: 'row', flex: 1, alignItems: 'center' }}>
-                            <TextInput placeholder='搜索文章' style={{ flex: 1, fontSize: 12 }}
+                            <TextInput placeholder='搜索文章' style={{ flex: 1, fontSize: 12 ,paddingVertical: 0,}}
                                 onChangeText={(str) => {
                                     this.setState({ str });
                                 }}

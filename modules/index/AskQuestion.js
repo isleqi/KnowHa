@@ -10,7 +10,11 @@ import ScrollableTabView, { ScrollableTabBar, DefaultTabBar } from 'react-native
 import { RichTextEditor, RichTextToolbar } from 'react-native-zss-rich-text-editor';
 import KeyboardSpacer from 'react-native-keyboard-spacer';
 import ImagePicker from 'react-native-image-picker';
+import Base from '../../utils/Base';
+import ScreenUtil from '../../utils/ScreenUtil';
 
+
+let baseUrl = Base.baseUrl;
 let that;
 let imagPath;
 let next = false;
@@ -93,7 +97,7 @@ export default class AskQuestion extends Component {
   }
 
   uploadImage = (path) => {
-    let url = 'http://192.168.1.100:8070/app/user/uploadImage';
+    let url = baseUrl+'/app/user/uploadImage';
     let file = { uri: path, type: 'application/octet-stream', name: 'image.jpg' };
     let formData = new FormData();
     formData.append("files", file);
@@ -111,6 +115,10 @@ export default class AskQuestion extends Component {
       return response.json();
     }).then((responseData) => {
       console.log(responseData);
+      if (responseData.code != "200") {
+        ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+        return;
+      }
       let data = responseData.data
       this.insertImage(data[0]);
     })
@@ -144,7 +152,7 @@ export default class AskQuestion extends Component {
     }
     this.state.addTag = true;
     let tagName = this.state.tagName;
-    let url = 'http://192.168.1.100:8070/app/question/tag/add?tagName=' + tagName;
+    let url = baseUrl+'/app/question/tag/add?tagName=' + tagName;
 
     fetch(url, {
       method: 'GET',
@@ -197,7 +205,7 @@ export default class AskQuestion extends Component {
   finish = async () => {
 
   
-    let url = 'http://192.168.1.100:8070/app/question/add';
+    let url = baseUrl+'/app/question/add';
     let tagIds = [];
     let tagList = this.state.tagList;
 
@@ -299,7 +307,7 @@ export default class AskQuestion extends Component {
 
   renderHotTag = () => {
 
-    let url = 'http://192.168.1.100:8070/app/question/tag/getHot';
+    let url = baseUrl+'/app/question/tag/getHot';
 
     fetch(url, {
       method: 'GET',
@@ -378,7 +386,7 @@ export default class AskQuestion extends Component {
       return;
 
     }
-    let url = 'http://192.168.1.100:8070/app/question/tag/get?str=' + this.state.tagName;
+    let url = baseUrl+'/app/question/tag/get?str=' + this.state.tagName;
 
     fetch(url, {
       method: 'GET',

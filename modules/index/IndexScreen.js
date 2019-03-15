@@ -44,9 +44,7 @@ export default class IndexScreen extends Component {
         <View style={{ flexDirection: 'row', paddingLeft: 15, paddingRight: 15, paddingTop: 15 }}>
           <View style={{
             flexDirection: 'row',
-            backgroundColor: '#eaeaea', borderRadius: 5, flex: 1
-            , paddingLeft: 10, paddingRight: 10
-          }}>
+            backgroundColor: '#eaeaea', borderRadius: 5, flex: 1,padding:10          }}>
            <TouchableOpacity onPress={()=>{this.navigateToAskQuestion()}} style={{ flexDirection: 'row', alignItems: 'center' }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
            
@@ -57,7 +55,7 @@ export default class IndexScreen extends Component {
             </TouchableOpacity>
             <TouchableOpacity onPress={()=>{this.navigateToSearchQuestion()}} style={{ flexDirection: 'row', flex: 1, alignItems: 'center' }}>
             <View style={{ flexDirection: 'row', flex: 1, alignItems: 'center' }}>
-              <TextInput placeholder='搜索问题' style={{ flex: 1, fontSize: 12 }} editable={false} />
+            <Text style={{ fontSize: 13, color: '#b1afaf', paddingRight: 5,flex:1 }}> 搜索问题  </Text>
               <Image source={require("../../resources/index/ss.png")} style={{ height: 25, width: 25 }} />
             </View>
             </TouchableOpacity>

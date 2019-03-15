@@ -6,8 +6,12 @@ import {
     StyleSheet, TouchableOpacity, SafeAreaView, ToastAndroid,
     View, Button, Text, DeviceEventEmitter, TouchableNativeFeedback, Image, ScrollView, RefreshControl, FlatList, Dimensions
 } from 'react-native';
+import Base from '../../utils/Base';
 import ScreenUtil from '../../utils/ScreenUtil';
+import HTMLView from 'react-native-htmlview';
 
+
+let baseUrl = Base.baseUrl;
 
 
 export default class FollowAnswer extends Component {
@@ -40,7 +44,7 @@ export default class FollowAnswer extends Component {
     getFollowAnsList = async () => {
         let limit = this.state.limit;
         let page = this.state.page + 1;
-        let url = 'http://192.168.1.100:8070/app/user/getFollowAnswerList?' + '&pageNum=' + page + '&pageSize=' + limit;
+        let url = baseUrl + '/app/user/getFollowAnswerList?' + '&pageNum=' + page + '&pageSize=' + limit;
         let token = await AsyncStorage.getItem("userToken");
         fetch(url, {
             method: 'GET',
@@ -117,7 +121,14 @@ export default class FollowAnswer extends Component {
         return view;
     }
 
+    navigateToAnswerDetail = (item) => {
+        let data = {
+            answerVo: item,
+            quesTitle: item.ques.quesTitle
+        }
+        DeviceEventEmitter.emit('navigateToAnswerDetail', data);
 
+    }
 
 
     renderItem = (data) => {
@@ -125,7 +136,7 @@ export default class FollowAnswer extends Component {
         let user = item.user;
         let ques = item.ques;
         return (
-            <View>
+            <View style={{ backgroundColor: '#ffffff' }}>
                 <View style={{ paddingLeft: 15, paddingTop: 20, flexDirection: 'row', alignItems: 'center' }}>
 
                     <View style={{ alignItems: 'center', paddingRight: 10 }}>
@@ -139,6 +150,7 @@ export default class FollowAnswer extends Component {
                     <Text style={{ fontSize: 11, }}>{user.userName}</Text>
 
                 </View>
+
                 <View style={{ paddingLeft: 15, paddingBottom: 15, paddingTop: 10, paddingBottom: 10, flexDirection: 'row', alignItems: 'center' }}>
 
                     <Text style={{ fontWeight: 'bold' }}>{ques.quesTitle}</Text>
@@ -148,27 +160,30 @@ export default class FollowAnswer extends Component {
                 <View style={{ flexDirection: 'row' }}>
                     <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, }}>
 
+                        <TouchableOpacity onPress={() => this.navigateToAnswerDetail(item)} activeOpacity={1}>
 
 
-                        <View style={{ paddingTop: 5, paddingBottom: 5 }}>
-                            <Text style={[{ lineHeight: 17, fontSize: 12 }]}
+                            <View style={{ paddingTop: 5, paddingBottom: 5, height: 50 }}>
+                                <HTMLView value={item.ansContent}> </HTMLView>                       
+                                     {/* <Text style={[{ lineHeight: 17, fontSize: 12 }]}
                                 numberOfLines={3}>
                                 {item.ansContent}
-                            </Text>
-                        </View>
-
-                        <View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 20 }}>
-                            <View style={{ flex: 1, flexDirection: 'row', }}>
-                                <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{item.likeNum} 赞同 · </Text>
-                                <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{item.commentNum} 评论</Text>
+                            </Text> */}
                             </View>
 
+                            <View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 20, backgroundColor: '#ffffff' }}>
+                                <View style={{ flex: 1, flexDirection: 'row', }}>
+                                    <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{item.likeNum} 赞同 · </Text>
+                                    <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{item.commentNum} 评论</Text>
+                                </View>
 
-                        </View>
+
+                            </View>
+                        </TouchableOpacity>
                     </View>
 
                 </View>
-                <View style={{ height: 8, backgroundColor: "#eae9e961" }}></View>
+                <View style={{ height: 8, backgroundColor: "#f3f3f3" }}></View>
             </View>
 
         );
@@ -198,7 +213,8 @@ export default class FollowAnswer extends Component {
                     style={{
                         height: ScreenUtil.scaleSize(50),
                         alignItems: 'center',
-                        justifyContent: 'flex-start'
+                        justifyContent: 'flex-start',
+                        backgroundColor: '#ffffff'
                     }}>
                     <Text
                         style={{
@@ -208,7 +224,7 @@ export default class FollowAnswer extends Component {
                             marginBottom: ScreenUtil.scaleSize(10)
                         }}>
                         没有更多数据了
-                        </Text>
+                    </Text>
                 </View>
             );
         } else if (this.state.showFoot == 1) {
@@ -218,7 +234,8 @@ export default class FollowAnswer extends Component {
                         height: ScreenUtil.scaleSize(50),
                         flexDirection: 'row',
                         alignItems: 'center',
-                        justifyContent: 'center'
+                        justifyContent: 'center',
+                        backgroundColor: '#ffffff'
                     }}>
                     <ActivityIndicator animating={this.state.animating} size="small" color="grey" />
                     <Text>正在加载更多数据...</Text>
@@ -230,14 +247,18 @@ export default class FollowAnswer extends Component {
                     style={{
                         height: ScreenUtil.scaleSize(30),
                         alignItems: 'center',
-                        justifyContent: 'flex-start'
+                        justifyContent: 'flex-start',
+                        backgroundColor: '#ffffff'
                     }}>
                     <Text></Text>
                 </View>
             );
         } else {
             return (
-                <View style={{ height: ScreenUtil.scaleSize(30), alignItems: 'center', justifyContent: 'flex-start', }}>
+                <View style={{
+                    height: ScreenUtil.scaleSize(30), alignItems: 'center', justifyContent: 'flex-start',
+                    backgroundColor: '#ffffff'
+                }}>
                     <Text></Text>
                 </View>
             );
@@ -255,10 +276,10 @@ export default class FollowAnswer extends Component {
 
     listHeader = () => {
         return (
-            <View style={{ height: 100,backgroundColor:'#0084ff', flexDirection: 'row', alignItems: 'center' }}>
-            <View>
-                <Text style={{color:'white',paddingLeft:20,fontSize:18,fontWeight:'bold'}}>我的收藏夹</Text>
-                <Text style={{color:'white',paddingLeft:20,paddingTop:10, fontSize:10}}>共 {this.state.data.length} 个内容</Text>
+            <View style={{ height: 100, backgroundColor: '#0084ff', flexDirection: 'row', alignItems: 'center' }}>
+                <View>
+                    <Text style={{ color: 'white', paddingLeft: 20, fontSize: 18, fontWeight: 'bold' }}>我的收藏夹</Text>
+                    <Text style={{ color: 'white', paddingLeft: 20, paddingTop: 10, fontSize: 10 }}>共 {this.state.data.length} 个内容</Text>
 
                 </View>
             </View>
@@ -283,7 +304,7 @@ export default class FollowAnswer extends Component {
                     onEndReachedThreshold={1}
                     ListFooterComponent={this.listFooterComponent}
                     ListHeaderComponent={this.listHeader}
-            />
+                />
 
 
 

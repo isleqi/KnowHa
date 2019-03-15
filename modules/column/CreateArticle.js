@@ -88,7 +88,7 @@ export default class CreateArticle extends Component {
   }
 
   uploadImage = (path) => {
-    let url = 'http://192.168.1.100:8070/app/user/uploadImage';
+    let url = baseUrl+'/app/user/uploadImage';
     let file = { uri: path, type: 'application/octet-stream', name: 'image.jpg' };
     let formData = new FormData();
     formData.append("files", file);
@@ -106,6 +106,10 @@ export default class CreateArticle extends Component {
       return response.json();
     }).then((responseData) => {
       console.log(responseData);
+      if (responseData.code != "200") {
+        ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+        return;
+    }
       let data = responseData.data
       this.insertImage(data[0]);
     })
@@ -117,7 +121,7 @@ export default class CreateArticle extends Component {
 
   insertImage = async (path) => {
     let contentHtml = await this.richtext.getContentHtml();
-    let html = contentHtml + "<br/><img src=" + path + ' / width="320" height="300"><br/><br/>';
+    let html = contentHtml + "<img src=" + path + ' / width="320" height="300"><br/>';
     this.richtext.setContentHTML(html);
   }
 

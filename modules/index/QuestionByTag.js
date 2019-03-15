@@ -7,7 +7,12 @@ import {
     View, Button, Text, DeviceEventEmitter, TouchableNativeFeedback, Image, ScrollView, RefreshControl, FlatList, Dimensions
 } from 'react-native';
 import AnswerListHeader from './AnswerListHeader';
+import Base from '../../utils/Base';
+import ScreenUtil from '../../utils/ScreenUtil';
+import HTMLView from 'react-native-htmlview';
 
+
+let baseUrl = Base.baseUrl;
 
 export default class QuestionByTag extends Component {
     static navigationOptions = {
@@ -28,7 +33,7 @@ export default class QuestionByTag extends Component {
 
     getQuestionListByTagId = () => {
         let tagId = this.props.navigation.state.params.tag.id;
-        let url = 'http://192.168.1.100:8070/app/question/getByTag?pageNum=1&pageSize=10&tagId=' + tagId;
+        let url = baseUrl + '/app/question/getByTag?pageNum=1&pageSize=10&tagId=' + tagId;
 
         fetch(url, {
             method: 'GET',
@@ -65,37 +70,39 @@ export default class QuestionByTag extends Component {
         let answer = item.answerVo;
         return (
             <View>
-                <View style={{ height: 8, backgroundColor: "#eae9e961" }}></View>
+                <View style={{ height: 8, backgroundColor: "#f3f3f3" }}></View>
 
 
-                <View style={{ flexDirection: 'row' }}>
+                <View style={{ flexDirection: 'row' ,backgroundColor:'#ffffff'}}>
                     <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, }}>
 
-                        <TouchableOpacity onPress={() => this.navigateToAnswerList(item)}>
+                        <TouchableOpacity onPress={() => this.navigateToAnswerList(item)}activeOpacity={1}>
                             <View style={{ paddingTop: 5, paddingBottom: 5 }}>
                                 <Text style={{ fontWeight: 'bold', fontSize: 15 }}>{item.quesTitle}</Text>
                             </View>
                         </TouchableOpacity>
-                        {answer==null? 
-                            <Text style={{fontSize:11,color:'#bdbcbce8', paddingTop: 5, paddingBottom: 5 }}>暂无回答</Text>
-                        :
-                        <View>
-                     <View style={{ paddingTop: 5, paddingBottom: 5 }}>
-                     <Text style={[{ lineHeight: 17, fontSize: 12 }]}
+                        {answer == null ?
+                            <Text style={{ fontSize: 11, color: '#bdbcbce8', paddingTop: 5, paddingBottom: 5 }}>暂无回答</Text>
+                            :
+                            <View>
+                                <View style={{ paddingTop: 5, paddingBottom: 5, height: 50, backgroundColor: '#ffffff' }}>
+                                    <HTMLView value={answer.ansContent}> </HTMLView>
+
+                                    {/* <Text style={[{ lineHeight: 17, fontSize: 12 }]}
                          numberOfLines={3}>
                          {answer.ansContent}
-                     </Text>
-                 </View>
+                     </Text> */}
+                                </View>
 
-                 <View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 20 }}>
-                     <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{answer.likeNum} 赞同 · </Text>
-                     <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{answer.commentNum} 评论</Text>
+                                <View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 20, backgroundColor: '#ffffff' }}>
+                                    <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{answer.likeNum} 赞同 · </Text>
+                                    <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{answer.commentNum} 评论</Text>
 
-                 </View>    
-                 </View>
-                    }
+                                </View>
+                            </View>
+                        }
 
-                       
+
                     </View>
 
                 </View>
@@ -104,18 +111,18 @@ export default class QuestionByTag extends Component {
         );
     }
 
-    renderHeader=()=>{
-        let tag= this.props.navigation.state.params.tag;
-        return(
+    renderHeader = () => {
+        let tag = this.props.navigation.state.params.tag;
+        return (
             <View>
-            <View style={{alignItems:'center',justifyContent:'center',padding:20}}>
-                  <View style={{ backgroundColor: '#38b2cc', padding: 10, borderRadius: 5, marginRight: 5 }}>
-                    <Text style={{ fontSize: 18, color: 'white' }}>{tag.tagName}</Text>
-                </View >
-                <Text style={{ fontSize: 12, color: '#8e8d8d',paddingTop:10}}>{tag.num} 人关注</Text>
+                <View style={{ alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+                    <View style={{ backgroundColor: '#38b2cc', padding: 10, borderRadius: 5, marginRight: 5 }}>
+                        <Text style={{ fontSize: 18, color: 'white' }}>{tag.tagName}</Text>
+                    </View >
+                    <Text style={{ fontSize: 12, color: '#8e8d8d', paddingTop: 10 }}>{tag.num} 人关注</Text>
                 </View>
-               
-                </View>
+
+            </View>
         );
     }
 
@@ -143,8 +150,8 @@ export default class QuestionByTag extends Component {
                     showsVerticalScrollIndicator={false}
                     onEndReached={this.onEndReached}
                     onEndReachedThreshold={0.1}
-                // ListFooterComponent={this.renderFooter}
-                  ListHeaderComponent={this.renderHeader}
+                    // ListFooterComponent={this.renderFooter}
+                    ListHeaderComponent={this.renderHeader}
                 //ListEmptyComponent={this._listEmptyComponent}
                 />
 

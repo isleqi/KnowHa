@@ -3,10 +3,14 @@ import {
   ActivityIndicator,
   AsyncStorage,
   StatusBar,
-  StyleSheet, TouchableOpacity, SafeAreaView, TextInput,
+  StyleSheet, TouchableOpacity, SafeAreaView, TextInput,ToastAndroid,
   View, Button, Text, DeviceEventEmitter, TouchableNativeFeedback, Image, ScrollView, RefreshControl, FlatList, Dimensions
 } from 'react-native';
+import Base from '../../utils/Base';
+import ScreenUtil from '../../utils/ScreenUtil';
 
+
+let baseUrl = Base.baseUrl;
 
 let timerId;
 export default class RegisterScreen extends Component {
@@ -67,7 +71,7 @@ export default class RegisterScreen extends Component {
       type: type
     });
 
-    let url = 'http://192.168.1.100:8070/app/register/' + str;
+    let url =baseUrl+ '/app/register/' + str;
 
 
 
@@ -90,7 +94,7 @@ export default class RegisterScreen extends Component {
     let str;
     if (this.state.type == 'email') {
       str = 'checkEmilCode';
-      formData.append("email", thi.state.account);
+      formData.append("email", this.state.account);
     }
     else {
       str = 'checkPhoneCode';
@@ -98,7 +102,7 @@ export default class RegisterScreen extends Component {
     }
     formData.append('code', this.state.code);
 
-    let url = 'http://192.168.1.100:8070/app/register/' + str;
+    let url = baseUrl+'/app/register/' + str;
     fetch(url, {
       method: 'POST',
       body: formData
@@ -131,7 +135,7 @@ export default class RegisterScreen extends Component {
 
         <View style={styles.content}>
           <View style={{ alignItems: 'center', paddingBottom: 20 }}>
-            <Text style={{ fontSize: 30 }}>知哈</Text>
+            <Text style={{ fontSize: 30 ,fontWeight:'bold'}}>知哈</Text>
           </View>
           <View style={{ flexDirection: 'row', paddingBottom: 20 }}>
             <View style={{ flex: 1 }}>

@@ -73,7 +73,7 @@ export default class AnswerListHeader extends Component {
 
     hasFollowQues = () => {
         let quesId = this.state.quesData.id;
-        let url = 'http://192.168.1.100:8070/app/question/hasfollow?quesId=' + quesId;
+        let url = baseUrl+'/app/question/hasfollow?quesId=' + quesId;
         fetch(url, {
             method: 'GET',
             headers: {
@@ -100,7 +100,7 @@ export default class AnswerListHeader extends Component {
 
     followQues = () => {
         let quesId = this.state.quesData.id;
-        let url = 'http://192.168.1.100:8070/app/question/follow?quesId=' + quesId;
+        let url = baseUrl+'/app/question/follow?quesId=' + quesId;
         fetch(url, {
             method: 'GET',
             headers: {
@@ -128,7 +128,7 @@ export default class AnswerListHeader extends Component {
 
     cancelFollowQues = () => {
         let quesId = this.state.quesData.id;
-        let url = 'http://192.168.1.100:8070/app/question/cancelFollow?quesId=' + quesId;
+        let url = baseUrl+'/app/question/cancelFollow?quesId=' + quesId;
         fetch(url, {
             method: 'GET',
             headers: {
@@ -190,8 +190,11 @@ export default class AnswerListHeader extends Component {
     renderFollowUserList = () => {
         return (
             <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', padding: 30, justifyContent: "center" }}>
-              
+             
                 <View style={{ backgroundColor: '#ffffff', padding: 10, borderRadius: 10, flex: 1 }}>
+                <View style={{ backgroundColor: '#ffffff',alignItems:'center',paddingBottom:10} }>
+           <Text style={{fontWeight:'bold'}}>我关注的人</Text>
+           </View>
                     <FlatList keyExtractor={(item, index) => index.toString()}
                         data={this.state.dataSource}
                         renderItem={this.renderFollowUserItem}
@@ -205,7 +208,7 @@ export default class AnswerListHeader extends Component {
                     />
 
                     <TouchableOpacity onPress={() => this.toInvitation()} >
-                        <View style={{ backgroundColor: "#0084ff", borderRadius: 5, paddingBottom: 10, paddingTop: 10, paddingLeft: 10, paddingRight: 10 }}>
+                        <View style={{ backgroundColor: "#0084ff", borderRadius: 5,marginTop: 10, paddingBottom: 10, paddingTop: 10, paddingLeft: 10, paddingRight: 10 }}>
                             <Text style={{ textAlign: 'center', fontSize: 15, color: 'white' }}>
                                 邀请 </Text>
                         </View>

@@ -45,6 +45,7 @@ export default class AnswerDetail extends Component {
         if (token != null) {
             this.hasFollowUser();
             this.hasFollowAns();
+            this.hasLikeAns();
         }
     }
 
@@ -56,7 +57,7 @@ export default class AnswerDetail extends Component {
     }
     hasFollowAns = () => {
         let ansId = this.state.answer.ansId;
-        let url = 'http://192.168.1.100:8070/app/answer/hasfollow?ansId=' + ansId;
+        let url = baseUrl+'/app/answer/hasfollow?ansId=' + ansId;
         fetch(url, {
             method: 'GET',
             headers: {
@@ -80,9 +81,35 @@ export default class AnswerDetail extends Component {
         })
     }
 
+    hasLikeAns = () => {
+        let ansId = this.state.answer.ansId;
+        let url = baseUrl+'/app/answer/hasLike?ansId=' + ansId;
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                "token": token
+            }
+
+        }).then((response) => {
+            return response.json();
+        }).then((responseData) => {
+            console.log(responseData);
+            if (responseData.code != "200") {
+                ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+                return;
+            }
+            let data = responseData.data;
+
+            this.setState({
+                like: data,
+            })
+
+        })
+    }
+
     hasFollowUser = () => {
         let useredId = this.state.user.id;
-        let url = 'http://192.168.1.100:8070/app/user/hasfollow?useredId=' + useredId;
+        let url = baseUrl+'/app/user/hasfollow?useredId=' + useredId;
         fetch(url, {
             method: 'GET',
             headers: {
@@ -110,9 +137,9 @@ export default class AnswerDetail extends Component {
         let ansId = this.state.answer.ansId;
         let url;
         if (this.state.followAns)
-            url = 'http://192.168.1.100:8070/app/answer/cancelFollow?ansId=' + ansId;
+            url = baseUrl+'/app/answer/cancelFollow?ansId=' + ansId;
         else
-            url = 'http://192.168.1.100:8070/app/answer/follow?ansId=' + ansId;
+            url = baseUrl+'/app/answer/follow?ansId=' + ansId;
         fetch(url, {
             method: 'GET',
             headers: {
@@ -137,9 +164,48 @@ export default class AnswerDetail extends Component {
 
     }
 
+   
+
+    LikeAns = () => {
+        let ansId = this.state.answer.ansId;
+        let url;
+        if (this.state.like)
+            url = baseUrl+'/app/answer/cancelLike?ansId=' + ansId;
+        else
+            url = baseUrl+'/app/answer/setLike?ansId=' + ansId;
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                "token": token
+            }
+
+        }).then((response) => {
+            return response.json();
+        }).then((responseData) => {
+            console.log(responseData);
+            if (responseData.code != "200") {
+                ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+                return;
+            }
+            let data = responseData.data;
+            let answer=this.state.answer;
+            if(this.state.like)
+            answer.likeNum=answer.likeNum-1;
+            else
+            answer.likeNum=answer.likeNum+1;
+
+            this.setState({
+                like: !this.state.like,
+                answer:answer
+            })
+
+        })
+
+    }
+
     followUser = () => {
         let useredId = this.state.user.id;
-        let url = 'http://192.168.1.100:8070/app/user/follow?useredId=' + useredId;
+        let url = baseUrl+'/app/user/follow?useredId=' + useredId;
         fetch(url, {
             method: 'GET',
             headers: {
@@ -171,7 +237,7 @@ export default class AnswerDetail extends Component {
 
     cancelFollowAns = () => {
         let ansId = this.state.answer.ansId;
-        let url = 'http://192.168.1.100:8070/app/answer/cancelFollow?ansId=' + ansId;
+        let url = baseUrl+'/app/answer/cancelFollow?ansId=' + ansId;
         fetch(url, {
             method: 'GET',
             headers: {
@@ -198,7 +264,7 @@ export default class AnswerDetail extends Component {
 
     cancelFollowUser = () => {
         let useredId = this.state.user.id;
-        let url = 'http://192.168.1.100:8070/app/user/cancelFollow?useredId=' + useredId;
+        let url = baseUrl+'/app/user/cancelFollow?useredId=' + useredId;
         fetch(url, {
             method: 'GET',
             headers: {
@@ -269,7 +335,6 @@ export default class AnswerDetail extends Component {
 
 
     render() {
-        let text = '<img  src="http://192.168.1.100:8070/graduationproject/image/1550318822464image.jpg" />';
         let user = this.state.user;
         let answer = this.state.answer;
         let quesTitle = this.props.navigation.state.params.item.quesTitle;
@@ -375,7 +440,7 @@ export default class AnswerDetail extends Component {
                     </ScrollView>
                     <View style={{ height: 60, justifyContent: 'flex-end', backgroundColor: '#ffffff' }}>
                         <View style={{ flexDirection: 'row', paddingTop: 10, paddingBottom: 10,paddingRight:15,paddingLeft:15 }}>
-                            <TouchableOpacity onPress={() => this.setLike()}>
+                            <TouchableOpacity onPress={() => this.LikeAns()}>
                                 <View style={{ alignItems: 'center' }}>
                                     <Image source={
                                         this.state.like ?
@@ -437,5 +502,7 @@ const styles = StyleSheet.create({
 
 });
 const htmlStyles = StyleSheet.create({
-    
+   body:{
+       height:'20'
+   }
 });

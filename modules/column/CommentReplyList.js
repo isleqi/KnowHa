@@ -117,7 +117,7 @@ export default class CommentReplyList extends Component {
             ToastAndroid.show("回复不能为空", ToastAndroid.SHORT);
             return;
         }
-        let url = 'http://192.168.1.100:8070/app/column/comment/reply';
+        let url = baseUrl+'/app/column/comment/reply';
         let formData = new FormData();
         formData.append("commentId", commentId);
         formData.append("replyedUserId", useredId);

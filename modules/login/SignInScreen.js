@@ -13,7 +13,11 @@ import {
   Dimensions,
   ToastAndroid
 } from 'react-native';
+import Base from '../../utils/Base';
+import ScreenUtil from '../../utils/ScreenUtil';
 
+
+let baseUrl = Base.baseUrl;
 
 export default class SignInScreen extends Component {
   static navigationOptions = {
@@ -43,7 +47,7 @@ export default class SignInScreen extends Component {
         "524337518" +
         "&response_type=code" +
         "&redirect_uri=" +
-        "http://192.168.1.100:8070/app/login/sinaOauth";
+        baseUrl+"/app/login/sinaOauth";
     }
     else if (type == 'github') {
        uri_ = "https://github.com/login/oauth/authorize?client_id=" + "742507a3c11705661108";
@@ -59,7 +63,7 @@ export default class SignInScreen extends Component {
   }
 
   submit=()=>{
-    let url = 'http://192.168.1.100:8070/app/login/submit';
+    let url = baseUrl+'/app/login/submit';
     let formData = new FormData();
     formData.append("account", this.state.account);
     formData.append("password",this.state.password);
@@ -99,7 +103,7 @@ export default class SignInScreen extends Component {
 
         <View style={styles.content}>
           <View style={{ alignItems: 'center', paddingBottom: 20 }}>
-            <Text style={{ fontSize: 30 }}>知哈</Text>
+            <Text style={{ fontSize: 30 ,fontWeight:'bold'}}>知哈</Text>
           </View>
           <View style={{ flexDirection: 'row', paddingBottom: 20 }}>
             <View style={{ flex: 1 }}>

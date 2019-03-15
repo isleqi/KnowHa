@@ -119,13 +119,20 @@ export default class RegisterDetail extends Component {
 
     navigateHome = () => {
 
-        let url = 'http://192.168.1.100:8070/app/register/submit';
+        let url = baseUrl+'/app/register/submit';
         let formData = new FormData();
         formData.append("account", this.state.account);
         formData.append("identityType", this.state.identityType);
         formData.append("userName", this.state.userName);
         formData.append("description", this.state.description);
         formData.append("password", this.state.password);
+        if(this.state.avatarPath==""){
+            if(this.state.sex==1)
+            this.state.avatarPath=baseUrl+"/graduationproject/avatar/boy.png"
+            else
+            this.state.avatarPath=baseUrl+"/graduationproject/avatar/girl.png"
+
+        }
         let params={
             "account":this.state.account,
             "identityType": this.state.identityType,

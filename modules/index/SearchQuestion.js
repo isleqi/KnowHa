@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import Base from '../../utils/Base';
 import ScreenUtil from '../../utils/ScreenUtil';
+import HTMLView from 'react-native-htmlview';
 
 
 let baseUrl = Base.baseUrl;
@@ -180,7 +181,8 @@ listFooterComponent = () => {
                 style={{
                     height: ScreenUtil.scaleSize(50),
                     alignItems: 'center',
-                    justifyContent: 'flex-start'
+                    justifyContent: 'flex-start',
+                    backgroundColor:'#ffffff'
                 }}>
                 <Text
                     style={{
@@ -190,7 +192,7 @@ listFooterComponent = () => {
                         marginBottom: ScreenUtil.scaleSize(10)
                     }}>
                     没有更多数据了
-                  </Text>
+                    </Text>
             </View>
         );
     } else if (this.state.showFoot == 1) {
@@ -200,7 +202,8 @@ listFooterComponent = () => {
                     height: ScreenUtil.scaleSize(50),
                     flexDirection: 'row',
                     alignItems: 'center',
-                    justifyContent: 'center'
+                    justifyContent: 'center',
+                    backgroundColor:'#ffffff'
                 }}>
                 <ActivityIndicator animating={this.state.animating} size="small" color="grey" />
                 <Text>正在加载更多数据...</Text>
@@ -212,14 +215,16 @@ listFooterComponent = () => {
                 style={{
                     height: ScreenUtil.scaleSize(30),
                     alignItems: 'center',
-                    justifyContent: 'flex-start'
+                    justifyContent: 'flex-start',
+                    backgroundColor:'#ffffff'
                 }}>
                 <Text></Text>
             </View>
         );
     } else {
         return (
-            <View style={{ height: ScreenUtil.scaleSize(30), alignItems: 'center', justifyContent: 'flex-start', }}>
+            <View style={{ height: ScreenUtil.scaleSize(30), alignItems: 'center', justifyContent: 'flex-start' ,
+            backgroundColor:'#ffffff'}}>
                 <Text></Text>
             </View>
         );
@@ -278,7 +283,7 @@ renderItem = (data) => {
   let tags = item.tagList;
 
   return (
-      <View>
+      <View style={{backfaceVisibility:'#ffffff'}}>
           <View style={{ paddingLeft: 15, paddingTop: 20, flexDirection: 'row', }}>
               {this.renderTag(tags)}
           </View>
@@ -286,7 +291,7 @@ renderItem = (data) => {
           <View style={{ flexDirection: 'row' }}>
               <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, }}>
 
-                  <TouchableOpacity onPress={() => this.navigateToAnswerList(item)}>
+                  <TouchableOpacity onPress={() => this.navigateToAnswerList(item)} activeOpacity={1}>
                       <View style={{ paddingTop: 10, paddingBottom: 10 }}>
                           <Text style={{ fontWeight: 'bold', fontSize:16 ,}}>{item.quesTitle}</Text>
                       </View>
@@ -294,16 +299,18 @@ renderItem = (data) => {
                   {answer == null ?
                       <Text style={{ fontSize: 11, color: '#bdbcbce8', paddingTop: 5, paddingBottom: 5 }}>暂无回答</Text>
                       :
-                      <TouchableOpacity onPress={()=>this.navigateToAnswerDetail(item)}>
+                      <TouchableOpacity onPress={()=>this.navigateToAnswerDetail(item)} activeOpacity={1}>
                       <View>
-                          <View style={{ paddingTop: 5, paddingBottom: 5 }}>
-                              <Text style={[{ lineHeight: 17, fontSize: 12 }]}
+                      <View style={{ paddingTop: 5, paddingBottom: 5, height: 50, backgroundColor: '#ffffff' }}>
+                          <HTMLView value={answer.ansContent}> </HTMLView>
+
+                              {/* <Text style={[{ lineHeight: 17, fontSize: 12 }]}
                                   numberOfLines={3}>
                                   {answer.ansContent}
-                              </Text>
+                              </Text> */}
                           </View>
 
-                          <View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 20 }}>
+                                    <View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 20, backgroundColor: '#ffffff' }}>
                               <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{answer.likeNum} 赞同 · </Text>
                               <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{answer.commentNum} 评论</Text>
 
@@ -315,7 +322,7 @@ renderItem = (data) => {
               </View>
 
           </View>
-          <View style={{ height: 8, backgroundColor: "#eae9e961" }}></View>
+          <View style={{ height: 8, backgroundColor: "#f3f3f3" }}></View>
       </View>
 
   );
@@ -324,15 +331,15 @@ renderItem = (data) => {
   render() {
     return (
       <View style={styles.container}>
-        <View style={{ flexDirection: 'row',paddingLeft:15,paddingRight:15, paddingTop:15}}>
+        <View style={{ flexDirection: 'row',padding:15}}>
         <View  style={{
         flexDirection: 'row',
         backgroundColor:'#eaeaea',borderRadius:5,flex:1
-        ,paddingLeft:10,paddingRight:10
+      ,padding:10
         }}>
       
           <View style={{ flexDirection: 'row',flex:1,alignItems:'center'}}>
-            <TextInput placeholder='搜索问题' style={{flex:1,fontSize:12}} 
+            <TextInput placeholder='搜索问题' style={{flex:1,fontSize:12,paddingVertical: 0}} 
              onChangeText={(str) => {
               this.setState({ str });
           }}

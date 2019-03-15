@@ -6,11 +6,12 @@ import {
     StyleSheet, TouchableOpacity, SafeAreaView, ToastAndroid, TextInput,
     View, Button, Text, DeviceEventEmitter, TouchableNativeFeedback, Image, ScrollView, RefreshControl, FlatList, Dimensions
 } from 'react-native';
+import Base from '../../utils/Base';
 import ScreenUtil from '../../utils/ScreenUtil';
 
 
-let commentUrl="http://192.168.1.100:8070/app/answer/comment";
-let replyUrl="http://192.168.1.100:8070/app/answer/comment/reply";
+let baseUrl = Base.baseUrl;
+
 export default class AnsCommentList extends Component {
     static navigationOptions = () => ({
         title: '对话列表',
@@ -52,7 +53,7 @@ export default class AnsCommentList extends Component {
         let limit = this.state.limit;
         let page = this.state.page + 1;
         let commentId = this.state.ansCommentId;
-        let url = 'http://192.168.1.100:8070/app/answer/getReplyList?commentId=' + commentId + '&pageNum=' + page + '&pageSize=' + limit;
+        let url = baseUrl+'/app/answer/getReplyList?commentId=' + commentId + '&pageNum=' + page + '&pageSize=' + limit;
         let token = await AsyncStorage.getItem("userToken");
         fetch(url, {
             method: 'GET',
@@ -114,7 +115,7 @@ export default class AnsCommentList extends Component {
             ToastAndroid.show("回复不能为空", ToastAndroid.SHORT);
             return;
         }
-        let url = 'http://192.168.1.100:8070/app/answer/comment/reply';
+        let url = baseUrl+'/app/answer/comment/reply';
         let formData = new FormData();
         formData.append("commentId", commentId);
         formData.append("replyedUserId", useredId);

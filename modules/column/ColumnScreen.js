@@ -9,8 +9,11 @@ import {
 import ScrollableTabView, { ScrollableTabBar, DefaultTabBar } from 'react-native-scrollable-tab-view';
 import AllColumn from '../column/AllColumn';
 import FollowUserArticle from '../column/FollowUserArticle';
+import Base from '../../utils/Base';
+import ScreenUtil from '../../utils/ScreenUtil';
 
 
+let baseUrl = Base.baseUrl;
 export default class ColumnScreen extends Component {
   static navigationOptions = {
     header: null
@@ -39,7 +42,7 @@ export default class ColumnScreen extends Component {
   }
 
   getUserInfo = () => {
-    let url = 'http://192.168.1.100:8070/app/user/getBaseUserInfo';
+    let url = baseUrl+'/app/user/getBaseUserInfo';
     let formData = new FormData();
     formData.append("token", userToken);
     let params = {
@@ -55,15 +58,12 @@ export default class ColumnScreen extends Component {
     }).then((responseData) => {
       console.log(responseData);
       let data = responseData.data;
-      if (data.code != 'undefined' && data.code == 403) {
-        ToastAndroid.show("token失效，请重新登录", ToastAndroid.SHORT);
+      if (responseData.code != "200") {
+        ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
         DeviceEventEmitter.emit('navigateToAuth');
-      } else {
+        return;
+    }
       
-      
-        
-      }
-
     })
   }
 
@@ -87,7 +87,7 @@ export default class ColumnScreen extends Component {
           <View style={{
             flexDirection: 'row',
             backgroundColor: '#eaeaea', borderRadius: 5, flex: 1
-            , paddingLeft: 10, paddingRight: 10
+            ,padding:10,alignItems:'center'
           }}>
             <TouchableOpacity onPress={() => { this.navigateToCreateArticle() }} style={{ flexDirection: 'row', alignItems: 'center' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -97,7 +97,7 @@ export default class ColumnScreen extends Component {
             </TouchableOpacity>
             <TouchableOpacity onPress={()=>{this.navigateToSearchArticle()}} style={{ flexDirection: 'row', flex: 1, alignItems: 'center' }}>
               <View style={{ flexDirection: 'row', flex: 1, alignItems: 'center' }}>
-                <TextInput placeholder='搜索文章' style={{ flex: 1, fontSize: 12 }} editable={false}/>
+              <Text style={{ fontSize: 13, color: '#b1afaf', paddingRight: 5,flex:1 }}> 搜索文章  </Text>
                 <Image source={require("../../resources/index/ss.png")} style={{ height: 25, width: 25 }} />
               </View>
             </TouchableOpacity>

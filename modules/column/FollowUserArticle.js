@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import Base from '../../utils/Base';
 import ScreenUtil from '../../utils/ScreenUtil';
+import HTMLView from 'react-native-htmlview';
 
 let baseUrl = Base.baseUrl;
 export default class FollowUserArticle extends Component {
@@ -141,7 +142,8 @@ export default class FollowUserArticle extends Component {
                     style={{
                         height: ScreenUtil.scaleSize(50),
                         alignItems: 'center',
-                        justifyContent: 'flex-start'
+                        justifyContent: 'flex-start',
+                        backgroundColor:'#ffffff'
                     }}>
                     <Text
                         style={{
@@ -161,7 +163,8 @@ export default class FollowUserArticle extends Component {
                         height: ScreenUtil.scaleSize(50),
                         flexDirection: 'row',
                         alignItems: 'center',
-                        justifyContent: 'center'
+                        justifyContent: 'center',
+                        backgroundColor:'#ffffff'
                     }}>
                     <ActivityIndicator animating={this.state.animating} size="small" color="grey" />
                     <Text>正在加载更多数据...</Text>
@@ -173,14 +176,16 @@ export default class FollowUserArticle extends Component {
                     style={{
                         height: ScreenUtil.scaleSize(30),
                         alignItems: 'center',
-                        justifyContent: 'flex-start'
+                        justifyContent: 'flex-start',
+                        backgroundColor:'#ffffff'
                     }}>
                     <Text></Text>
                 </View>
             );
         } else {
             return (
-                <View style={{ height: ScreenUtil.scaleSize(30), alignItems: 'center', justifyContent: 'flex-start', }}>
+                <View style={{ height: ScreenUtil.scaleSize(30), alignItems: 'center', justifyContent: 'flex-start' ,
+                backgroundColor:'#ffffff'}}>
                     <Text></Text>
                 </View>
             );
@@ -308,7 +313,7 @@ export default class FollowUserArticle extends Component {
 
 
         return (
-            <TouchableOpacity onPress={() => this.navigateToArticleDetail(item, index)}>
+            <TouchableOpacity onPress={() => this.navigateToArticleDetail(item, index)} activeOpacity={1}style={{backgroundColor:'#ffffff'}}>
                 <View>
                     <View style={{ paddingLeft: 15, paddingTop: 20, flexDirection: 'row', alignItems: 'center' }}>
 
@@ -337,14 +342,16 @@ export default class FollowUserArticle extends Component {
                                 <Text style={{ fontWeight: 'bold', fontSize: 15 }}>{item.articleTitle}</Text>
                             </View>
 
-                            <View style={{ paddingTop: 5, paddingBottom: 5 }}>
-                                <Text style={[{ lineHeight: 17, fontSize: 12 }]}
+                            <View style={{ paddingTop: 5, paddingBottom: 5,height:50 }}>
+                            <HTMLView value=  {item.articleContent} > </HTMLView>
+
+                                {/* <Text style={[{ lineHeight: 17, fontSize: 12 }]}
                                     numberOfLines={3}>
                                     {item.articleContent}
-                                </Text>
+                                </Text> */}
                             </View>
 
-                            <View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 20 }}>
+                            <View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 20,backgroundColor:'#ffffff' }}>
                                 <View style={{ flex: 1, flexDirection: 'row', }}>
                                     <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{item.likeNum} 赞同 · </Text>
                                     <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{item.commentNum} 评论</Text>
@@ -359,7 +366,7 @@ export default class FollowUserArticle extends Component {
                         </View>
 
                     </View>
-                    <View style={{ height: 8, backgroundColor: "#eae9e961" }}></View>
+                    <View style={{ height: 8, backgroundColor: "#f3f3f3" }}></View>
                 </View>
             </TouchableOpacity>
 
