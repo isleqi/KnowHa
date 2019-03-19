@@ -103,12 +103,70 @@ export default class FollowUser extends Component {
         this.props.navigation.goBack();
     }
 
-  
+    followUser = async(useredId,index) => {
+        let url = baseUrl+'/app/user/follow?useredId=' + useredId;
+        let token = await AsyncStorage.getItem("userToken");
+
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                "token": token
+            }
+    
+        }).then((response) => {
+            return response.json();
+        }).then((responseData) => {
+            console.log(responseData);
+            if (responseData.code != "200") {
+                ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+                return;
+            }
+           let data=this.state.data;
+           data[index].hasFollow=true;
+    
+            this.setState({
+                data:data
+            })
+    
+        })
+    
+    }
+    
+    cancelFollowUser =async (useredId,index) => {
+      let url = baseUrl+'/app/user/cancelFollow?useredId=' + useredId;
+      let token = await AsyncStorage.getItem("userToken");
+      fetch(url, {
+          method: 'GET',
+          headers: {
+              "token": token
+          }
+    
+      }).then((response) => {
+          return response.json();
+      }).then((responseData) => {
+          console.log(responseData);
+          if (responseData.code != "200") {
+              ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+              return;
+          }
+      
+    
+          let data=this.state.data;
+          data[index].hasFollow=false;
+   
+           this.setState({ 
+               data:data
+           })
+    
+      })
+    
+    }
 
 
     renderItem = (data) => {
         let item = data.item;
         let user = item.user;
+        let index=data.index;
        
         return (
        
@@ -126,6 +184,26 @@ export default class FollowUser extends Component {
                         </TouchableOpacity>
                     </View>
                     <Text style={{ fontSize: 13, }}>{user.userName}</Text>
+                    {
+                                item.hasFollow ?
+                                    <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'flex-end' }}>
+                                        <TouchableOpacity onPress={() => this.cancelFollowUser(user.id,index)} >
+                                            <View style={{ backgroundColor: "gray", borderRadius: 5, paddingBottom: 5, paddingTop: 5, paddingLeft: 10, paddingRight: 10 }}>
+                                                <Text style={{ textAlign: 'center', fontSize: 11, color: 'white' }}>
+                                                    已关注 </Text>
+                                            </View>
+                                        </TouchableOpacity>
+                                    </View>
+                                    :
+                                    <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'flex-end' }}>
+                                        <TouchableOpacity onPress={() => this.followUser(user.id,index)} >
+                                            <View style={{ backgroundColor: "#0084ff", borderRadius: 5, paddingBottom: 5, paddingTop: 5, paddingLeft: 10, paddingRight: 10 }}>
+                                                <Text style={{ textAlign: 'center', fontSize: 11, color: 'white' }}>
+                                                    关注 </Text>
+                                            </View>
+                                        </TouchableOpacity>
+                                    </View>
+                            }
                 </View>
               
                       
