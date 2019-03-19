@@ -30,8 +30,8 @@ export default class MessageScreen extends Component {
       //是否显示指示器
       animating: false,
       //是否刷新
-      isRefreshing: false
-
+      isRefreshing: false,
+      edit:false
     };
 
   }
@@ -109,6 +109,18 @@ export default class MessageScreen extends Component {
       this.getNotifyList();
       this.setState({ isRefreshing: false });
     });
+  }
+
+
+  onRefresh_ = () => {
+
+    this.state.data=[];
+    this.state.page=0;
+    this.state.totalPage=0;
+    this.state.showFoot=0;
+
+    
+
   }
 
   //底部组件
@@ -326,7 +338,11 @@ export default class MessageScreen extends Component {
   }
 
 
+  navigateToUserHome = (item) => {
+     
+    DeviceEventEmitter.emit('navigateToUserHome', item);
 
+}
 
 
   renderItem = (data) => {
@@ -347,7 +363,7 @@ export default class MessageScreen extends Component {
           <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, paddingTop: 10, paddingBottom: 10, flexDirection: 'row' }}>
 
             <View style={{ flex: 0.2, paddingRight: 10 }}>
-              <TouchableOpacity onPress={() => { }} >
+            <TouchableOpacity onPress={() => this.navigateToUserHome(sendUser.id)} >
                 <Image source={{ uri: sendUser.userIconUrl }}
                   style={{ width: 40, height: 40, borderRadius: 20 }}>
                 </Image>
@@ -379,6 +395,111 @@ export default class MessageScreen extends Component {
     );
   }
 
+  setAllRead=async()=>{
+    let token = await AsyncStorage.getItem("userToken");
+    let url = baseUrl + '/app/remind/hadReadAll';
+    fetch(url, {
+      method: 'GET',
+      headers: {
+        "token": token,
+      }
+
+    }).then((response) => {
+      return response.json();
+    }).then((responseData) => {
+      console.log(responseData);
+      if (responseData.code != "200") {
+        ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+        return;
+      }
+      ToastAndroid.show("标记成功", ToastAndroid.SHORT);
+
+    })
+  }
+
+  showNotRead=async()=>{
+    let limit = this.state.limit;
+    let page = this.state.page + 1;
+    let url = baseUrl + '/app/remind/getNotReadAll?' + 'pageNum=' + page + '&pageSize=' + limit;;
+    let token = await AsyncStorage.getItem("userToken");
+    fetch(url, {
+      method: 'GET',
+      headers: {
+        "token": token,
+      }
+
+    }).then((response) => {
+      return response.json();
+    }).then((responseData) => {
+      console.log(responseData);
+      if (responseData.code != "200") {
+        ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+        return;
+      }
+      let data = responseData.data;
+      let list = responseData.data.list;
+
+      //当前页数
+      let currPage = responseData.data.pageNum;
+      //总页数
+      let totalPage = responseData.data.pages;
+
+      //将请求到的数据拼接到原来数据的后面
+      list = this.state.data.concat(list);
+      let foot = 1;
+      let animating = true;
+      if (currPage >= totalPage) {
+        foot = 2; //没有更多数据了    
+        animating = false;
+      }
+      if (list == null || list.length == 0) {
+        //没有数据
+        foot = 0;
+        animating = false;
+      }
+
+      this.setState({
+        data: list,
+        showFoot: foot,
+        totalPage: totalPage,
+        animating: animating,
+        page: currPage
+      })
+
+
+    }
+    )
+
+
+  }
+
+  clearAll=async()=>{
+    let token = await AsyncStorage.getItem("userToken");
+    let url = baseUrl + '/app/remind/clearAll';
+    fetch(url, {
+      method: 'GET',
+      headers: {
+        "token": token,
+      }
+
+    }).then((response) => {
+      return response.json();
+    }).then((responseData) => {
+      console.log(responseData);
+      if (responseData.code != "200") {
+        ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+        return;
+      }
+      ToastAndroid.show("清空成功", ToastAndroid.SHORT);
+         this.setState({
+           data:[]
+         })
+    })
+
+
+
+  }
+
 
 
   render() {
@@ -386,6 +507,49 @@ export default class MessageScreen extends Component {
       <View style={styles.container}>
         <Text style={{ fontSize: 18, padding: 15, fontWeight: 'bold' }} >消息</Text>
         <View style={{ height: 3, backgroundColor: "#eae9e961" }}></View>
+
+        <View style={{flexDirection:"row",paddingTop:10,paddingBottom:10}}>
+        {
+                        this.state.edit ?
+                            <View style={{ flex: 1, justifyContent: 'flex-end',alignItems:"center",paddingLeft:20, paddingRight: 20, flexDirection: 'row' }}>
+                                    <TouchableOpacity onPress={() => this.setAllRead()} >
+                                        <View style={{ backgroundColor: "#0084ff",marginRight:10, borderRadius: 5, paddingBottom: 5, paddingTop: 5, paddingLeft: 10, paddingRight: 10 }}>
+                                            <Text style={{ textAlign: 'center', fontSize: 11, color: 'white' }}>
+                                                全部已读 </Text>
+                                        </View>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => {this.onRefresh_();this.showNotRead()}} >
+                                        <View style={{ backgroundColor: "gray",marginRight:10, borderRadius: 5, paddingBottom: 5, paddingTop: 5, paddingLeft: 10, paddingRight: 10 }}>
+                                            <Text style={{ textAlign: 'center', fontSize: 11, color: 'white' }}>
+                                                显示未读 </Text>
+                                        </View>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => this.clearAll()} >
+                                        <View style={{ backgroundColor: "red",marginRight:20, borderRadius: 5, paddingBottom: 5, paddingTop: 5, paddingLeft: 10, paddingRight: 10 }}>
+                                            <Text style={{ textAlign: 'center', fontSize: 11, color: 'white' }}>
+                                                清空 </Text>
+                                        </View>
+                                    </TouchableOpacity>
+                                <TouchableOpacity onPress={() =>this.setState({edit:false})} >
+
+                                <Image source={require('../../resources/user/jt.png')} style={{ height: 20, width: 20 }} />
+                                </TouchableOpacity>
+
+                            </View>
+                            :
+                            <View style={{ flex: 1, justifyContent: 'flex-end', paddingRight: 20, flexDirection: 'row' }}>
+                                    <TouchableOpacity onPress={() =>this.setState({edit:true})} >
+
+                                <Image source={require('../../resources/user/zk.png')} style={{ height: 15, width: 15 }} />
+                                </TouchableOpacity>
+
+                            </View>
+
+                    }
+          </View>
+
+                  <View style={{ height: 3, backgroundColor: "#eae9e961" }}></View>
+
 
         <FlatList keyExtractor={(item, index) => index.toString()}
           data={this.state.data}

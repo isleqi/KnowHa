@@ -9,12 +9,13 @@ import {
 import ScreenUtil from '../../utils/ScreenUtil';
 import Base from '../../utils/Base';
 import ImagePicker from 'react-native-image-picker';
+import ScrollableTabView, { ScrollableTabBar, DefaultTabBar } from 'react-native-scrollable-tab-view';
 import UserAnswer from './UserAnswer';
 import UserArticle from './UserArticle';
 
 let baseUrl = Base.baseUrl;
 let userToken;
-export default class UserScreen extends Component {
+export default class UserHome extends Component {
     static navigationOptions = {
         header: null
     };
@@ -37,7 +38,7 @@ export default class UserScreen extends Component {
     }
 
     getUserInfo = () => {
-        let url = baseUrl + '/app/user/getBaseUserInfo';
+        let url = baseUrl + '/app/user/getUserInfo';
         let formData = new FormData();
         formData.append("userId", this.state.userId);
 
@@ -51,7 +52,6 @@ export default class UserScreen extends Component {
             console.log(responseData);
             if (responseData.code != "200") {
                 ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
-                DeviceEventEmitter.emit('navigateToAuth');
                 return;
             }
             let data = responseData.data;
@@ -90,16 +90,16 @@ export default class UserScreen extends Component {
 
     render() {
         return (
-            <ScrollView
-                refreshControl={
-                    <RefreshControl
-                        refreshing={this.state.isRefreshing}
-                        onRefresh={this.onRefresh}
-                        colors={['rgb(217, 51, 58)']}
-                    />
-                }
-                style={{ backgroundColor: '#ffffff' }}
-            >
+            // <ScrollView
+            //     refreshControl={
+            //         <RefreshControl
+            //             refreshing={this.state.isRefreshing}
+            //             onRefresh={this.onRefresh}
+            //             colors={['rgb(217, 51, 58)']}
+            //         />
+            //     }
+            //     style={{ backgroundColor: '#ffffff' }}
+            // >
                 <View style={styles.container}>
 
                     <View style={styles.content}>
@@ -122,12 +122,8 @@ export default class UserScreen extends Component {
                                 </View>
 
                                 <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingBottom: 10 }}>
-                                    <TouchableOpacity onPress={() => this.navigateToFollowUser()}>
                                         <Text style={{ fontSize: 12 }}>关注 {this.state.followsNum}  |   </Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => this.navigateToFanUser()}>
                                         <Text style={{ fontSize: 12 }}>粉丝 {this.state.fansNum}</Text>
-                                    </TouchableOpacity>
                                 </View>
 
                                 <View style={{ alignItems: 'center', paddingBottom: 10 }}>
@@ -139,16 +135,23 @@ export default class UserScreen extends Component {
 
                             </View>
                         </View>
+                        <ScrollableTabView
+                            // initialPage={0}
+                            renderTabBar={() => <ScrollableTabBar />}
+                            tabBarBackgroundColor='#ffffff'
+                            tabBarActiveTextColor='#0084ff'
+                            tabBarUnderlineStyle={{ backgroundColor: '#0084ff' }}
+                            style={{flex:1}}
+                        >
+
+                            <UserAnswer tabLabel='ta的回答' userId={this.state.userId} ></UserAnswer>
+                            <UserArticle tabLabel='ta的专栏' userId={this.state.userId}></UserArticle>
 
 
-                        <UserAnswer tabLabel='ta的回答' userId={this.state.userId} ></UserAnswer>
-                        <UserArticle tabLabel='ta的专栏' userId={this.state.userId}></UserArticle>
-
-
-
+                        </ScrollableTabView>
                     </View>
                 </View>
-            </ScrollView>
+            // </ScrollView>
         );
 
     }

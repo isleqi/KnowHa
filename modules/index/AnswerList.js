@@ -131,7 +131,11 @@ export default class AnswerList extends Component {
 
     }
 
-
+    navigateToUserHome = (item) => {
+     
+        DeviceEventEmitter.emit('navigateToUserHome', item);
+    
+}
     renderItem = (data) => {
         let item = data.item;
         let user = item.user;
@@ -140,7 +144,7 @@ export default class AnswerList extends Component {
                 <View style={{ paddingLeft: 15, paddingTop: 20, flexDirection: 'row', alignItems: 'center' }}>
 
                     <View style={{ alignItems: 'center', paddingRight: 10 }}>
-                        <TouchableOpacity onPress={() => { }} >
+                    <TouchableOpacity onPress={() => this.navigateToUserHome(user.id)} >
                             <Image source={{ uri: user.userIconUrl }}
                                 style={{ width: 20, height: 20, borderRadius: 10 }}>
                             </Image>

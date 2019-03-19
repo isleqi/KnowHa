@@ -136,13 +136,23 @@ export default class MyColumn extends Component {
     }
 
 
+    
+    editItem=(item)=>{
+        this
+        .props
+        .navigation
+        .navigate('UpdateArticle', {article:item}); 
+       }
+
+
+
+
     renderItem = (data) => {
         let item = data.item;
         let index = data.index;
         let user = item.user;
 
         return (
-            <TouchableOpacity onPress={() => this.navigateToArticleDetail(item, index)} activeOpacity={1}>
             <View style={{ backgroundColor: '#ffffff' }}>
                     <View style={{ paddingLeft: 15, paddingTop: 20, flexDirection: 'row', alignItems: 'center' }}>
 
@@ -162,6 +172,36 @@ export default class MyColumn extends Component {
                         </View>
 
                     </View>
+
+                      {
+                        this.state.edit ?
+                            <View style={{ flex: 1, justifyContent: 'flex-end',alignItems:"center",paddingLeft:20, paddingRight: 20, flexDirection: 'row' }}>
+                                  
+                                    <TouchableOpacity onPress={() => this.editItem(item)} >
+                                        <View style={{ backgroundColor: "#0084ff",marginRight:10, borderRadius: 5, paddingBottom: 5, paddingTop: 5, paddingLeft: 10, paddingRight: 10 }}>
+                                            <Text style={{ textAlign: 'center', fontSize: 11, color: 'white' }}>
+                                                编辑 </Text>
+                                        </View>
+                                    </TouchableOpacity>
+                                <TouchableOpacity onPress={() =>this.setState({edit:false})} >
+
+                                <Image source={require('../../resources/user/jt.png')} style={{ height: 20, width: 20 }} />
+                                </TouchableOpacity>
+
+                            </View>
+                            :
+                            <View style={{ flex: 1, justifyContent: 'flex-end', paddingRight: 20, flexDirection: 'row' }}>
+                                    <TouchableOpacity onPress={() =>this.setState({edit:true})} >
+
+                                <Image source={require('../../resources/user/zk.png')} style={{ height: 15, width: 15 }} />
+                                </TouchableOpacity>
+
+                            </View>
+
+                    }
+
+                                <TouchableOpacity onPress={() => this.navigateToArticleDetail(item, index)} activeOpacity={1}>
+
 
                     <View style={{ flexDirection: 'row' }}>
                         <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, }}>
@@ -195,9 +235,10 @@ export default class MyColumn extends Component {
                         </View>
 
                     </View>
+                    </TouchableOpacity>
+
                     <View style={{ height: 8, backgroundColor: "#f3f3f3" }}></View>
                 </View>
-            </TouchableOpacity>
         );
     }
 

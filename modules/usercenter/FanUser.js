@@ -163,7 +163,11 @@ export default class FanUser extends Component {
     }
 
   
-
+    navigateToUserHome = (item) => {
+     
+        DeviceEventEmitter.emit('navigateToUserHome', item);
+    
+}
 
     renderItem = (data) => {
         let item = data.item;
@@ -177,7 +181,7 @@ export default class FanUser extends Component {
 
                 <View style={{ flexDirection: 'row', flex: 1 }}>
                     <View style={{ alignItems: 'center', paddingRight: 10 }}>
-                        <TouchableOpacity >
+                    <TouchableOpacity onPress={() => this.navigateToUserHome(user.id)} >
                             <Image source={{ uri: user.userIconUrl }}
                                 style={{ width: 40, height: 40, borderRadius: 20 }}>
                             </Image>

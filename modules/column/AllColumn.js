@@ -216,6 +216,12 @@ export default class AllColumn extends Component {
 
     }
 
+    navigateToUserHome = (item) => {
+     
+            DeviceEventEmitter.emit('navigateToUserHome', item);
+        
+    }
+  
     finishPay = async (item, index) => {
         let url = baseUrl + '/app/column/payForArticle?articleId=' + item.articleId + '&value=' + item.value;
         let token = await AsyncStorage.getItem("userToken");
@@ -313,13 +319,12 @@ export default class AllColumn extends Component {
 
 
         return (
-            <TouchableOpacity onPress={() => this.navigateToArticleDetail(item, index)} activeOpacity={1} style={{backgroundColor:'#ffffff'}}>
-                <View>
+                <View style={{backgroundColor:'#ffffff'}}>
                     <View style={{ paddingLeft: 15, paddingTop: 20, flexDirection: 'row', alignItems: 'center' }}>
 
                         <View style={{ flex: 1, flexDirection: 'row' }} >
                             <View style={{ alignItems: 'center', paddingRight: 10 }}>
-                                <TouchableOpacity onPress={() => { }} >
+                                <TouchableOpacity onPress={() => this.navigateToUserHome(user.id)} >
                                     <Image source={{ uri: user.userIconUrl }}
                                         style={{ width: 25, height: 25, borderRadius: 13 }}>
                                     </Image>
@@ -333,7 +338,7 @@ export default class AllColumn extends Component {
                         </View>
 
                     </View>
-
+                    <TouchableOpacity onPress={() => this.navigateToArticleDetail(item, index)} activeOpacity={1} >
                     <View style={{ flexDirection: 'row',backgroundColor:'#ffffff' }}>
                         <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, }}>
 
@@ -365,9 +370,10 @@ export default class AllColumn extends Component {
                         </View>
 
                     </View>
+                    </TouchableOpacity>
                     <View style={{ height: 8, backgroundColor: "#f3f3f3" }}></View>
                 </View>
-            </TouchableOpacity>
+           
 
         );
     }

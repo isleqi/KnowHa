@@ -3,7 +3,7 @@ import {
     ActivityIndicator,
     AsyncStorage,
     StatusBar,
-    StyleSheet, TouchableOpacity, SafeAreaView, ToastAndroid,
+    StyleSheet, TouchableOpacity, SafeAreaView, ToastAndroid,Alert,
     View, Button, Text, DeviceEventEmitter, TouchableNativeFeedback, Image, ScrollView, RefreshControl, FlatList, Dimensions
 } from 'react-native';
 import ScreenUtil from '../../utils/ScreenUtil';
@@ -15,7 +15,7 @@ import HTMLView from 'react-native-htmlview';
 let baseUrl=Base.baseUrl;
 
 
-export default class MyColumn extends Component {
+export default class UserArticle extends Component {
     static navigationOptions = {
         header: null
     };
@@ -40,16 +40,48 @@ export default class MyColumn extends Component {
     }
 
     componentDidMount() {
-        this.getFollowArticleList();
+        this.getColumnList();
     }
 
-    getFollowArticleList = async () => {
+    refreshItem =async (articleId, index) => {
+        let url = baseUrl + '/app/column/getArticleById?&articleId=' + articleId;
+        let token = await AsyncStorage.getItem("userToken");
+
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                "token": token
+            }
+        }).then((response) => {
+            return response.json();
+        }).then((responseData) => {
+            console.log(responseData);
+            if (responseData.code != "200") {
+                ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+                return;
+            }
+            let item = responseData.data;
+            let data = this.state.data;
+            data.splice(index, 1, item);
+            this.setState({
+                data: data
+            })
+        })
+
+    }
+
+    getColumnList = async () => {
         let limit = this.state.limit;
         let page = this.state.page + 1;
         let userId=this.state.userId;
-        let url = baseUrl+'/app/user/getMyArticle?userId='+userId + + '&pageNum=' + page + '&pageSize=' + limit;
+        let url = baseUrl + '/app/user/getUserArticle?userId='+userId+'&pageNum=' + page + '&pageSize=' + limit;
+        let token = await AsyncStorage.getItem("userToken");
+
         fetch(url, {
             method: 'GET',
+            headers: {
+                "token": token
+            }
 
         }).then((response) => {
             return response.json();
@@ -59,8 +91,9 @@ export default class MyColumn extends Component {
                 ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
                 return;
             }
+            //   let data = responseData.data.list;
             let list = responseData.data.list;
-
+            console.log(list);
             //当前页数
             let currPage = responseData.data.pageNum;
             //总页数
@@ -91,114 +124,6 @@ export default class MyColumn extends Component {
         })
     }
 
-    navigateToCreateaAnswer = (item) => {
-        this
-            .props
-            .navigation
-            .navigate('CreateAnswer', { quesId: item });
-    }
-
-
-    goBack = () => {
-        this.props.navigation.goBack();
-    }
-
-    renderTag = (tagList) => {
-        let tags = tagList;
-        let view = [];
-
-        for (let i = 0; i < tags.length; i++) {
-
-            let tag = tags[i];
-            view.push(
-                <View style={{ backgroundColor: 'gray', padding: 4, borderRadius: 5, marginRight: 5 }}>
-                    <Text style={{ fontSize: 9, color: 'white' }}>{tag.tagName}</Text>
-                </View>
-            )
-        }
-
-        return view;
-    }
-
-    navigateToArticleDetail = (item, index) => {
-     
-       
-            let data = {
-                item: item,
-                index: index,
-                refreshItem: this.refreshItem
-            }
-            DeviceEventEmitter.emit('navigateToArticleDetail', data);
-        
-
-    }
-
-
-    renderItem = (data) => {
-        let item = data.item;
-        let index = data.index;
-        let user = item.user;
-
-        return (
-            <TouchableOpacity onPress={() => this.navigateToArticleDetail(item, index)} activeOpacity={1}>
-            <View style={{ backgroundColor: '#ffffff' }}>
-                    <View style={{ paddingLeft: 15, paddingTop: 20, flexDirection: 'row', alignItems: 'center' }}>
-
-                        <View style={{ flex: 1, flexDirection: 'row' }} >
-                            <View style={{ alignItems: 'center', paddingRight: 10 }}>
-                                <TouchableOpacity onPress={() => { }} >
-                                    <Image source={{ uri: user.userIconUrl }}
-                                        style={{ width: 25, height: 25, borderRadius: 13 }}>
-                                    </Image>
-
-                                </TouchableOpacity>
-                            </View>
-                            <Text style={{ fontSize: 13, }}>{user.userName}</Text>
-                        </View>
-                        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end', paddingRight: 20 }} >
-                            {this.renderTag(item)}
-                        </View>
-
-                    </View>
-
-                    <View style={{ flexDirection: 'row' }}>
-                        <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, }}>
-
-
-                            <View style={{ paddingTop: 5, paddingBottom: 5 }}>
-                                <Text style={{ fontWeight: 'bold', fontSize: 15 }}>{item.articleTitle}</Text>
-                            </View>
-
-                                <View style={{ paddingTop: 5, paddingBottom: 5,height:50}}>
-                                <HTMLView value= {item.articleContent} > </HTMLView>
-
-                                {/* <Text style={[{ lineHeight: 17, fontSize: 12 }]}
-                                    numberOfLines={3}>
-                                    {item.articleContent}
-                                </Text> */}
-                            </View>
-
-                            <View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 20 ,backgroundColor:'#ffffff'}}>
-                                <View style={{ flex: 1, flexDirection: 'row', }}>
-                                    <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{item.likeNum} 赞同 · </Text>
-                                    <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{item.commentNum} 评论</Text>
-                                </View>
-                                <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
-                                    <Image source={require('../../resources/column/yj.png')}
-                                        style={{ width: 20, height: 12, opacity: 0.3, marginRight: 10 }} />
-                                    <Text style={{ fontSize: 11, color: '#bdbcbce8', marginRight: 15 }}>{item.browse}</Text>
-                                </View>
-
-                            </View>
-                        </View>
-
-                    </View>
-                    <View style={{ height: 8, backgroundColor: "#f3f3f3" }}></View>
-                </View>
-            </TouchableOpacity>
-        );
-    }
-
     //上拉刷新
     onRefresh = () => {
         //重置参数
@@ -210,7 +135,7 @@ export default class MyColumn extends Component {
             showFoot: 0,
             animating: false
         }, () => {
-            this.getFollowArticleList();
+            this.getColumnList();
             this.setState({ isRefreshing: false });
         });
     }
@@ -279,26 +204,194 @@ export default class MyColumn extends Component {
             return;
         }
 
-        this.getFollowArticleList();
+        this.getColumnList();
+    }
+
+    navigateToArticleDetail = (item, index) => {
+        if (item.type == 1) {
+            this.payArticle(item, index);
+        }
+        else {
+            let data = {
+                item: item,
+                index: index,
+                refreshItem: this.refreshItem
+            }
+            DeviceEventEmitter.emit('navigateToArticleDetail', data);
+        }
+
+    }
+
+    navigateToUserHome = (item) => {
+     
+            DeviceEventEmitter.emit('navigateToUserHome', item);
+        
+    }
+
+    finishPay = async (item, index) => {
+        let url = baseUrl + '/app/column/payForArticle?articleId=' + item.articleId + '&value=' + item.value;
+        let token = await AsyncStorage.getItem("userToken");
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                "token": token
+            }
+
+        }).then((response) => {
+            return response.json();
+        }).then((responseData) => {
+            console.log(responseData);
+            if (responseData.code != "200") {
+                ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+                return;
+            }
+            let data = this.state.data;
+            item.hasPay = true;
+            data.splice(index, 1, item);
+            this.setState({
+                data: data
+            })
+            let params = {
+                item: item,
+                index: index,
+                refreshItem: this.refreshItem
+            }
+            DeviceEventEmitter.emit('navigateToArticleDetail', params);
+        })
+    }
+
+    payArticle = (item, index) => {
+        let value = item.value;
+
+        if (item.hasPay||item.myArticle) {
+            let params = {
+                item: item,
+                index: index,
+                refreshItem: this.refreshItem
+            }
+            DeviceEventEmitter.emit('navigateToArticleDetail', params);
+        }
+
+        else
+            Alert.alert(
+                '付费',
+                "该内容为付费内容，查看需" + value + "积分，是否继续",
+                [
+                    { text: '取消', onPress: () => console.log('Cancel Pressed!') },
+                    { text: '继续', onPress: () => this.finishPay(item, index) },
+                ]
+            )
+    }
+
+    renderTag=(item) =>{
+       
+        let isMyArticle = item.myArticle;
+        if (isMyArticle)
+            return (
+                <View style={{ backgroundColor: '#efbb09', padding: 4, borderRadius: 5, marginRight: 10 }}>
+                    <Text style={{ fontSize: 9, color: 'white' }}>我的原创</Text>
+                </View>
+            );
+        else {
+            if (item.hasPay)
+                return (
+                    <View style={{ backgroundColor: 'gray', padding: 4, borderRadius: 5, marginRight: 10 }}>
+                        <Text style={{ fontSize: 9, color: 'white' }}>已付费</Text>
+                    </View>
+                );
+            else {
+                if (item.type == 0)
+                    return (
+                        <View style={{ backgroundColor: '#26e671', padding: 4, borderRadius: 5, marginRight: 5 }}>
+                            <Text style={{ fontSize: 9, color: 'white' }}>免费</Text>
+                        </View>
+                    );
+                else
+                    return (
+                        <View style={{ backgroundColor: 'red', padding: 4, borderRadius: 5, marginRight: 5 }}>
+                            <Text style={{ fontSize: 9, color: 'white' }}>付费</Text>
+                        </View>
+                    );
+            }
+        }
+
+    }
+
+    renderItem = (data) => {
+        let item = data.item;
+        let index = data.index;
+        let user = item.user;
+
+
+
+        return (
+                <View style={{backgroundColor:'#ffffff'}}>
+                    <View style={{ paddingLeft: 15, paddingTop: 20, flexDirection: 'row', alignItems: 'center' }}>
+
+                        <View style={{ flex: 1, flexDirection: 'row' }} >
+                            <View style={{ alignItems: 'center', paddingRight: 10 }}>
+                                <TouchableOpacity onPress={() => this.navigateToUserHome(user.id)} >
+                                    <Image source={{ uri: user.userIconUrl }}
+                                        style={{ width: 25, height: 25, borderRadius: 13 }}>
+                                    </Image>
+
+                                </TouchableOpacity>
+                            </View>
+                            <Text style={{ fontSize: 13, }}>{user.userName}</Text>
+                        </View>
+                        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end', paddingRight: 20 }} >
+                            {this.renderTag(item)}
+                        </View>
+
+                    </View>
+                    <TouchableOpacity onPress={() => this.navigateToArticleDetail(item, index)} activeOpacity={1} >
+                    <View style={{ flexDirection: 'row',backgroundColor:'#ffffff' }}>
+                        <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, }}>
+
+
+                            <View style={{ paddingTop: 5, paddingBottom: 5 }}>
+                                <Text style={{ fontWeight: 'bold', fontSize: 15 }}>{item.articleTitle}</Text>
+                            </View>
+
+                            <View style={{ paddingTop: 5, paddingBottom: 5,height:50}}>
+                            <HTMLView value=  {item.articleContent} > </HTMLView>
+                                {/* <Text style={[{ lineHeight: 17, fontSize: 12 }]}
+                                    numberOfLines={3}>
+                                    {item.articleContent}
+                                </Text> */}
+                            </View>
+
+                            <View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 20 ,backgroundColor:'#ffffff'}}>
+                                <View style={{ flex: 1, flexDirection: 'row', }}>
+                                    <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{item.likeNum} 赞同 · </Text>
+                                    <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{item.commentNum} 评论</Text>
+                                </View>
+                                <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
+                                    <Image source={require('../../resources/column/yj.png')}
+                                        style={{ width: 20, height: 12, opacity: 0.3, marginRight: 10 }} />
+                                    <Text style={{ fontSize: 11, color: '#bdbcbce8', marginRight: 15 }}>{item.browse}</Text>
+                                </View>
+
+                            </View>
+                        </View>
+
+                    </View>
+                    </TouchableOpacity>
+                    <View style={{ height: 8, backgroundColor: "#f3f3f3" }}></View>
+                </View>
+           
+
+        );
     }
 
     listHeader = () => {
         return (
-            <View style={{ height: 100,backgroundColor:'#0084ff', flexDirection: 'row', alignItems: 'center' }}>
-            <View>
-                <Text style={{color:'white',paddingLeft:20,fontSize:18,fontWeight:'bold'}}>我的专栏</Text>
-                <Text style={{color:'white',paddingLeft:20,paddingTop:10, fontSize:10}}>共 {this.state.data.length} 个内容</Text>
-
-                </View>
-            </View>
+            <View style={{ height: 8, backgroundColor: "#eae9e961" }}></View>
         );
     }
 
 
-
     render() {
-
-
         return (
             <View style={styles.container}>
 
@@ -312,8 +405,7 @@ export default class MyColumn extends Component {
                     onEndReachedThreshold={1}
                     ListFooterComponent={this.listFooterComponent}
                     ListHeaderComponent={this.listHeader}
-            />
-
+                />
 
 
             </View>

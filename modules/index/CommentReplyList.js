@@ -167,7 +167,11 @@ export default class AnsCommentList extends Component {
         
     }
 
-
+    navigateToUserHome = (item) => {
+     
+        DeviceEventEmitter.emit('navigateToUserHome', item);
+    
+}
 
     renderItem = (data) => {
         let item = data.item;
@@ -184,7 +188,7 @@ export default class AnsCommentList extends Component {
                     <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, paddingTop: 10, paddingBottom: 10, flexDirection: 'row' }}>
 
                         <View style={{ flex: 0.2 }}>
-                            <TouchableOpacity onPress={() => { }} >
+                        <TouchableOpacity onPress={() => this.navigateToUserHome(user.id)} >
                                 <Image source={{ uri: user.userIconUrl }}
                                     style={{ width: 40, height: 40, borderRadius: 20 }}>
                                 </Image>

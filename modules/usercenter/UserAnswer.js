@@ -14,7 +14,7 @@ import HTMLView from 'react-native-htmlview';
 let baseUrl = Base.baseUrl;
 
 
-export default class MyAnswer extends Component {
+export default class UserAnswer extends Component {
     static navigationOptions = {
         header: null
     };
@@ -42,17 +42,15 @@ export default class MyAnswer extends Component {
         this.getUserAnswerList();
     }
 
-    getUserAnswerList = async () => {
+    getUserAnswerList = () => {
         let limit = this.state.limit;
         let page = this.state.page + 1;
         let userId=this.state.userId;
-        let url = baseUrl+'/app/user/getMyAnswer?userId='+userId + '&pageNum=' + page + '&pageSize=' + limit;
+      console.log(userId);
+        let url = baseUrl+'/app/user/getUserAnswer?userId='+userId + '&pageNum=' + page + '&pageSize=' + limit;
         fetch(url, {
             method: 'GET',
-            headers: {
-                "token": token,
-            }
-
+         
         }).then((response) => {
             return response.json();
         }).then((responseData) => {
@@ -148,7 +146,7 @@ export default class MyAnswer extends Component {
 
                     <Text style={{ fontWeight: 'bold' }}>{ques.quesTitle}</Text>
 
-                </View>
+                </View> 
                 <TouchableOpacity onPress={() => this.navigateToAnswerDetail(item)} activeOpacity={1}>
 
 
@@ -292,6 +290,7 @@ export default class MyAnswer extends Component {
 
 
         return (
+          
             <View style={styles.container}>
 
                 <FlatList keyExtractor={(item, index) => index.toString()}
@@ -303,12 +302,11 @@ export default class MyAnswer extends Component {
                     onEndReached={this.onEndReached}
                     onEndReachedThreshold={1}
                     ListFooterComponent={this.listFooterComponent}
-                    ListHeaderComponent={this.listHeader}
             />
 
 
-
-            </View>
+</View>
+          
 
 
         );

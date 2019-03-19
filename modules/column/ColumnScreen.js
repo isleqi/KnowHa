@@ -43,16 +43,13 @@ export default class ColumnScreen extends Component {
 
   getUserInfo = () => {
     let url = baseUrl+'/app/user/getBaseUserInfo';
-    let formData = new FormData();
-    formData.append("token", userToken);
-    let params = {
-      "token": userToken
-    }
+    
     console.log(userToken)
     fetch(url, {
       method: 'POST',
-      body: formData
-
+      headers: {
+        "token": userToken
+    },
     }).then((response) => {
       return response.json();
     }).then((responseData) => {

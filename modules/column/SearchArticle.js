@@ -345,6 +345,12 @@ export default class SearchArticle extends Component {
 
     }
 
+    navigateToUserHome = (item) => {
+     
+        DeviceEventEmitter.emit('navigateToUserHome', item);
+    
+}
+
     renderItem = (data) => {
         let item = data.item;
         let index = data.index;
@@ -356,7 +362,7 @@ export default class SearchArticle extends Component {
 
                         <View style={{ flex: 1, flexDirection: 'row' }} >
                             <View style={{ alignItems: 'center', paddingRight: 10 }}>
-                                <TouchableOpacity onPress={() => { }} >
+                            <TouchableOpacity onPress={() => this.navigateToUserHome(user.id)} >
                                     <Image source={{ uri: user.userIconUrl }}
                                         style={{ width: 25, height: 25, borderRadius: 13 }}>
                                     </Image>

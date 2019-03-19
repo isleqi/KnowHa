@@ -174,7 +174,11 @@ export default class ArticleDetail extends Component {
             .navigate('ArticleCommentList', { articleId: item });
 
     }
-
+    navigateToUserHome = (item) => {
+     
+        DeviceEventEmitter.emit('navigateToUserHome', item);
+    
+}
 
 
     render() {
@@ -239,7 +243,7 @@ export default class ArticleDetail extends Component {
 
                             <View style={{ flexDirection: 'row', flex: 1 }}>
                                 <View style={{ alignItems: 'center', paddingRight: 10 }}>
-                                    <TouchableOpacity >
+                                <TouchableOpacity onPress={() => this.navigateToUserHome(user.id)} >
                                         <Image source={{ uri: user.userIconUrl }}
                                             style={{ width: 30, height: 30, borderRadius: 15 }}>
                                         </Image>

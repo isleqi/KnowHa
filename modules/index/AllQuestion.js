@@ -144,6 +144,11 @@ export default class AllQuestion extends Component {
         });
     }
 
+    navigateToUserHome = (item) => {
+     
+        DeviceEventEmitter.emit('navigateToUserHome', item);
+    
+}
 
     renderItem = (data) => {
         let item = data.item;
