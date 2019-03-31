@@ -32,11 +32,44 @@ export default class SearchQuestion extends Component {
       //是否显示指示器
       animating: false,
       //是否刷新
-      isRefreshing: false
+      isRefreshing: false,
+      edit:false,
+      isadmin:false,
 
     };
 
   }
+
+  componentDidMount() {
+    this.isAdmin();
+}
+isAdmin=async()=>{
+    let url=baseUrl+'/app/user/isAdministrator';
+    let token = await AsyncStorage.getItem("userToken");
+    fetch(url, {
+        method: 'GET',
+        headers: {
+            "token": token
+        }
+
+    }).then((response) => {
+        return response.json();
+    }).then((responseData) => {
+        console.log(responseData);
+        if (responseData.code != "200") {
+            ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+            return;
+        }
+        let data = responseData.data;
+
+        this.setState({
+            isadmin:data
+        })
+
+    })
+
+}
+
   search2 = async() => {
     let url = baseUrl + '/app/question/search';
     let token = await AsyncStorage.getItem("userToken");
@@ -276,16 +309,78 @@ listHeader = () => {
 
     return view;
 }
+deleteItem = (item, index) => {
+    Alert.alert(
+        '删除',
+        "是否删除该问题",
+        [
+            { text: '取消', onPress: () => console.log('Cancel Pressed!') },
+            { text: '继续', onPress: () => this.toDeleteItem(item, index) },
+        ]
+    )
+}
+
+toDeleteItem = (item, index) => {
+    let id = item.id;
+    let url = baseUrl + '/app/question/deleteQuestion?quesId=' + id;
+    fetch(url, {
+        method: 'GET',
+
+
+    }).then((response) => {
+        return response.json();
+    }).then((responseData) => {
+        console.log(responseData);
+        if (responseData.code != "200") {
+            ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+            return;
+        }
+        let data = this.state.data;
+        data.splice(index, 1);
+        this.setState({
+            data: data
+        });
+        ToastAndroid.show("删除成功", ToastAndroid.SHORT);
+    })
+}
 
 renderItem = (data) => {
   let item = data.item;
   let answer = item.answerVo;
   let tags = item.tagList;
+  let index=data.index;
 
   return (
       <View style={{backfaceVisibility:'#ffffff'}}>
           <View style={{ paddingLeft: 15, paddingTop: 20, flexDirection: 'row', }}>
               {this.renderTag(tags)}
+              {
+                       ! this.state.isadmin?
+                       null:
+                         this.state.edit ? 
+                            <View style={{flex:1,flexDirection:'row', justifyContent: 'flex-end', alignItems: "center", paddingLeft: 20, paddingRight: 20, flexDirection: 'row' }}>
+                                <TouchableOpacity onPress={() => this.deleteItem(item, index)} >
+                                    <View style={{ backgroundColor: "red", marginRight: 10, borderRadius: 5, paddingBottom: 5, paddingTop: 5, paddingLeft: 10, paddingRight: 10 }}>
+                                        <Text style={{ textAlign: 'center', fontSize: 11, color: 'white' }}>
+                                            删除 </Text>
+                                    </View>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => this.setState({ edit: false })} >
+
+                                    <Image source={require('../../resources/user/jt.png')} style={{ height: 20, width: 20 }} />
+                                </TouchableOpacity>
+
+                            </View>
+                            :
+                            <View style={{flex:1,  justifyContent: 'flex-end', alignItems: "center",  paddingRight: 20, flexDirection: 'row' }}>
+                                <TouchableOpacity onPress={() => this.setState({ edit: true })} >
+
+                                    <Image source={require('../../resources/user/zk.png')} style={{ height: 15, width: 15 }} />
+                                </TouchableOpacity>
+
+                            </View>
+
+                    }
           </View>
 
           <View style={{ flexDirection: 'row' }}>

@@ -32,11 +32,43 @@ export default class SearchArticle extends Component {
             //是否显示指示器
             animating: false,
             //是否刷新
-            isRefreshing: false
+            isRefreshing: false,
+            edit:false,
+            isadmin:false,
 
         };
 
     }
+    componentDidMount() {
+        this.isAdmin();
+    }
+    isAdmin=async()=>{
+        let url=baseUrl+'/app/user/isAdministrator';
+        let token = await AsyncStorage.getItem("userToken");
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                "token": token
+            }
+
+        }).then((response) => {
+            return response.json();
+        }).then((responseData) => {
+            console.log(responseData);
+            if (responseData.code != "200") {
+                ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+                return;
+            }
+            let data = responseData.data;
+
+            this.setState({
+                isadmin:data
+            })
+
+        })
+    
+    }
+
 
     search2 = async () => {
         let url = baseUrl + '/app/column/search';
@@ -174,63 +206,65 @@ export default class SearchArticle extends Component {
 
     }
 
-  //底部组件
-  listFooterComponent = () => {
-    if (this.state.showFoot == 2) {
-        return (
-            <View
-                style={{
-                    height: ScreenUtil.scaleSize(50),
-                    alignItems: 'center',
-                    justifyContent: 'flex-start',
-                    backgroundColor:'#ffffff'
-                }}>
-                <Text
+    //底部组件
+    listFooterComponent = () => {
+        if (this.state.showFoot == 2) {
+            return (
+                <View
                     style={{
-                        color: '#999999',
-                        fontSize: ScreenUtil.scaleSize(12),
-                        marginTop: ScreenUtil.scaleSize(15),
-                        marginBottom: ScreenUtil.scaleSize(10)
+                        height: ScreenUtil.scaleSize(50),
+                        alignItems: 'center',
+                        justifyContent: 'flex-start',
+                        backgroundColor: '#ffffff'
                     }}>
-                    没有更多数据了
+                    <Text
+                        style={{
+                            color: '#999999',
+                            fontSize: ScreenUtil.scaleSize(12),
+                            marginTop: ScreenUtil.scaleSize(15),
+                            marginBottom: ScreenUtil.scaleSize(10)
+                        }}>
+                        没有更多数据了
                     </Text>
-            </View>
-        );
-    } else if (this.state.showFoot == 1) {
-        return (
-            <View
-                style={{
-                    height: ScreenUtil.scaleSize(50),
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor:'#ffffff'
+                </View>
+            );
+        } else if (this.state.showFoot == 1) {
+            return (
+                <View
+                    style={{
+                        height: ScreenUtil.scaleSize(50),
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: '#ffffff'
+                    }}>
+                    <ActivityIndicator animating={this.state.animating} size="small" color="grey" />
+                    <Text>正在加载更多数据...</Text>
+                </View>
+            );
+        } else if (this.state.showFoot == 0) {
+            return (
+                <View
+                    style={{
+                        height: ScreenUtil.scaleSize(30),
+                        alignItems: 'center',
+                        justifyContent: 'flex-start',
+                        backgroundColor: '#ffffff'
+                    }}>
+                    <Text></Text>
+                </View>
+            );
+        } else {
+            return (
+                <View style={{
+                    height: ScreenUtil.scaleSize(30), alignItems: 'center', justifyContent: 'flex-start',
+                    backgroundColor: '#ffffff'
                 }}>
-                <ActivityIndicator animating={this.state.animating} size="small" color="grey" />
-                <Text>正在加载更多数据...</Text>
-            </View>
-        );
-    } else if (this.state.showFoot == 0) {
-        return (
-            <View
-                style={{
-                    height: ScreenUtil.scaleSize(30),
-                    alignItems: 'center',
-                    justifyContent: 'flex-start',
-                    backgroundColor:'#ffffff'
-                }}>
-                <Text></Text>
-            </View>
-        );
-    } else {
-        return (
-            <View style={{ height: ScreenUtil.scaleSize(30), alignItems: 'center', justifyContent: 'flex-start' ,
-            backgroundColor:'#ffffff'}}>
-                <Text></Text>
-            </View>
-        );
+                    <Text></Text>
+                </View>
+            );
+        }
     }
-}
 
     onEndReached = () => {
         //最后一页，直接返回
@@ -346,23 +380,61 @@ export default class SearchArticle extends Component {
     }
 
     navigateToUserHome = (item) => {
-     
+
         DeviceEventEmitter.emit('navigateToUserHome', item);
-    
-}
+
+    }
+
+
+    deleteItem = (item, index) => {
+        Alert.alert(
+            '删除',
+            "是否删除该文章",
+            [
+                { text: '取消', onPress: () => console.log('Cancel Pressed!') },
+                { text: '继续', onPress: () => this.toDeleteItem(item, index) },
+            ]
+        )
+    }
+
+    toDeleteItem = (item, index) => {
+       let id=item.articleId;
+        let url = baseUrl + '/app/column/deleteArticle?id=' + id;
+        fetch(url, {
+            method: 'GET',
+
+
+        }).then((response) => {
+            return response.json();
+        }).then((responseData) => {
+            console.log(responseData);
+            if (responseData.code != "200") {
+                ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+                return;
+            }
+            let data = this.state.data;
+            data.splice(index, 1);
+            this.setState({
+                data: data
+            });
+            ToastAndroid.show("删除成功", ToastAndroid.SHORT);
+        })
+    }
+
 
     renderItem = (data) => {
         let item = data.item;
         let index = data.index;
         let user = item.user;
+
         return (
             <TouchableOpacity onPress={() => this.navigateToArticleDetail(item, index)} activeOpacity={1}>
-            <View style={{ backgroundColor: '#ffffff' }}>
+                <View style={{ backgroundColor: '#ffffff' }}>
                     <View style={{ paddingLeft: 15, paddingTop: 20, flexDirection: 'row', alignItems: 'center' }}>
 
                         <View style={{ flex: 1, flexDirection: 'row' }} >
                             <View style={{ alignItems: 'center', paddingRight: 10 }}>
-                            <TouchableOpacity onPress={() => this.navigateToUserHome(user.id)} >
+                                <TouchableOpacity onPress={() => this.navigateToUserHome(user.id)} >
                                     <Image source={{ uri: user.userIconUrl }}
                                         style={{ width: 25, height: 25, borderRadius: 13 }}>
                                     </Image>
@@ -373,6 +445,33 @@ export default class SearchArticle extends Component {
                         </View>
                         <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end', paddingRight: 20 }} >
                             {this.renderTag(item)}
+                            {
+                                ! this.state.isadmin?
+                                null:
+                         this.state.edit?
+                            <View style={{justifyContent: 'flex-end', alignItems: "center", paddingLeft: 10, paddingRight: 10, flexDirection: 'row' }}>
+                                <TouchableOpacity onPress={() => this.deleteItem(item, index)} >
+                                    <View style={{ backgroundColor: "red", marginRight: 10, borderRadius: 5, paddingBottom: 5, paddingTop: 5, paddingLeft: 10, paddingRight: 10 }}>
+                                        <Text style={{ textAlign: 'center', fontSize: 11, color: 'white' }}>
+                                            删除 </Text>
+                                    </View>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => this.setState({ edit: false })} >
+
+                                    <Image source={require('../../resources/user/jt.png')} style={{ height: 20, width: 20 }} />
+                                </TouchableOpacity>
+
+                            </View>
+                            :
+                            <View style={{  justifyContent: 'flex-end', alignItems: "center",  paddingRight: 10, flexDirection: 'row' }}>
+                                <TouchableOpacity onPress={() => this.setState({ edit: true })} >
+
+                                    <Image source={require('../../resources/user/zk.png')} style={{ height: 15, width: 15 }} />
+                                </TouchableOpacity>
+
+                            </View>
+
+                    }
                         </View>
 
                     </View>
@@ -386,14 +485,14 @@ export default class SearchArticle extends Component {
                             </View>
 
                             <View style={{ paddingTop: 5, paddingBottom: 5, height: 50, backgroundColor: '#ffffff' }}>
-                                        <HTMLView value={item.articleContent}> </HTMLView>
+                                <HTMLView value={item.articleContent}> </HTMLView>
                                 {/* <Text style={[{ lineHeight: 17, fontSize: 12 }]}
                                     numberOfLines={3}>
                                     {item.articleContent}
                                 </Text> */}
                             </View>
 
-                                    <View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 20, backgroundColor: '#ffffff' }}>
+                            <View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 20, backgroundColor: '#ffffff' }}>
                                 <View style={{ flex: 1, flexDirection: 'row', }}>
                                     <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{item.likeNum} 赞同 · </Text>
                                     <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{item.commentNum} 评论</Text>
@@ -426,15 +525,15 @@ export default class SearchArticle extends Component {
     render() {
         return (
             <View style={styles.container}>
-                <View style={{ flexDirection: 'row',padding:15 }}>
+                <View style={{ flexDirection: 'row', padding: 15 }}>
                     <View style={{
                         flexDirection: 'row',
                         backgroundColor: '#eaeaea', borderRadius: 5, flex: 1
-                        , padding:10
+                        , padding: 10
                     }}>
 
                         <View style={{ flexDirection: 'row', flex: 1, alignItems: 'center' }}>
-                            <TextInput placeholder='搜索文章' style={{ flex: 1, fontSize: 12 ,paddingVertical: 0,}}
+                            <TextInput placeholder='搜索文章' style={{ flex: 1, fontSize: 12, paddingVertical: 0, }}
                                 onChangeText={(str) => {
                                     this.setState({ str });
                                 }}

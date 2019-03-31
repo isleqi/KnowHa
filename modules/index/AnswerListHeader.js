@@ -29,6 +29,7 @@ export default class AnswerListHeader extends Component {
             dataSource: [],  //列表数据源
             selectMap: new Map(), // 被选中的item集合
             isAllSelect: false,  //是否被全选
+            isadmin:false  //是否为管理员
         };
 
     }
@@ -70,6 +71,31 @@ export default class AnswerListHeader extends Component {
     goBack = () => {
         this.props.back();
     }
+
+    isAdmin = () => {
+        fetch(url, {
+            method: 'GET',
+            headers: {  
+                "token": token
+            }
+
+        }).then((response) => {
+            return response.json();
+        }).then((responseData) => {
+            console.log(responseData);
+            if (responseData.code != "200") {
+                ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+                return;
+            }
+            let data = responseData.data;
+
+            this.setState({
+                isadmin:data
+            })
+
+        })
+    }
+
 
     hasFollowQues = () => {
         let quesId = this.state.quesData.id;

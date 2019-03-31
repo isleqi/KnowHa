@@ -29,14 +29,45 @@ export default class AllColumn extends Component {
             //是否显示指示器
             animating: false,
             //是否刷新
-            isRefreshing: false
+            isRefreshing: false,
+            edit:false,
+            isadmin:false,
         };
 
     }
 
     componentDidMount() {
         this.getColumnList();
+        this.isAdmin();
     }
+
+    isAdmin=async()=>{
+        let url=baseUrl+'/app/user/isAdministrator';
+        let token = await AsyncStorage.getItem("userToken");
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                "token": token
+            }
+
+        }).then((response) => {
+            return response.json();
+        }).then((responseData) => {
+            console.log(responseData);
+            if (responseData.code != "200") {
+                ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+                return;
+            }
+            let data = responseData.data;
+
+            this.setState({
+                isadmin:data
+            })
+
+        })
+    
+    }
+
 
     refreshItem =async (articleId, index) => {
         let url = baseUrl + '/app/column/getArticleById?&articleId=' + articleId;
@@ -277,6 +308,43 @@ export default class AllColumn extends Component {
             )
     }
 
+    
+    deleteItem = (item, index) => {
+        Alert.alert(
+            '删除',
+            "是否删除该文章",
+            [
+                { text: '取消', onPress: () => console.log('Cancel Pressed!') },
+                { text: '继续', onPress: () => this.toDeleteItem(item, index) },
+            ]
+        )
+    }
+
+    toDeleteItem = (item, index) => {
+       let id=item.articleId;
+        let url = baseUrl + '/app/column/deleteArticle?id=' + id;
+        fetch(url, {
+            method: 'GET',
+
+
+        }).then((response) => {
+            return response.json();
+        }).then((responseData) => {
+            console.log(responseData);
+            if (responseData.code != "200") {
+                ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+                return;
+            }
+            let data = this.state.data;
+            data.splice(index, 1);
+            this.setState({
+                data: data
+            });
+            ToastAndroid.show("删除成功", ToastAndroid.SHORT);
+        })
+    }
+
+
     renderTag=(item) =>{
        
         let isMyArticle = item.myArticle;
@@ -335,6 +403,33 @@ export default class AllColumn extends Component {
                         </View>
                         <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end', paddingRight: 20 }} >
                             {this.renderTag(item)}
+                            {
+                                ! this.state.isadmin?
+                                null:
+                         this.state.edit?
+                            <View style={{justifyContent: 'flex-end', alignItems: "center", paddingLeft: 10, paddingRight: 10, flexDirection: 'row' }}>
+                                <TouchableOpacity onPress={() => this.deleteItem(item, index)} >
+                                    <View style={{ backgroundColor: "red", marginRight: 10, borderRadius: 5, paddingBottom: 5, paddingTop: 5, paddingLeft: 10, paddingRight: 10 }}>
+                                        <Text style={{ textAlign: 'center', fontSize: 11, color: 'white' }}>
+                                            删除 </Text>
+                                    </View>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => this.setState({ edit: false })} >
+
+                                    <Image source={require('../../resources/user/jt.png')} style={{ height: 20, width: 20 }} />
+                                </TouchableOpacity>
+
+                            </View>
+                            :
+                            <View style={{  justifyContent: 'flex-end', alignItems: "center",  paddingRight: 10, flexDirection: 'row' }}>
+                                <TouchableOpacity onPress={() => this.setState({ edit: true })} >
+
+                                    <Image source={require('../../resources/user/zk.png')} style={{ height: 15, width: 15 }} />
+                                </TouchableOpacity>
+
+                            </View>
+
+                    }
                         </View>
 
                     </View>

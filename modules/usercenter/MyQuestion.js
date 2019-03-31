@@ -3,7 +3,7 @@ import {
     ActivityIndicator,
     AsyncStorage,
     StatusBar,
-    StyleSheet, TouchableOpacity, SafeAreaView, ToastAndroid,
+    StyleSheet, TouchableOpacity, SafeAreaView, ToastAndroid,Alert,
     View, Button, Text, DeviceEventEmitter, TouchableNativeFeedback, Image, ScrollView, RefreshControl, FlatList, Dimensions
 } from 'react-native';
 import ScreenUtil from '../../utils/ScreenUtil';
@@ -30,7 +30,8 @@ export default class MyQuestion extends Component {
             //是否显示指示器
             animating: false,
             //是否刷新
-            isRefreshing: false
+            isRefreshing: false,
+            edit:false,
         };
 
     }
@@ -124,14 +125,77 @@ export default class MyQuestion extends Component {
 
     }
 
+
+    deleteItem = (item, index) => {
+        Alert.alert(
+            '删除',
+            "是否删除该问题",
+            [
+                { text: '取消', onPress: () => console.log('Cancel Pressed!') },
+                { text: '继续', onPress: () => this.toDeleteItem(item, index) },
+            ]
+        )
+    }
+
+    toDeleteItem = (item, index) => {
+        let id = item.id;
+        let url = baseUrl + '/app/question/deleteQuestion?quesId=' + id;
+        fetch(url, {
+            method: 'GET',
+
+
+        }).then((response) => {
+            return response.json();
+        }).then((responseData) => {
+            console.log(responseData);
+            if (responseData.code != "200") {
+                ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+                return;
+            }
+            let data = this.state.data;
+            data.splice(index, 1);
+            this.setState({
+                data: data
+            });
+            ToastAndroid.show("删除成功", ToastAndroid.SHORT);
+        })
+    }
+
+
     renderItem = (data) => {
         let ques = data.item;
-
+       let index=data.index;
         return (
             <View>
 
+            {
+                    
+                this.state.edit ? 
+                   <View style={{flex:1,flexDirection:'row', justifyContent: 'flex-end', alignItems: "center", paddingLeft: 20, paddingRight: 20, flexDirection: 'row',paddingTop:10}}>
+                       <TouchableOpacity onPress={() => this.deleteItem(ques, index)} >
+                           <View style={{ backgroundColor: "red", marginRight: 10, borderRadius: 5, paddingBottom: 5, paddingTop: 5, paddingLeft: 10, paddingRight: 10 }}>
+                               <Text style={{ textAlign: 'center', fontSize: 11, color: 'white' }}>
+                                   删除 </Text>
+                           </View>
+                       </TouchableOpacity>
+                       <TouchableOpacity onPress={() => this.setState({ edit: false })} >
 
+                           <Image source={require('../../resources/user/jt.png')} style={{ height: 20, width: 20 }} />
+                       </TouchableOpacity>
+
+                   </View>
+                   :
+                   <View style={{flex:1,  justifyContent: 'flex-end', alignItems: "center",  paddingRight: 20, flexDirection: 'row',paddingTop:10 }}>
+                       <TouchableOpacity onPress={() => this.setState({ edit: true })} >
+
+                           <Image source={require('../../resources/user/zk.png')} style={{ height: 15, width: 15 }} />
+                       </TouchableOpacity>
+
+                   </View>
+
+           }
                 <View style={{ flexDirection: 'row' }}>
+                
                     <TouchableOpacity onPress={()=>this.navigateToAnswerList(ques)} style={{flex:1}} >
                         <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, }}>
 
@@ -142,6 +206,8 @@ export default class MyQuestion extends Component {
                                 <Text style={{ fontWeight: 'bold' }}>{ques.quesTitle}</Text>
 
                             </View>
+
+                              
 
 
                             <View style={{ flexDirection: 'row', paddingLeft: 10, paddingTop: 5, paddingBottom: 20 }}>

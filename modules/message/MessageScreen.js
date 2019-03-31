@@ -255,6 +255,7 @@ export default class MessageScreen extends Component {
   renderTarget(targetType, item,index) {
     let target = item.target;
     let date = moment(item.createTime).format('YYYY-MM-DD');
+    
 
     switch (targetType) {
       case 1:
@@ -354,6 +355,8 @@ export default class MessageScreen extends Component {
     let index=data.index;
     let Bcolor = item.hasRead == 0 ? '#d3eff1' : "#ffffff";
 
+    if(target==null)
+    return;
     return (
       <View>
 
@@ -375,6 +378,7 @@ export default class MessageScreen extends Component {
 
               <Text style={{ fontSize: 16, }}>{sendUser.userName} </Text>
               {
+               
                 this.renderTarget(targetType, item,index)
               }
 

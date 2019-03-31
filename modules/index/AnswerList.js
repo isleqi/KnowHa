@@ -3,7 +3,7 @@ import {
     ActivityIndicator,
     AsyncStorage,
     StatusBar,
-    StyleSheet, TouchableOpacity, SafeAreaView, ToastAndroid,
+    StyleSheet, TouchableOpacity, SafeAreaView, ToastAndroid,Alert,
     View, Button, Text, DeviceEventEmitter, TouchableNativeFeedback, Image, ScrollView, RefreshControl, FlatList, Dimensions
 } from 'react-native';
 import AnswerListHeader from './AnswerListHeader';
@@ -34,7 +34,9 @@ export default class AnswerList extends Component {
             //是否显示指示器
             animating: false,
             //是否刷新
-            isRefreshing: false
+            isRefreshing: false,
+            edit: false,
+            isadmin:false,
         };
 
     }
@@ -42,13 +44,42 @@ export default class AnswerList extends Component {
     componentDidMount() {
         console.log(this.props.navigation.state.params.item);
         this.getAnswerListById();
+        this.isAdmin();
     }
+
+    isAdmin=async()=>{
+        let url=baseUrl+'/app/user/isAdministrator';
+        let token = await AsyncStorage.getItem("userToken");
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                "token": token
+            }
+
+        }).then((response) => {
+            return response.json();
+        }).then((responseData) => {
+            console.log(responseData);
+            if (responseData.code != "200") {
+                ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+                return;
+            }
+            let data = responseData.data;
+
+            this.setState({
+                isadmin:data
+            })
+
+        })
+    
+    }
+
 
     getAnswerListById = () => {
         let quesId = this.props.navigation.state.params.item.id;
         let limit = this.state.limit;
         let page = this.state.page + 1;
-        let url = baseUrl+'/app/answer/getAnswerList?quesId=' + quesId + '&pageNum=' + page + '&pageSize=' + limit;
+        let url = baseUrl + '/app/answer/getAnswerList?quesId=' + quesId + '&pageNum=' + page + '&pageSize=' + limit;
 
         fetch(url, {
             method: 'GET',
@@ -123,28 +154,67 @@ export default class AnswerList extends Component {
     }
 
     navigateToAnswerDetail = (item) => {
-        let data={
-            answerVo:item,
-            quesTitle:this.state.quesData.quesTitle
+        let data = {
+            answerVo: item,
+            quesTitle: this.state.quesData.quesTitle
         }
         DeviceEventEmitter.emit('navigateToAnswerDetail', data);
 
     }
 
     navigateToUserHome = (item) => {
-     
+
         DeviceEventEmitter.emit('navigateToUserHome', item);
-    
-}
+
+    }
+
+    deleteItem = (item, index) => {
+        Alert.alert(
+            '删除',
+            "是否删除该回答",
+            [
+                { text: '取消', onPress: () => console.log('Cancel Pressed!') },
+                { text: '继续', onPress: () => this.toDeleteItem(item, index) },
+            ]
+        )
+    }
+
+    toDeleteItem = (item, index) => {
+        let ansId = item.ansId;
+        let quesId = this.state.quesData.id;
+        let url = baseUrl + '/app/answer/deleteAnswer?ansId=' + ansId + '&quesId=' + quesId;
+        fetch(url, {
+            method: 'GET',
+
+
+        }).then((response) => {
+            return response.json();
+        }).then((responseData) => {
+            console.log(responseData);
+            if (responseData.code != "200") {
+                ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+                return;
+            }
+            let data = this.state.answerList;
+            data.splice(index, 1);
+            this.setState({
+                answerList: data
+            });
+            ToastAndroid.show("删除成功", ToastAndroid.SHORT);
+        })
+    }
+
+
     renderItem = (data) => {
         let item = data.item;
         let user = item.user;
+        let index=data.index;
         return (
-            <View style={{backgroundColor:'#ffffff'}} >
+            <View style={{ backgroundColor: '#ffffff' }} >
                 <View style={{ paddingLeft: 15, paddingTop: 20, flexDirection: 'row', alignItems: 'center' }}>
 
                     <View style={{ alignItems: 'center', paddingRight: 10 }}>
-                    <TouchableOpacity onPress={() => this.navigateToUserHome(user.id)} >
+                        <TouchableOpacity onPress={() => this.navigateToUserHome(user.id)} >
                             <Image source={{ uri: user.userIconUrl }}
                                 style={{ width: 20, height: 20, borderRadius: 10 }}>
                             </Image>
@@ -152,18 +222,44 @@ export default class AnswerList extends Component {
                         </TouchableOpacity>
                     </View>
                     <Text style={{ fontSize: 11, }}>{user.userName}</Text>
+                    {
+                        ! this.state.isadmin?
+                        null:
+                        this.state.edit ?
+                            <View style={{ flex: 1, justifyContent: 'flex-end', alignItems: "center", paddingLeft: 20, paddingRight: 20, flexDirection: 'row' }}>
+                                <TouchableOpacity onPress={() => this.deleteItem(item, index)} >
+                                    <View style={{ backgroundColor: "red", marginRight: 10, borderRadius: 5, paddingBottom: 5, paddingTop: 5, paddingLeft: 10, paddingRight: 10 }}>
+                                        <Text style={{ textAlign: 'center', fontSize: 11, color: 'white' }}>
+                                            删除 </Text>
+                                    </View>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => this.setState({ edit: false })} >
 
+                                    <Image source={require('../../resources/user/jt.png')} style={{ height: 20, width: 20 }} />
+                                </TouchableOpacity>
+
+                            </View>
+                            :
+                            <View style={{ flex: 1, justifyContent: 'flex-end', paddingRight: 20, flexDirection: 'row' }}>
+                                <TouchableOpacity onPress={() => this.setState({ edit: true })} >
+
+                                    <Image source={require('../../resources/user/zk.png')} style={{ height: 15, width: 15 }} />
+                                </TouchableOpacity>
+
+                            </View>
+
+                    }
                 </View>
-                <TouchableOpacity onPress={() => this.navigateToAnswerDetail(item)}activeOpacity={1}>
+                <TouchableOpacity onPress={() => this.navigateToAnswerDetail(item)} activeOpacity={1}>
 
-                <View style={{ flexDirection: 'row' ,backgroundColor:'#ffffff'}}>
+                    <View style={{ flexDirection: 'row', backgroundColor: '#ffffff' }}>
                         <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, }}>
 
 
 
 
-                            <View style={{ paddingTop: 5, paddingBottom: 5,height:50 }}>
-                            <HTMLView value=   {item.ansContent}> </HTMLView>
+                            <View style={{ paddingTop: 5, paddingBottom: 5, height: 50 }}>
+                                <HTMLView value={item.ansContent}> </HTMLView>
 
                                 {/* <Text style={[{ lineHeight: 17, fontSize: 12 }]}
                                     numberOfLines={3}>
@@ -171,7 +267,7 @@ export default class AnswerList extends Component {
                                 </Text> */}
                             </View>
 
-                            <View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 20,backgroundColor:'#ffffff' }}>
+                            <View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 20, backgroundColor: '#ffffff' }}>
                                 <View style={{ flex: 1, flexDirection: 'row', }}>
                                     <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{item.likeNum} 赞同 · </Text>
                                     <Text style={{ fontSize: 11, color: '#bdbcbce8' }}>{item.commentNum} 评论</Text>
@@ -180,7 +276,7 @@ export default class AnswerList extends Component {
 
                             </View>
                         </View>
-                </View>
+                    </View>
                 </TouchableOpacity>
 
                 <View style={{ height: 8, backgroundColor: "#f3f3f3" }}></View>
@@ -215,7 +311,7 @@ export default class AnswerList extends Component {
                         height: ScreenUtil.scaleSize(50),
                         alignItems: 'center',
                         justifyContent: 'flex-start',
-                        backgroundColor:'#ffffff'
+                        backgroundColor: '#ffffff'
                     }}>
                     <Text
                         style={{
@@ -236,7 +332,7 @@ export default class AnswerList extends Component {
                         flexDirection: 'row',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        backgroundColor:'#ffffff'
+                        backgroundColor: '#ffffff'
                     }}>
                     <ActivityIndicator animating={this.state.animating} size="small" color="grey" />
                     <Text>正在加载更多数据...</Text>
@@ -249,15 +345,17 @@ export default class AnswerList extends Component {
                         height: ScreenUtil.scaleSize(30),
                         alignItems: 'center',
                         justifyContent: 'flex-start',
-                        backgroundColor:'#ffffff'
+                        backgroundColor: '#ffffff'
                     }}>
                     <Text></Text>
                 </View>
             );
         } else {
             return (
-                <View style={{ height: ScreenUtil.scaleSize(30), alignItems: 'center', justifyContent: 'flex-start' ,
-                backgroundColor:'#ffffff'}}>
+                <View style={{
+                    height: ScreenUtil.scaleSize(30), alignItems: 'center', justifyContent: 'flex-start',
+                    backgroundColor: '#ffffff'
+                }}>
                     <Text></Text>
                 </View>
             );

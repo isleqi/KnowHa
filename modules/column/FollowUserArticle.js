@@ -29,7 +29,8 @@ export default class FollowUserArticle extends Component {
             //是否显示指示器
             animating: false,
             //是否刷新
-            isRefreshing: false
+            isRefreshing: false,
+            edit:false
         };
 
     }
@@ -311,6 +312,43 @@ export default class FollowUserArticle extends Component {
     
 }
 
+
+deleteItem = (item, index) => {
+    Alert.alert(
+        '删除',
+        "是否删除该回答",
+        [
+            { text: '取消', onPress: () => console.log('Cancel Pressed!') },
+            { text: '继续', onPress: () => this.toDeleteItem(item, index) },
+        ]
+    )
+}
+
+toDeleteItem = (item, index) => {
+   let id=item.articleId;
+    let url = baseUrl + '/app/column/deleteArticle?id=' + id;
+    fetch(url, {
+        method: 'GET',
+
+
+    }).then((response) => {
+        return response.json();
+    }).then((responseData) => {
+        console.log(responseData);
+        if (responseData.code != "200") {
+            ToastAndroid.show(responseData.message, ToastAndroid.SHORT);
+            return;
+        }
+        let data = this.state.data;
+        data.splice(index, 1);
+        this.setState({
+            data: data
+        });
+        ToastAndroid.show("删除成功", ToastAndroid.SHORT);
+    })
+}
+
+
     renderItem = (data) => {
         let item = data.item;
         let index = data.index;
@@ -336,6 +374,31 @@ export default class FollowUserArticle extends Component {
                         </View>
                         <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end', paddingRight: 20 }} >
                             {this.renderTag(item)}
+                            {
+                        this.state.edit ?
+                            <View style={{justifyContent: 'flex-end', alignItems: "center", paddingLeft: 20, paddingRight: 20, flexDirection: 'row' }}>
+                                <TouchableOpacity onPress={() => this.deleteItem(item, index)} >
+                                    <View style={{ backgroundColor: "red", marginRight: 10, borderRadius: 5, paddingBottom: 5, paddingTop: 5, paddingLeft: 10, paddingRight: 10 }}>
+                                        <Text style={{ textAlign: 'center', fontSize: 11, color: 'white' }}>
+                                            删除 </Text>
+                                    </View>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => this.setState({ edit: false })} >
+
+                                    <Image source={require('../../resources/user/jt.png')} style={{ height: 20, width: 20 }} />
+                                </TouchableOpacity>
+
+                            </View>
+                            :
+                            <View style={{  justifyContent: 'flex-end', alignItems: "center", paddingRight: 20, flexDirection: 'row' }}>
+                                <TouchableOpacity onPress={() => this.setState({ edit: true })} >
+
+                                    <Image source={require('../../resources/user/zk.png')} style={{ height: 15, width: 15 }} />
+                                </TouchableOpacity>
+
+                            </View>
+
+                    }
                         </View>
 
                     </View>
